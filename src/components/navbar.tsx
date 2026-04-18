@@ -120,7 +120,7 @@ export function Navbar() {
               <button
                 type="button"
                 onClick={() => setMenuOpen((v) => !v)}
-                className="flex items-center gap-2 rounded-full border border-border bg-background py-1 pl-1 pr-3 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+                className="relative flex items-center gap-2 rounded-full border border-border bg-background py-1 pl-1 pr-3 text-sm font-medium text-foreground transition-colors hover:bg-muted"
                 aria-label={`Account menu for ${displayName}`}
               >
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-primary text-xs font-bold text-primary-foreground">
@@ -136,6 +136,11 @@ export function Navbar() {
                 </span>
                 <span className="hidden max-w-[120px] truncate lg:inline">{firstName}</span>
                 <ChevronDown className="h-3.5 w-3.5 opacity-60" />
+                {unread > 0 && (
+                  <span className="absolute -right-1 -top-1 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground ring-2 ring-background">
+                    {unread > 9 ? "9+" : unread}
+                  </span>
+                )}
               </button>
               {menuOpen && (
                 <>
