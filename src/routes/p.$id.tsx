@@ -201,7 +201,7 @@ function RealProviderProfile() {
               {areaNames.length === 0 ? (
                 <p className="text-sm text-muted-foreground">No areas set yet.</p>
               ) : (
-                areaNames.map((n) => (
+                areaNames.map((n: string) => (
                   <span
                     key={n}
                     className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground"
