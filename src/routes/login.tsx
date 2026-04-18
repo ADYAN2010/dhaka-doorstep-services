@@ -6,14 +6,16 @@ import { SiteShell } from "@/components/site-shell";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/auth-provider";
 import { useEffect } from "react";
+import { buildSeo } from "@/lib/seo";
 
 export const Route = createFileRoute("/login")({
-  head: () => ({
-    meta: [
-      { title: "Log in — Shebabd" },
-      { name: "description", content: "Log in to your Shebabd account to book and manage services." },
-    ],
-  }),
+  head: () =>
+    buildSeo({
+      title: "Log in — Shebabd",
+      description: "Log in to your Shebabd account to book and manage services.",
+      canonical: "/login",
+      noindex: true,
+    }),
   component: LoginPage,
 });
 

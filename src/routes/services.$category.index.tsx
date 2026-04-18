@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/page-header";
 import { ProviderCard } from "@/components/provider-card";
 import { findCategory } from "@/data/categories";
 import { providers } from "@/data/providers";
+import { buildSeo, jsonLdScript, OG, SITE_URL, absUrl } from "@/lib/seo";
 
 export const Route = createFileRoute("/services/$category/")({
   loader: ({ params }) => {
@@ -12,15 +13,52 @@ export const Route = createFileRoute("/services/$category/")({
     if (!category) throw notFound();
     return { category };
   },
-  head: ({ loaderData }) => {
+  head: ({ loaderData, params }) => {
     const cat = loaderData?.category;
-    if (!cat) return { meta: [{ title: "Category — Shebabd" }] };
+    if (!cat) {
+      return buildSeo({
+        title: "Category — Shebabd",
+        description: "Browse our service categories in Dhaka.",
+        canonical: `/services/${params.category}`,
+        noindex: true,
+      });
+    }
+    const seo = buildSeo({
+      title: `${cat.name} in Dhaka — Verified Pros from ৳${Math.min(
+        ...cat.subcategories.flatMap((s) => s.services.map((sv) => sv.startingPrice)),
+      ).toLocaleString()} | Shebabd`,
+      description: `${cat.tagline}. Book verified ${cat.name.toLowerCase()} providers in Dhaka with transparent pricing and same-day availability.`,
+      canonical: `/services/${cat.slug}`,
+      image: OG.services,
+    });
     return {
-      meta: [
-        { title: `${cat.name} in Dhaka — Shebabd` },
-        { name: "description", content: `${cat.tagline}. Book verified ${cat.name.toLowerCase()} providers in Dhaka with transparent pricing.` },
-        { property: "og:title", content: `${cat.name} in Dhaka — Shebabd` },
-        { property: "og:description", content: cat.tagline },
+      ...seo,
+      scripts: [
+        jsonLdScript({
+          "@context": "https://schema.org",
+          "@type": "Service",
+          serviceType: cat.name,
+          provider: {
+            "@type": "LocalBusiness",
+            "@id": `${SITE_URL}/#organization`,
+            name: "Shebabd",
+            url: SITE_URL,
+          },
+          areaServed: { "@type": "City", name: "Dhaka" },
+          description: cat.tagline,
+          url: absUrl(`/services/${cat.slug}`),
+          offers: cat.subcategories.flatMap((sub) =>
+            sub.services.map((s) => ({
+              "@type": "Offer",
+              name: s.name,
+              description: s.short,
+              price: s.startingPrice,
+              priceCurrency: "BDT",
+              availability: "https://schema.org/InStock",
+              url: absUrl(`/services/${cat.slug}/${s.slug}`),
+            })),
+          ),
+        }),
       ],
     };
   },

@@ -7,16 +7,17 @@ import { SiteShell } from "@/components/site-shell";
 import { PageHeader } from "@/components/page-header";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/auth-provider";
+import { buildSeo, OG } from "@/lib/seo";
 
 export const Route = createFileRoute("/contact")({
-  head: () => ({
-    meta: [
-      { title: "Contact Shebabd — We're here to help" },
-      { name: "description", content: "Reach the Shebabd team in Dhaka. Phone, WhatsApp, email and office address. Bangla-speaking support 7 days a week." },
-      { property: "og:title", content: "Contact Shebabd" },
-      { property: "og:description", content: "Bangla-speaking support 7 days a week." },
-    ],
-  }),
+  head: () =>
+    buildSeo({
+      title: "Contact Shebabd — Bangla-speaking support, 7 days a week",
+      description:
+        "Reach the Shebabd team in Dhaka. Phone, WhatsApp, email and office address. Bangla-speaking support 7 days a week.",
+      canonical: "/contact",
+      image: OG.contact,
+    }),
   component: ContactPage,
 });
 

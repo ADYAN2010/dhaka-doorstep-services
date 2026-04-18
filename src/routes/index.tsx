@@ -15,23 +15,22 @@ import { areas } from "@/data/areas";
 import { featuredProviders } from "@/data/providers";
 import { testimonials } from "@/data/testimonials";
 
+import { buildSeo, jsonLdScript, ORGANIZATION_LD, OG } from "@/lib/seo";
+
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "Shebabd — Bangladesh's All-in-One Service Platform" },
-      {
-        name: "description",
-        content:
-          "Book verified professionals in Dhaka for home, personal, business and technical services. Fast, simple, reliable.",
-      },
-      { property: "og:title", content: "Shebabd — Bangladesh's All-in-One Service Platform" },
-      {
-        property: "og:description",
-        content:
-          "From home services to business solutions — book trusted professionals in Dhaka, fast.",
-      },
-    ],
-  }),
+  head: () => {
+    const seo = buildSeo({
+      title: "Shebabd — Bangladesh's All-in-One Service Platform",
+      description:
+        "Book verified professionals in Dhaka for home, personal, business and technical services. Fast, simple, reliable — same-day booking across 11 areas.",
+      canonical: "/",
+      image: OG.home,
+    });
+    return {
+      ...seo,
+      scripts: [jsonLdScript(ORGANIZATION_LD)],
+    };
+  },
   component: HomePage,
 });
 

@@ -1,14 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteShell } from "@/components/site-shell";
 import { PageHeader } from "@/components/page-header";
+import { buildSeo } from "@/lib/seo";
 
 export const Route = createFileRoute("/terms")({
-  head: () => ({
-    meta: [
-      { title: "Terms & Conditions — Shebabd" },
-      { name: "description", content: "Terms of use for the Shebabd service marketplace." },
-    ],
-  }),
+  head: () =>
+    buildSeo({
+      title: "Terms & Conditions — Shebabd",
+      description: "Terms of use for the Shebabd service marketplace.",
+      canonical: "/terms",
+    }),
   component: TermsPage,
 });
 

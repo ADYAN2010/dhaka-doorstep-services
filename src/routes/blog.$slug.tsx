@@ -2,6 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft, Calendar, Clock } from "lucide-react";
 import { SiteShell } from "@/components/site-shell";
 import { supabase } from "@/integrations/supabase/client";
+import { buildSeo, jsonLdScript, OG, SITE_URL, absUrl } from "@/lib/seo";
 
 type Post = {
   id: string;
@@ -27,21 +28,41 @@ export const Route = createFileRoute("/blog/$slug")({
     if (!data) throw notFound();
     return { post: data as Post };
   },
-  head: ({ loaderData }) => {
+  head: ({ loaderData, params }) => {
     const p = loaderData?.post;
-    if (!p) return { meta: [{ title: "Post — Shebabd" }] };
+    if (!p) {
+      return buildSeo({
+        title: "Post — Shebabd",
+        description: "Blog post on Shebabd.",
+        canonical: `/blog/${params.slug}`,
+        noindex: true,
+      });
+    }
+    const seo = buildSeo({
+      title: `${p.title} — Shebabd`,
+      description: p.excerpt,
+      canonical: `/blog/${p.slug}`,
+      image: p.cover_image_url ?? OG.home,
+      type: "article",
+    });
     return {
-      meta: [
-        { title: `${p.title} — Shebabd` },
-        { name: "description", content: p.excerpt },
-        { property: "og:title", content: p.title },
-        { property: "og:description", content: p.excerpt },
-        ...(p.cover_image_url
-          ? [
-              { property: "og:image", content: p.cover_image_url },
-              { name: "twitter:image", content: p.cover_image_url },
-            ]
-          : []),
+      ...seo,
+      scripts: [
+        jsonLdScript({
+          "@context": "https://schema.org",
+          "@type": "Article",
+          headline: p.title,
+          description: p.excerpt,
+          image: p.cover_image_url ? [absUrl(p.cover_image_url)] : [absUrl(OG.home)],
+          datePublished: p.published_at ?? undefined,
+          author: { "@type": "Organization", name: "Shebabd" },
+          publisher: {
+            "@type": "Organization",
+            name: "Shebabd",
+            "@id": `${SITE_URL}/#organization`,
+          },
+          mainEntityOfPage: absUrl(`/blog/${p.slug}`),
+        }),
       ],
     };
   },

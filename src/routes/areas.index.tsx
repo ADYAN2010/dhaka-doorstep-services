@@ -5,16 +5,17 @@ import { PageHeader } from "@/components/page-header";
 import { CoverageMap } from "@/components/coverage-map";
 import { Reveal } from "@/components/reveal";
 import { areas } from "@/data/areas";
+import { buildSeo, OG } from "@/lib/seo";
 
 export const Route = createFileRoute("/areas/")({
-  head: () => ({
-    meta: [
-      { title: "Service Areas in Dhaka — Shebabd" },
-      { name: "description", content: "We cover every major Dhaka neighborhood. Find providers and services available in your area." },
-      { property: "og:title", content: "Service Areas in Dhaka — Shebabd" },
-      { property: "og:description", content: "11 major Dhaka neighborhoods covered today. Expanding nationwide." },
-    ],
-  }),
+  head: () =>
+    buildSeo({
+      title: "Service Areas in Dhaka — Now Serving 11 Neighborhoods | Shebabd",
+      description:
+        "We cover every major Dhaka neighborhood — Dhanmondi, Gulshan, Banani, Uttara, Mirpur and more. Find providers and services available in your area.",
+      canonical: "/areas",
+      image: OG.areas,
+    }),
   component: AreasPage,
 });
 

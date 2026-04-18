@@ -6,6 +6,7 @@ import { ProviderCard } from "@/components/provider-card";
 import { findArea } from "@/data/areas";
 import { categories } from "@/data/categories";
 import { providers } from "@/data/providers";
+import { buildSeo, jsonLdScript, OG, SITE_URL, absUrl } from "@/lib/seo";
 
 export const Route = createFileRoute("/dhaka/$area")({
   loader: ({ params }) => {
@@ -13,15 +14,46 @@ export const Route = createFileRoute("/dhaka/$area")({
     if (!area) throw notFound();
     return { area };
   },
-  head: ({ loaderData }) => {
+  head: ({ loaderData, params }) => {
     const a = loaderData?.area;
-    if (!a) return { meta: [{ title: "Area — Shebabd" }] };
+    if (!a) {
+      return buildSeo({
+        title: "Area — Shebabd",
+        description: "Service area in Dhaka.",
+        canonical: `/dhaka/${params.area}`,
+        noindex: true,
+      });
+    }
+    const seo = buildSeo({
+      title: `Services in ${a.name}, Dhaka (${a.postal}) — Shebabd`,
+      description: `Book verified service providers in ${a.name}, Dhaka (${a.postal}). ${a.blurb}`,
+      canonical: `/dhaka/${a.slug}`,
+      image: OG.areas,
+    });
     return {
-      meta: [
-        { title: `Services in ${a.name}, Dhaka — Shebabd` },
-        { name: "description", content: `Book verified service providers in ${a.name}, Dhaka (${a.postal}). ${a.blurb}` },
-        { property: "og:title", content: `Services in ${a.name}, Dhaka — Shebabd` },
-        { property: "og:description", content: a.blurb },
+      ...seo,
+      scripts: [
+        jsonLdScript({
+          "@context": "https://schema.org",
+          "@type": "LocalBusiness",
+          "@id": `${SITE_URL}/dhaka/${a.slug}#localbusiness`,
+          name: `Shebabd — ${a.name}`,
+          url: absUrl(`/dhaka/${a.slug}`),
+          description: a.blurb,
+          areaServed: {
+            "@type": "Place",
+            name: `${a.name}, Dhaka`,
+            address: {
+              "@type": "PostalAddress",
+              addressLocality: a.name,
+              addressRegion: "Dhaka",
+              postalCode: a.postal,
+              addressCountry: "BD",
+            },
+          },
+          parentOrganization: { "@id": `${SITE_URL}/#organization` },
+          priceRange: "৳",
+        }),
       ],
     };
   },
