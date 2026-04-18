@@ -119,10 +119,20 @@ export function Navbar() {
                 type="button"
                 onClick={() => setMenuOpen((v) => !v)}
                 className="flex items-center gap-2 rounded-full border border-border bg-background py-1 pl-1 pr-3 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+                aria-label={`Account menu for ${displayName}`}
               >
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-primary text-xs font-bold text-primary-foreground">
-                  {initials}
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-primary text-xs font-bold text-primary-foreground">
+                  {profile?.avatar_url ? (
+                    <img
+                      src={profile.avatar_url}
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    initials
+                  )}
                 </span>
+                <span className="hidden max-w-[120px] truncate lg:inline">{firstName}</span>
                 <ChevronDown className="h-3.5 w-3.5 opacity-60" />
               </button>
               {menuOpen && (
@@ -133,10 +143,27 @@ export function Navbar() {
                     className="fixed inset-0 z-40 cursor-default"
                     onClick={() => setMenuOpen(false)}
                   />
-                  <div className="absolute right-0 z-50 mt-2 w-56 overflow-hidden rounded-2xl border border-border bg-popover p-1 shadow-elevated">
-                    <div className="px-3 py-2 text-xs text-muted-foreground">
-                      Signed in as
-                      <div className="truncate text-sm font-medium text-foreground">{user.email}</div>
+                  <div className="absolute right-0 z-50 mt-2 w-64 overflow-hidden rounded-2xl border border-border bg-popover p-1 shadow-elevated">
+                    <div className="flex items-center gap-3 px-3 py-3">
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-primary text-sm font-bold text-primary-foreground">
+                        {profile?.avatar_url ? (
+                          <img
+                            src={profile.avatar_url}
+                            alt=""
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          initials
+                        )}
+                      </span>
+                      <div className="min-w-0">
+                        <div className="truncate text-sm font-semibold text-foreground">
+                          {displayName}
+                        </div>
+                        <div className="truncate text-xs text-muted-foreground">
+                          {user.email}
+                        </div>
+                      </div>
                     </div>
                     <div className="my-1 h-px bg-border" />
                     <Link
