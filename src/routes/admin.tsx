@@ -121,17 +121,31 @@ function AdminPage() {
 
   async function refresh() {
     setLoadingData(true);
-    const [prov, rolesRes, profilesRes] = await Promise.all([
+    const [prov, rolesRes, profilesRes, bookingsRes, appsRes] = await Promise.all([
       supabase
         .from("profiles")
         .select("id, full_name, phone, area, provider_status, created_at")
         .order("created_at", { ascending: false }),
       supabase.from("user_roles").select("user_id, role"),
       supabase.from("profiles").select("id, full_name"),
+      supabase
+        .from("bookings")
+        .select("id, full_name, phone, email, category, service, area, preferred_date, preferred_time_slot, budget_range, notes, status, created_at")
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("provider_applications")
+        .select("id, full_name, phone, email, category, experience, coverage_area, applicant_type, about, status, created_at")
+        .order("created_at", { ascending: false }),
     ]);
 
     if (prov.error) toast.error(prov.error.message);
     else setProviders((prov.data ?? []) as ProviderRow[]);
+
+    if (bookingsRes.error) toast.error(bookingsRes.error.message);
+    else setBookings((bookingsRes.data ?? []) as BookingRow[]);
+
+    if (appsRes.error) toast.error(appsRes.error.message);
+    else setApplications((appsRes.data ?? []) as ApplicationRow[]);
 
     if (rolesRes.error || profilesRes.error) {
       toast.error(rolesRes.error?.message ?? profilesRes.error?.message ?? "Load failed");
@@ -147,6 +161,27 @@ function AdminPage() {
       );
     }
     setLoadingData(false);
+  }
+
+  async function updateBookingStatus(id: string, status: BookingStatus) {
+    setBusyRowId(id);
+    const { error } = await supabase.from("bookings").update({ status }).eq("id", id);
+    setBusyRowId(null);
+    if (error) return toast.error(error.message);
+    setBookings((prev) => prev.map((b) => (b.id === id ? { ...b, status } : b)));
+    toast.success(`Booking ${status}`);
+  }
+
+  async function updateApplicationStatus(id: string, status: ApplicationStatus) {
+    setBusyRowId(id);
+    const { error } = await supabase
+      .from("provider_applications")
+      .update({ status })
+      .eq("id", id);
+    setBusyRowId(null);
+    if (error) return toast.error(error.message);
+    setApplications((prev) => prev.map((a) => (a.id === id ? { ...a, status } : a)));
+    toast.success(`Application ${status}`);
   }
 
   async function handleClaim() {
