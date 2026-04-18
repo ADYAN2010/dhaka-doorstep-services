@@ -37,7 +37,6 @@ export const providers: Provider[] = [
     initials: "SH",
   },
   {
-    shouldNotExist: undefined,
     slug: "cool-tech-bd",
     name: "Cool Tech BD",
     type: "agency",
@@ -54,7 +53,7 @@ export const providers: Provider[] = [
     bio: "All-brand AC service & repair. Same-day visits, transparent quotes, 90-day workmanship warranty.",
     pricing: "From ৳999 / AC",
     initials: "CT",
-  } as unknown as Provider,
+  },
   {
     slug: "rashed-electric",
     name: "Rashed Hossain",
