@@ -84,9 +84,12 @@ function AdminPage() {
 
   const [providers, setProviders] = useState<ProviderRow[]>([]);
   const [roleRows, setRoleRows] = useState<RoleRow[]>([]);
+  const [bookings, setBookings] = useState<BookingRow[]>([]);
+  const [applications, setApplications] = useState<ApplicationRow[]>([]);
   const [loadingData, setLoadingData] = useState(false);
   const [busyUserId, setBusyUserId] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<"pending" | "all">("pending");
+  const [busyRowId, setBusyRowId] = useState<string | null>(null);
 
   // Detect whether any admin exists (for bootstrap UX).
   useEffect(() => {
