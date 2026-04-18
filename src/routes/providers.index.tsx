@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Loader2 } from "lucide-react";
 import { SiteShell } from "@/components/site-shell";
 import { PageHeader } from "@/components/page-header";
 import { ProviderCard } from "@/components/provider-card";
@@ -102,11 +101,7 @@ function ProvidersPage() {
       />
 
       <section className="container-page py-12">
-        {realProviders === null ? (
-          <div className="flex items-center justify-center py-10">
-            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-          </div>
-        ) : realProviders.length > 0 ? (
+        {realProviders === null ? null : realProviders.length > 0 ? (
           <div className="mb-12">
             <div className="mb-4 flex items-end justify-between">
               <div>
