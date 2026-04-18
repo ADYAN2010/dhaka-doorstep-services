@@ -28,6 +28,7 @@ export type Database = {
           phone: string
           preferred_date: string
           preferred_time_slot: string
+          provider_id: string | null
           service: string | null
           status: Database["public"]["Enums"]["booking_status"]
           updated_at: string
@@ -46,6 +47,7 @@ export type Database = {
           phone: string
           preferred_date: string
           preferred_time_slot: string
+          provider_id?: string | null
           service?: string | null
           status?: Database["public"]["Enums"]["booking_status"]
           updated_at?: string
@@ -64,6 +66,7 @@ export type Database = {
           phone?: string
           preferred_date?: string
           preferred_time_slot?: string
+          provider_id?: string | null
           service?: string | null
           status?: Database["public"]["Enums"]["booking_status"]
           updated_at?: string
@@ -158,6 +161,48 @@ export type Database = {
         }
         Relationships: []
       }
+      provider_areas: {
+        Row: {
+          area: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          area: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          area?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      provider_categories: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -184,12 +229,45 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_lead: {
+        Args: { _booking_id: string }
+        Returns: {
+          address: string | null
+          area: string
+          budget_range: string | null
+          category: string
+          created_at: string
+          email: string | null
+          full_name: string
+          id: string
+          notes: string | null
+          phone: string
+          preferred_date: string
+          preferred_time_slot: string
+          provider_id: string | null
+          service: string | null
+          status: Database["public"]["Enums"]["booking_status"]
+          updated_at: string
+          user_id: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "bookings"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       claim_first_admin: { Args: never; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      is_approved_provider: { Args: { _user_id: string }; Returns: boolean }
+      provider_covers: {
+        Args: { _area: string; _category: string; _user_id: string }
         Returns: boolean
       }
       set_provider_status: {
