@@ -19,6 +19,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { AdminBlogAndMessages } from "@/components/admin-blog-and-messages";
+import { AdminAccountSettings } from "@/components/admin-account-settings";
 
 export const Route = createFileRoute("/admin")({
   component: AdminPage,
@@ -395,6 +396,9 @@ function AdminPage() {
         <StatCard icon={CalendarCheck} label="Open leads" value={stats.openLeads} accent={stats.openLeads > 0} />
         <StatCard icon={Check} label="Completed" value={stats.completedBookings} />
       </section>
+
+      {/* Account & password (change default password) */}
+      <AdminAccountSettings />
 
       {/* Provider applications */}
       <section className="mt-10 rounded-3xl border border-border bg-card p-6 shadow-soft">
