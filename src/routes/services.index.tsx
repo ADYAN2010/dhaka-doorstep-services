@@ -1,8 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight } from "lucide-react";
+import { createFileRoute } from "@tanstack/react-router";
 import { SiteShell } from "@/components/site-shell";
 import { PageHeader } from "@/components/page-header";
 import { CategoryCard } from "@/components/category-card";
+import { ServiceCatalog } from "@/components/service-catalog";
 import { categories, mainGroups } from "@/data/categories";
 import { buildSeo, OG } from "@/lib/seo";
 
@@ -24,21 +24,19 @@ function AllServicesPage() {
       <PageHeader
         eyebrow="All services"
         title={<>Every service you need, <span className="text-gradient-primary">in one place</span>.</>}
-        description="From home repairs to digital marketing — explore all categories below or jump to your need."
+        description="Search 200+ verified services across Dhaka. Filter by category, area and price — book in seconds."
       />
 
-      <section className="container-page py-12">
+      <ServiceCatalog />
+
+      <section className="container-page pb-16 pt-4">
+        <h2 className="mb-5 text-2xl font-bold tracking-tight text-foreground md:text-3xl">Browse by group</h2>
         {mainGroups.map((group) => {
           const items = categories.filter((c) => group.slugs.includes(c.slug));
           if (!items.length) return null;
           return (
-            <div key={group.name} className="mb-14">
-              <div className="mb-5 flex items-end justify-between">
-                <h2 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">{group.name}</h2>
-                <Link to="/book" className="hidden items-center gap-1.5 text-sm font-semibold text-primary hover:underline md:inline-flex">
-                  Request a quote <ArrowRight className="h-4 w-4" />
-                </Link>
-              </div>
+            <div key={group.name} className="mb-10">
+              <h3 className="mb-4 text-lg font-semibold tracking-tight text-foreground">{group.name}</h3>
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
                 {items.map((c) => <CategoryCard key={c.slug} category={c} />)}
               </div>
