@@ -1,9 +1,7 @@
-import { Link } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Search, ArrowRight } from "lucide-react";
 import { categories } from "@/data/categories";
-
-type Suggestion = { label: string; sub: string; to: string; params: Record<string, string> };
 
 export function HeroSearch() {
   const [q, setQ] = useState("");
