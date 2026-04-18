@@ -296,6 +296,71 @@ function ProfilePage() {
             </button>
           </form>
         </div>
+
+        {/* Danger zone */}
+        <div className="mx-auto mt-6 max-w-2xl rounded-3xl border border-destructive/30 bg-destructive/5 p-8 shadow-soft">
+          <div className="flex items-start gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-destructive/15 text-destructive">
+              <AlertTriangle className="h-5 w-5" />
+            </div>
+            <div className="flex-1">
+              <h2 className="text-lg font-semibold text-foreground">Delete account</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Permanently remove your profile, roles and provider coverage. Past bookings
+                stay in our records for the providers who served you, but are no longer
+                linked to your account. This cannot be undone.
+              </p>
+
+              <AlertDialog
+                onOpenChange={(open) => {
+                  if (!open) setConfirmText("");
+                }}
+              >
+                <AlertDialogTrigger asChild>
+                  <button
+                    type="button"
+                    className="mt-4 inline-flex items-center gap-2 rounded-full border border-destructive/40 bg-background px-4 py-2 text-sm font-semibold text-destructive transition-colors hover:bg-destructive hover:text-destructive-foreground"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Delete my account
+                  </button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete your account?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This permanently removes your profile, roles, provider coverage and
+                      pending applications. Type <span className="font-semibold text-foreground">DELETE</span>{" "}
+                      below to confirm.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <input
+                    type="text"
+                    autoComplete="off"
+                    value={confirmText}
+                    onChange={(e) => setConfirmText(e.target.value)}
+                    placeholder="Type DELETE to confirm"
+                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-destructive focus:ring-2 focus:ring-destructive/20"
+                  />
+                  <AlertDialogFooter>
+                    <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      disabled={deleting || confirmText.trim().toUpperCase() !== "DELETE"}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        onDeleteAccount();
+                      }}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      {deleting && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}
+                      Delete account
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          </div>
+        </div>
       </section>
     </SiteShell>
   );
