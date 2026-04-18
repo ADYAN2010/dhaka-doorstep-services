@@ -23,6 +23,7 @@ import { Route as BookRouteImport } from './routes/book'
 import { Route as BecomeProviderRouteImport } from './routes/become-provider'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ServicesIndexRouteImport } from './routes/services.index'
 import { Route as ProvidersIndexRouteImport } from './routes/providers.index'
@@ -30,6 +31,8 @@ import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as AreasIndexRouteImport } from './routes/areas.index'
 import { Route as ProviderSlugRouteImport } from './routes/provider.$slug'
 import { Route as DhakaAreaRouteImport } from './routes/dhaka.$area'
+import { Route as AuthenticatedProviderDashboardRouteImport } from './routes/_authenticated.provider-dashboard'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated.dashboard'
 import { Route as ServicesCategoryIndexRouteImport } from './routes/services.$category.index'
 import { Route as ServicesCategoryServiceRouteImport } from './routes/services.$category.$service'
 
@@ -103,6 +106,10 @@ const AboutRoute = AboutRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -138,6 +145,17 @@ const DhakaAreaRoute = DhakaAreaRouteImport.update({
   path: '/dhaka/$area',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedProviderDashboardRoute =
+  AuthenticatedProviderDashboardRouteImport.update({
+    id: '/provider-dashboard',
+    path: '/provider-dashboard',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const ServicesCategoryIndexRoute = ServicesCategoryIndexRouteImport.update({
   id: '/services/$category/',
   path: '/services/$category/',
@@ -165,6 +183,8 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
   '/trust-safety': typeof TrustSafetyRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/provider-dashboard': typeof AuthenticatedProviderDashboardRoute
   '/dhaka/$area': typeof DhakaAreaRoute
   '/provider/$slug': typeof ProviderSlugRoute
   '/areas/': typeof AreasIndexRoute
@@ -190,6 +210,8 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
   '/trust-safety': typeof TrustSafetyRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/provider-dashboard': typeof AuthenticatedProviderDashboardRoute
   '/dhaka/$area': typeof DhakaAreaRoute
   '/provider/$slug': typeof ProviderSlugRoute
   '/areas': typeof AreasIndexRoute
@@ -202,6 +224,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
   '/become-provider': typeof BecomeProviderRoute
@@ -216,6 +239,8 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
   '/trust-safety': typeof TrustSafetyRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/provider-dashboard': typeof AuthenticatedProviderDashboardRoute
   '/dhaka/$area': typeof DhakaAreaRoute
   '/provider/$slug': typeof ProviderSlugRoute
   '/areas/': typeof AreasIndexRoute
@@ -243,6 +268,8 @@ export interface FileRouteTypes {
     | '/signup'
     | '/terms'
     | '/trust-safety'
+    | '/dashboard'
+    | '/provider-dashboard'
     | '/dhaka/$area'
     | '/provider/$slug'
     | '/areas/'
@@ -268,6 +295,8 @@ export interface FileRouteTypes {
     | '/signup'
     | '/terms'
     | '/trust-safety'
+    | '/dashboard'
+    | '/provider-dashboard'
     | '/dhaka/$area'
     | '/provider/$slug'
     | '/areas'
@@ -279,6 +308,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
     | '/about'
     | '/admin'
     | '/become-provider'
@@ -293,6 +323,8 @@ export interface FileRouteTypes {
     | '/signup'
     | '/terms'
     | '/trust-safety'
+    | '/_authenticated/dashboard'
+    | '/_authenticated/provider-dashboard'
     | '/dhaka/$area'
     | '/provider/$slug'
     | '/areas/'
@@ -305,6 +337,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AboutRoute: typeof AboutRoute
   AdminRoute: typeof AdminRoute
   BecomeProviderRoute: typeof BecomeProviderRoute
@@ -429,6 +462,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -478,6 +518,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DhakaAreaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/provider-dashboard': {
+      id: '/_authenticated/provider-dashboard'
+      path: '/provider-dashboard'
+      fullPath: '/provider-dashboard'
+      preLoaderRoute: typeof AuthenticatedProviderDashboardRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/services/$category/': {
       id: '/services/$category/'
       path: '/services/$category'
@@ -495,8 +549,23 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedRouteChildren {
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedProviderDashboardRoute: typeof AuthenticatedProviderDashboardRoute
+}
+
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedProviderDashboardRoute: AuthenticatedProviderDashboardRoute,
+}
+
+const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
+  AuthenticatedRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AboutRoute: AboutRoute,
   AdminRoute: AdminRoute,
   BecomeProviderRoute: BecomeProviderRoute,
