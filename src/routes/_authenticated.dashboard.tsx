@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Calendar, MapPin, Phone, Plus, Loader2, ClipboardList } from "lucide-react";
+import { Calendar, MapPin, Phone, Plus, Loader2, ClipboardList, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/auth-provider";
 import { SiteShell } from "@/components/site-shell";
@@ -13,6 +13,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   component: CustomerDashboard,
@@ -62,6 +73,8 @@ function CustomerDashboard() {
   const { user } = useAuth();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [pendingCancelId, setPendingCancelId] = useState<string | null>(null);
+  const [cancelling, setCancelling] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -84,6 +97,27 @@ function CustomerDashboard() {
       cancelled = true;
     };
   }, [user]);
+
+  async function confirmCancel() {
+    if (!pendingCancelId) return;
+    const id = pendingCancelId;
+    const prev = bookings;
+    // Optimistic update
+    setBookings((bs) => bs.map((b) => (b.id === id ? { ...b, status: "cancelled" } : b)));
+    setCancelling(true);
+    const { error } = await supabase
+      .from("bookings")
+      .update({ status: "cancelled" })
+      .eq("id", id);
+    setCancelling(false);
+    setPendingCancelId(null);
+    if (error) {
+      setBookings(prev);
+      toast.error("Could not cancel booking", { description: error.message });
+      return;
+    }
+    toast.success("Booking cancelled");
+  }
 
   const stats = useMemo(() => {
     const total = bookings.length;
@@ -150,71 +184,127 @@ function CustomerDashboard() {
                       <TableHead>When</TableHead>
                       <TableHead>Area</TableHead>
                       <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Booked</TableHead>
+                      <TableHead>Booked</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {bookings.map((b) => (
-                      <TableRow key={b.id}>
-                        <TableCell>
+                    {bookings.map((b) => {
+                      const canCancel = b.status === "new" || b.status === "confirmed";
+                      return (
+                        <TableRow key={b.id}>
+                          <TableCell>
+                            <div className="font-medium text-foreground">
+                              {b.service ?? b.category}
+                            </div>
+                            <div className="text-xs text-muted-foreground capitalize">
+                              {b.category}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="text-sm">
+                              {new Date(b.preferred_date).toLocaleDateString()}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {b.preferred_time_slot}
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-sm">{b.area}</TableCell>
+                          <TableCell>
+                            <StatusBadge status={b.status} />
+                          </TableCell>
+                          <TableCell className="text-xs text-muted-foreground">
+                            {new Date(b.created_at).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {canCancel && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => setPendingCancelId(b.id)}
+                              >
+                                <X className="mr-1 h-3.5 w-3.5" /> Cancel
+                              </Button>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+              {/* Mobile */}
+              <ul className="divide-y divide-border md:hidden">
+                {bookings.map((b) => {
+                  const canCancel = b.status === "new" || b.status === "confirmed";
+                  return (
+                    <li key={b.id} className="px-6 py-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
                           <div className="font-medium text-foreground">
                             {b.service ?? b.category}
                           </div>
                           <div className="text-xs text-muted-foreground capitalize">
                             {b.category}
                           </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="text-sm">
-                            {new Date(b.preferred_date).toLocaleDateString()}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            {b.preferred_time_slot}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-sm">{b.area}</TableCell>
-                        <TableCell>
-                          <StatusBadge status={b.status} />
-                        </TableCell>
-                        <TableCell className="text-right text-xs text-muted-foreground">
-                          {new Date(b.created_at).toLocaleDateString()}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-              {/* Mobile */}
-              <ul className="divide-y divide-border md:hidden">
-                {bookings.map((b) => (
-                  <li key={b.id} className="px-6 py-4">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <div className="font-medium text-foreground">
-                          {b.service ?? b.category}
                         </div>
-                        <div className="text-xs text-muted-foreground capitalize">
-                          {b.category}
+                        <StatusBadge status={b.status} />
+                      </div>
+                      <div className="mt-3 grid grid-cols-1 gap-1.5 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-1.5">
+                          <Calendar className="h-3.5 w-3.5" />
+                          {new Date(b.preferred_date).toLocaleDateString()} · {b.preferred_time_slot}
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <MapPin className="h-3.5 w-3.5" /> {b.area}
                         </div>
                       </div>
-                      <StatusBadge status={b.status} />
-                    </div>
-                    <div className="mt-3 grid grid-cols-1 gap-1.5 text-xs text-muted-foreground">
-                      <div className="flex items-center gap-1.5">
-                        <Calendar className="h-3.5 w-3.5" />
-                        {new Date(b.preferred_date).toLocaleDateString()} · {b.preferred_time_slot}
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <MapPin className="h-3.5 w-3.5" /> {b.area}
-                      </div>
-                    </div>
-                  </li>
-                ))}
+                      {canCancel && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="mt-3"
+                          onClick={() => setPendingCancelId(b.id)}
+                        >
+                          <X className="mr-1 h-3.5 w-3.5" /> Cancel booking
+                        </Button>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             </>
           )}
         </div>
       </section>
+
+      <AlertDialog
+        open={pendingCancelId !== null}
+        onOpenChange={(open) => !open && !cancelling && setPendingCancelId(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cancel this booking?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will mark your booking as cancelled. You can always book the same service again later.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={cancelling}>Keep booking</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={cancelling}
+              onClick={(e) => {
+                e.preventDefault();
+                confirmCancel();
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {cancelling && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}
+              Yes, cancel
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </SiteShell>
   );
 }
