@@ -286,6 +286,24 @@ function AdminPage() {
     );
   }, [roleRows]);
 
+  const stats = useMemo(() => {
+    const totalUsers = new Set(roleRows.map((r) => r.user_id)).size;
+    const totalProviders = providers.filter((p) => p.provider_status === "approved").length;
+    const pendingProviders = providers.filter((p) => p.provider_status === "pending").length;
+    const newApplications = applications.filter((a) => a.status === "new").length;
+    const openLeads = bookings.filter((b) => b.status === "new").length;
+    const completedBookings = bookings.filter((b) => b.status === "completed").length;
+    return {
+      totalUsers,
+      totalProviders,
+      pendingProviders,
+      newApplications,
+      openLeads,
+      totalBookings: bookings.length,
+      completedBookings,
+    };
+  }, [roleRows, providers, applications, bookings]);
+
   // ---------- Render ----------
   if (authLoading) {
     return (
