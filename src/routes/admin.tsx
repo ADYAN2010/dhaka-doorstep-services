@@ -179,6 +179,14 @@ function AdminPage() {
 
   async function updateApplicationStatus(id: string, status: ApplicationStatus) {
     setBusyRowId(id);
+    if (status === "approved") {
+      const { error } = await supabase.rpc("admin_approve_application", { _application_id: id });
+      setBusyRowId(null);
+      if (error) return toast.error(error.message);
+      toast.success("Approved & seeded coverage");
+      void refresh();
+      return;
+    }
     const { error } = await supabase
       .from("provider_applications")
       .update({ status })
