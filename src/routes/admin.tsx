@@ -669,6 +669,9 @@ function AdminPage() {
         </div>
       </section>
 
+      {/* Blog CMS + Contact inbox */}
+      <AdminBlogAndMessages />
+
       {/* Categories & Areas (read-only catalog) */}
       <section className="mt-10 grid gap-6 lg:grid-cols-2">
         <div className="rounded-3xl border border-border bg-card p-6 shadow-soft">
