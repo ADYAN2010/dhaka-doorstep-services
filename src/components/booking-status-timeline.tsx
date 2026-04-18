@@ -26,8 +26,8 @@ export function statusMeta(stage: BookingStage) {
   switch (stage) {
     case "submitted":      return { label: "Submitted",       tone: "bg-primary/10 text-primary" };
     case "pending_review": return { label: "Pending review",  tone: "bg-warning/15 text-warning" };
-    case "assigned":       return { label: "Assigned",        tone: "bg-info/15 text-info" };
-    case "in_progress":    return { label: "In progress",     tone: "bg-info/15 text-info" };
+    case "assigned":       return { label: "Assigned",        tone: "bg-primary/10 text-primary" };
+    case "in_progress":    return { label: "In progress",     tone: "bg-primary/10 text-primary" };
     case "completed":      return { label: "Completed",       tone: "bg-success/15 text-success" };
     case "cancelled":      return { label: "Cancelled",       tone: "bg-destructive/10 text-destructive" };
   }
