@@ -184,37 +184,52 @@ function CustomerDashboard() {
                       <TableHead>When</TableHead>
                       <TableHead>Area</TableHead>
                       <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Booked</TableHead>
+                      <TableHead>Booked</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {bookings.map((b) => (
-                      <TableRow key={b.id}>
-                        <TableCell>
-                          <div className="font-medium text-foreground">
-                            {b.service ?? b.category}
-                          </div>
-                          <div className="text-xs text-muted-foreground capitalize">
-                            {b.category}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="text-sm">
-                            {new Date(b.preferred_date).toLocaleDateString()}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            {b.preferred_time_slot}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-sm">{b.area}</TableCell>
-                        <TableCell>
-                          <StatusBadge status={b.status} />
-                        </TableCell>
-                        <TableCell className="text-right text-xs text-muted-foreground">
-                          {new Date(b.created_at).toLocaleDateString()}
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {bookings.map((b) => {
+                      const canCancel = b.status === "new" || b.status === "confirmed";
+                      return (
+                        <TableRow key={b.id}>
+                          <TableCell>
+                            <div className="font-medium text-foreground">
+                              {b.service ?? b.category}
+                            </div>
+                            <div className="text-xs text-muted-foreground capitalize">
+                              {b.category}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="text-sm">
+                              {new Date(b.preferred_date).toLocaleDateString()}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {b.preferred_time_slot}
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-sm">{b.area}</TableCell>
+                          <TableCell>
+                            <StatusBadge status={b.status} />
+                          </TableCell>
+                          <TableCell className="text-xs text-muted-foreground">
+                            {new Date(b.created_at).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {canCancel && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => setPendingCancelId(b.id)}
+                              >
+                                <X className="mr-1 h-3.5 w-3.5" /> Cancel
+                              </Button>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </div>
