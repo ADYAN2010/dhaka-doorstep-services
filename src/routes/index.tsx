@@ -4,10 +4,12 @@ import {
   ShieldCheck, Sparkles, Star, Wallet, Zap, Users,
 } from "lucide-react";
 import heroBg from "@/assets/hero-bg.jpg";
+import heroIllustration from "@/assets/hero-illustration.png";
 import { SiteShell } from "@/components/site-shell";
 import { HeroSearch } from "@/components/hero-search";
 import { CategoryCard } from "@/components/category-card";
 import { ProviderCard } from "@/components/provider-card";
+import { Reveal } from "@/components/reveal";
 import { categories } from "@/data/categories";
 import { areas } from "@/data/areas";
 import { featuredProviders } from "@/data/providers";
@@ -61,6 +63,17 @@ function Hero() {
         className="absolute inset-0 -z-10 h-full w-full object-cover opacity-40"
       />
       <div className="absolute inset-0 -z-10 bg-gradient-to-t from-midnight via-midnight/70 to-transparent" />
+
+      {/* Floating illustration — large screens only, decorative */}
+      <img
+        src={heroIllustration}
+        alt=""
+        aria-hidden="true"
+        width={540}
+        height={540}
+        className="pointer-events-none absolute right-0 top-1/2 hidden -translate-y-1/2 select-none opacity-90 drop-shadow-2xl lg:block xl:right-8"
+        style={{ width: "min(42vw, 540px)", animation: "float 6s ease-in-out infinite" }}
+      />
 
       <div className="container-page py-20 md:py-28">
         <div className="mx-auto max-w-3xl text-center">
@@ -120,8 +133,10 @@ function PopularCategories() {
         action={{ label: "All services", to: "/services" }}
       />
       <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-        {top.map((c) => (
-          <CategoryCard key={c.slug} category={c} />
+        {top.map((c, i) => (
+          <Reveal key={c.slug} delay={i * 50}>
+            <CategoryCard category={c} />
+          </Reveal>
         ))}
       </div>
     </section>
@@ -182,14 +197,16 @@ function WhyUs() {
         description="Built for Bangladesh — local providers, local quality, local support."
       />
       <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {items.map((it) => (
-          <div key={it.title} className="rounded-2xl border border-border bg-card p-5">
-            <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-              <it.icon className="h-5 w-5" />
-            </span>
-            <h3 className="mt-4 text-base font-semibold text-card-foreground">{it.title}</h3>
-            <p className="mt-1.5 text-sm text-muted-foreground">{it.desc}</p>
-          </div>
+        {items.map((it, i) => (
+          <Reveal key={it.title} delay={i * 60}>
+            <div className="rounded-2xl border border-border bg-card p-5 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-elevated">
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <it.icon className="h-5 w-5" />
+              </span>
+              <h3 className="mt-4 text-base font-semibold text-card-foreground">{it.title}</h3>
+              <p className="mt-1.5 text-sm text-muted-foreground">{it.desc}</p>
+            </div>
+          </Reveal>
         ))}
       </div>
     </section>
@@ -207,8 +224,10 @@ function FeaturedProviders() {
           action={{ label: "Browse all providers", to: "/providers" }}
         />
         <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {featuredProviders.map((p) => (
-            <ProviderCard key={p.slug} provider={p} />
+          {featuredProviders.map((p, i) => (
+            <Reveal key={p.slug} delay={i * 70}>
+              <ProviderCard provider={p} />
+            </Reveal>
           ))}
         </div>
       </div>
@@ -251,24 +270,26 @@ function Testimonials() {
           title="Loved by people across Dhaka"
         />
         <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {testimonials.map((t) => (
-            <div key={t.name} className="rounded-2xl border border-border bg-card p-6 shadow-soft">
-              <div className="flex items-center gap-1 text-warning">
-                {Array.from({ length: t.rating }).map((_, i) => (
-                  <Star key={i} className="h-4 w-4 fill-warning" />
-                ))}
-              </div>
-              <p className="mt-3 text-sm leading-relaxed text-card-foreground">&ldquo;{t.quote}&rdquo;</p>
-              <div className="mt-5 flex items-center gap-3">
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-primary text-xs font-bold text-primary-foreground">
-                  {t.initials}
-                </span>
-                <div>
-                  <p className="text-sm font-semibold text-card-foreground">{t.name}</p>
-                  <p className="text-xs text-muted-foreground">{t.area} · {t.service}</p>
+          {testimonials.map((t, i) => (
+            <Reveal key={t.name} delay={i * 80}>
+              <div className="rounded-2xl border border-border bg-card p-6 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-elevated">
+                <div className="flex items-center gap-1 text-warning">
+                  {Array.from({ length: t.rating }).map((_, k) => (
+                    <Star key={k} className="h-4 w-4 fill-warning" />
+                  ))}
+                </div>
+                <p className="mt-3 text-sm leading-relaxed text-card-foreground">&ldquo;{t.quote}&rdquo;</p>
+                <div className="mt-5 flex items-center gap-3">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-primary text-xs font-bold text-primary-foreground">
+                    {t.initials}
+                  </span>
+                  <div>
+                    <p className="text-sm font-semibold text-card-foreground">{t.name}</p>
+                    <p className="text-xs text-muted-foreground">{t.area} · {t.service}</p>
+                  </div>
                 </div>
               </div>
-            </div>
+            </Reveal>
           ))}
         </div>
       </div>
