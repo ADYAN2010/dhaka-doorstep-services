@@ -78,10 +78,15 @@ function ProviderDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!authLoading && user && !isProvider) {
-      // Authenticated but not a provider — bounce to customer dashboard.
-      navigate({ to: "/dashboard" });
-    }
+    // Wait until auth is resolved AND roles have been fetched (roles array
+    // is populated asynchronously after the session loads). Only redirect
+    // once we're certain the user lacks the provider role.
+    if (authLoading || !user) return;
+    // Give roles one tick to populate; if still empty after profile loads, trust it.
+    const t = setTimeout(() => {
+      if (!isProvider) navigate({ to: "/dashboard" });
+    }, 600);
+    return () => clearTimeout(t);
   }, [authLoading, user, isProvider, navigate]);
 
   useEffect(() => {
