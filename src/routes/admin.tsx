@@ -19,6 +19,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { AdminBlogAndMessages } from "@/components/admin-blog-and-messages";
+import { AdminAccountSettings } from "@/components/admin-account-settings";
 
 export const Route = createFileRoute("/admin")({
   component: AdminPage,
