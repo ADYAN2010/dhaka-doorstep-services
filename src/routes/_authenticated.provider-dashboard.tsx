@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Briefcase,
   Calendar,
@@ -11,7 +11,10 @@ import {
   TrendingUp,
   XCircle,
   AlertCircle,
+  Sparkles,
+  Settings2,
 } from "lucide-react";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/auth-provider";
 import { SiteShell } from "@/components/site-shell";
@@ -51,6 +54,7 @@ type LeadRow = {
   notes: string | null;
   status: BookingStatus;
   created_at: string;
+  provider_id: string | null;
 };
 
 type Profile = {
@@ -74,62 +78,102 @@ function ProviderDashboard() {
   const isProvider = roles.includes("provider");
 
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [leads, setLeads] = useState<LeadRow[]>([]);
+  const [openLeads, setOpenLeads] = useState<LeadRow[]>([]);
+  const [myJobs, setMyJobs] = useState<LeadRow[]>([]);
+  const [coverage, setCoverage] = useState<{ categories: number; areas: number }>({
+    categories: 0,
+    areas: 0,
+  });
   const [loading, setLoading] = useState(true);
+  const [acceptingId, setAcceptingId] = useState<string | null>(null);
 
   useEffect(() => {
-    // Wait until auth is resolved AND roles have been fetched (roles array
-    // is populated asynchronously after the session loads). Only redirect
-    // once we're certain the user lacks the provider role.
     if (authLoading || !user) return;
-    // Give roles one tick to populate; if still empty after profile loads, trust it.
     const t = setTimeout(() => {
       if (!isProvider) navigate({ to: "/dashboard" });
     }, 600);
     return () => clearTimeout(t);
   }, [authLoading, user, isProvider, navigate]);
 
-  useEffect(() => {
+  const refresh = useCallback(async () => {
     if (!user || !isProvider) return;
-    let cancelled = false;
-    (async () => {
-      setLoading(true);
-      const [{ data: prof }, { data: bookingData }] = await Promise.all([
-        supabase
-          .from("profiles")
-          .select("full_name, area, provider_status")
-          .eq("id", user.id)
-          .maybeSingle(),
-        // Providers see open leads in their service area; admins approve before
-        // status changes. RLS lets users only see their own bookings, so for
-        // now we show bookings explicitly assigned to this provider via user_id.
-        // (Future: add provider_id column + lead-distribution policy.)
-        supabase
-          .from("bookings")
-          .select(
-            "id, full_name, phone, category, service, area, preferred_date, preferred_time_slot, budget_range, notes, status, created_at",
-          )
-          .eq("user_id", user.id)
-          .order("created_at", { ascending: false }),
-      ]);
-      if (cancelled) return;
-      setProfile((prof as Profile | null) ?? null);
-      setLeads((bookingData ?? []) as LeadRow[]);
-      setLoading(false);
-    })();
-    return () => {
-      cancelled = true;
-    };
+    const [
+      { data: prof },
+      { data: openData },
+      { data: minedData },
+      { count: catCount },
+      { count: areaCount },
+    ] = await Promise.all([
+      supabase
+        .from("profiles")
+        .select("full_name, area, provider_status")
+        .eq("id", user.id)
+        .maybeSingle(),
+      supabase
+        .from("bookings")
+        .select(
+          "id, full_name, phone, category, service, area, preferred_date, preferred_time_slot, budget_range, notes, status, created_at, provider_id",
+        )
+        .is("provider_id", null)
+        .eq("status", "new")
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("bookings")
+        .select(
+          "id, full_name, phone, category, service, area, preferred_date, preferred_time_slot, budget_range, notes, status, created_at, provider_id",
+        )
+        .eq("provider_id", user.id)
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("provider_categories")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user.id),
+      supabase
+        .from("provider_areas")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user.id),
+    ]);
+    setProfile((prof as Profile | null) ?? null);
+    setOpenLeads((openData ?? []) as LeadRow[]);
+    setMyJobs((minedData ?? []) as LeadRow[]);
+    setCoverage({ categories: catCount ?? 0, areas: areaCount ?? 0 });
+    setLoading(false);
   }, [user, isProvider]);
 
+  useEffect(() => {
+    if (!user || !isProvider) return;
+    setLoading(true);
+    refresh();
+  }, [user, isProvider, refresh]);
+
+  async function acceptLead(id: string) {
+    setAcceptingId(id);
+    const prevOpen = openLeads;
+    // Optimistic: remove from open list
+    setOpenLeads((ls) => ls.filter((l) => l.id !== id));
+    const { error } = await supabase.rpc("accept_lead", { _booking_id: id });
+    setAcceptingId(null);
+    if (error) {
+      setOpenLeads(prevOpen);
+      toast.error("Could not accept lead", { description: error.message });
+      return;
+    }
+    toast.success("Lead accepted — it's now in your jobs.");
+    await refresh();
+  }
+
   const stats = useMemo(() => {
-    const open = leads.filter((l) => ["new", "confirmed", "assigned"].includes(l.status)).length;
-    const completed = leads.filter((l) => l.status === "completed");
+    const completed = myJobs.filter((l) => l.status === "completed");
     const earnings = completed.reduce((sum, l) => {
       return sum + (l.budget_range ? (BUDGET_MIDPOINT[l.budget_range] ?? 0) : 0);
     }, 0);
-    return { open, completed: completed.length, earnings };
-  }, [leads]);
+    return {
+      open: openLeads.length,
+      assigned: myJobs.filter((l) => l.status === "assigned").length,
+      completed: completed.length,
+      earnings,
+    };
+  }, [openLeads, myJobs]);
 
   if (authLoading || (user && !isProvider)) {
     return (
@@ -141,6 +185,10 @@ function ProviderDashboard() {
     );
   }
 
+  const status = profile?.provider_status ?? "pending";
+  const isApproved = status === "approved";
+  const noCoverage = isApproved && (coverage.categories === 0 || coverage.areas === 0);
+
   return (
     <SiteShell>
       <section className="container-page py-12">
@@ -151,25 +199,52 @@ function ProviderDashboard() {
               {profile?.full_name?.split(" ")[0] ?? "Welcome"}'s workspace
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Manage your status, leads and earnings.
+              Accept new leads in your service area and track your jobs.
             </p>
           </div>
-          <ProviderStatusBadge status={profile?.provider_status ?? "pending"} />
+          <div className="flex items-center gap-2">
+            <ProviderStatusBadge status={status} />
+            {isApproved && (
+              <Button asChild variant="outline" size="sm">
+                <Link to="/coverage">
+                  <Settings2 className="mr-1 h-3.5 w-3.5" /> Coverage
+                </Link>
+              </Button>
+            )}
+          </div>
         </div>
 
-        {profile?.provider_status !== "approved" && (
-          <StatusBanner status={profile?.provider_status ?? "pending"} />
+        {!isApproved && <StatusBanner status={status} />}
+        {noCoverage && (
+          <div className="mt-6 flex items-start gap-3 rounded-2xl border border-primary/30 bg-primary/10 p-4">
+            <Sparkles className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+            <div className="flex-1">
+              <h3 className="text-sm font-semibold text-foreground">Set up your coverage</h3>
+              <p className="mt-0.5 text-sm text-muted-foreground">
+                Pick the categories and Dhaka areas you cover so we can match leads to you.
+              </p>
+              <Button asChild size="sm" className="mt-3">
+                <Link to="/coverage">Configure coverage</Link>
+              </Button>
+            </div>
+          </div>
         )}
 
-        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
           <StatCard
             icon={<Briefcase className="h-4 w-4" />}
             label="Open leads"
             value={stats.open.toString()}
+            accent="text-primary"
+          />
+          <StatCard
+            icon={<Clock className="h-4 w-4" />}
+            label="Active jobs"
+            value={stats.assigned.toString()}
           />
           <StatCard
             icon={<CheckCircle2 className="h-4 w-4" />}
-            label="Jobs completed"
+            label="Completed"
             value={stats.completed.toString()}
             accent="text-emerald-600 dark:text-emerald-400"
           />
@@ -177,16 +252,16 @@ function ProviderDashboard() {
             icon={<TrendingUp className="h-4 w-4" />}
             label="Estimated earnings"
             value={`৳ ${stats.earnings.toLocaleString()}`}
-            accent="text-primary"
           />
         </div>
 
+        {/* Open leads */}
         <div className="mt-10 rounded-3xl border border-border bg-card shadow-soft">
           <div className="flex items-center justify-between border-b border-border px-6 py-4">
             <div>
-              <h2 className="text-lg font-semibold text-card-foreground">Recent leads</h2>
+              <h2 className="text-lg font-semibold text-card-foreground">Open leads</h2>
               <p className="text-xs text-muted-foreground">
-                Jobs assigned to you appear here.
+                First provider to accept gets the job.
               </p>
             </div>
             <Briefcase className="h-5 w-5 text-muted-foreground" />
@@ -196,84 +271,154 @@ function ProviderDashboard() {
             <div className="flex items-center justify-center py-16">
               <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
             </div>
-          ) : leads.length === 0 ? (
-            <EmptyLeads approved={profile?.provider_status === "approved"} />
+          ) : openLeads.length === 0 ? (
+            <EmptyState
+              title="No open leads right now"
+              body={
+                isApproved
+                  ? noCoverage
+                    ? "Set your coverage to start receiving matched leads."
+                    : "We'll show new jobs in your categories and areas as soon as they come in."
+                  : "Once your provider application is approved, matching leads will appear here."
+              }
+            />
           ) : (
-            <>
-              <div className="hidden md:block">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Customer</TableHead>
-                      <TableHead>Service</TableHead>
-                      <TableHead>When</TableHead>
-                      <TableHead>Area</TableHead>
-                      <TableHead>Status</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {leads.map((l) => (
-                      <TableRow key={l.id}>
-                        <TableCell>
-                          <div className="font-medium text-foreground">{l.full_name}</div>
-                          <div className="text-xs text-muted-foreground">{l.phone}</div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="font-medium">{l.service ?? l.category}</div>
-                          <div className="text-xs capitalize text-muted-foreground">
-                            {l.category}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="text-sm">
-                            {new Date(l.preferred_date).toLocaleDateString()}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            {l.preferred_time_slot}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-sm">{l.area}</TableCell>
-                        <TableCell>
-                          <BookingBadge status={l.status} />
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-              <ul className="divide-y divide-border md:hidden">
-                {leads.map((l) => (
-                  <li key={l.id} className="px-6 py-4">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <div className="font-medium">{l.full_name}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {l.service ?? l.category}
-                        </div>
-                      </div>
-                      <BookingBadge status={l.status} />
-                    </div>
-                    <div className="mt-3 grid gap-1.5 text-xs text-muted-foreground">
-                      <div className="flex items-center gap-1.5">
-                        <Calendar className="h-3.5 w-3.5" />
-                        {new Date(l.preferred_date).toLocaleDateString()} ·{" "}
-                        {l.preferred_time_slot}
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <MapPin className="h-3.5 w-3.5" /> {l.area}
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <Phone className="h-3.5 w-3.5" /> {l.phone}
-                      </div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </>
+            <LeadsList
+              leads={openLeads}
+              renderAction={(l) => (
+                <Button
+                  size="sm"
+                  onClick={() => acceptLead(l.id)}
+                  disabled={acceptingId === l.id}
+                >
+                  {acceptingId === l.id && (
+                    <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                  )}
+                  Accept lead
+                </Button>
+              )}
+            />
+          )}
+        </div>
+
+        {/* My jobs */}
+        <div className="mt-10 rounded-3xl border border-border bg-card shadow-soft">
+          <div className="flex items-center justify-between border-b border-border px-6 py-4">
+            <div>
+              <h2 className="text-lg font-semibold text-card-foreground">My jobs</h2>
+              <p className="text-xs text-muted-foreground">
+                Bookings assigned to you.
+              </p>
+            </div>
+            <CheckCircle2 className="h-5 w-5 text-muted-foreground" />
+          </div>
+
+          {loading ? (
+            <div className="flex items-center justify-center py-16">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            </div>
+          ) : myJobs.length === 0 ? (
+            <EmptyState
+              title="No jobs yet"
+              body="Accepted leads will show up here with the customer's contact details."
+            />
+          ) : (
+            <LeadsList leads={myJobs} showStatus />
           )}
         </div>
       </section>
     </SiteShell>
+  );
+}
+
+function LeadsList({
+  leads,
+  showStatus,
+  renderAction,
+}: {
+  leads: LeadRow[];
+  showStatus?: boolean;
+  renderAction?: (l: LeadRow) => React.ReactNode;
+}) {
+  return (
+    <>
+      <div className="hidden md:block">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Customer</TableHead>
+              <TableHead>Service</TableHead>
+              <TableHead>When</TableHead>
+              <TableHead>Area</TableHead>
+              <TableHead>Budget</TableHead>
+              {showStatus && <TableHead>Status</TableHead>}
+              {renderAction && <TableHead className="text-right">Action</TableHead>}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {leads.map((l) => (
+              <TableRow key={l.id}>
+                <TableCell>
+                  <div className="font-medium text-foreground">{l.full_name}</div>
+                  <div className="text-xs text-muted-foreground">{l.phone}</div>
+                </TableCell>
+                <TableCell>
+                  <div className="font-medium">{l.service ?? l.category}</div>
+                  <div className="text-xs capitalize text-muted-foreground">{l.category}</div>
+                </TableCell>
+                <TableCell>
+                  <div className="text-sm">
+                    {new Date(l.preferred_date).toLocaleDateString()}
+                  </div>
+                  <div className="text-xs text-muted-foreground">{l.preferred_time_slot}</div>
+                </TableCell>
+                <TableCell className="text-sm capitalize">{l.area}</TableCell>
+                <TableCell className="text-xs text-muted-foreground">
+                  {l.budget_range ?? "—"}
+                </TableCell>
+                {showStatus && (
+                  <TableCell>
+                    <BookingBadge status={l.status} />
+                  </TableCell>
+                )}
+                {renderAction && <TableCell className="text-right">{renderAction(l)}</TableCell>}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+      <ul className="divide-y divide-border md:hidden">
+        {leads.map((l) => (
+          <li key={l.id} className="px-6 py-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <div className="font-medium">{l.full_name}</div>
+                <div className="text-xs text-muted-foreground">{l.service ?? l.category}</div>
+              </div>
+              {showStatus && <BookingBadge status={l.status} />}
+            </div>
+            <div className="mt-3 grid gap-1.5 text-xs text-muted-foreground">
+              <div className="flex items-center gap-1.5">
+                <Calendar className="h-3.5 w-3.5" />
+                {new Date(l.preferred_date).toLocaleDateString()} · {l.preferred_time_slot}
+              </div>
+              <div className="flex items-center gap-1.5">
+                <MapPin className="h-3.5 w-3.5" /> <span className="capitalize">{l.area}</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Phone className="h-3.5 w-3.5" /> {l.phone}
+              </div>
+              {l.budget_range && (
+                <div className="flex items-center gap-1.5">
+                  <TrendingUp className="h-3.5 w-3.5" /> Budget: {l.budget_range}
+                </div>
+              )}
+            </div>
+            {renderAction && <div className="mt-3">{renderAction(l)}</div>}
+          </li>
+        ))}
+      </ul>
+    </>
   );
 }
 
@@ -375,23 +520,19 @@ function StatCard({
       <div className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
         {icon} {label}
       </div>
-      <div className={`mt-2 text-3xl font-bold ${accent ?? "text-foreground"}`}>{value}</div>
+      <div className={`mt-2 text-2xl font-bold ${accent ?? "text-foreground"}`}>{value}</div>
     </div>
   );
 }
 
-function EmptyLeads({ approved }: { approved: boolean }) {
+function EmptyState({ title, body }: { title: string; body: string }) {
   return (
     <div className="flex flex-col items-center justify-center gap-3 px-6 py-16 text-center">
       <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
         <Briefcase className="h-5 w-5 text-muted-foreground" />
       </div>
-      <h3 className="text-base font-semibold text-foreground">No leads yet</h3>
-      <p className="max-w-sm text-sm text-muted-foreground">
-        {approved
-          ? "New jobs in your service area will show up here."
-          : "Once your provider application is approved, leads will appear here."}
-      </p>
+      <h3 className="text-base font-semibold text-foreground">{title}</h3>
+      <p className="max-w-sm text-sm text-muted-foreground">{body}</p>
     </div>
   );
 }
