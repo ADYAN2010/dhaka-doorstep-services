@@ -270,24 +270,26 @@ function Testimonials() {
           title="Loved by people across Dhaka"
         />
         <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {testimonials.map((t) => (
-            <div key={t.name} className="rounded-2xl border border-border bg-card p-6 shadow-soft">
-              <div className="flex items-center gap-1 text-warning">
-                {Array.from({ length: t.rating }).map((_, i) => (
-                  <Star key={i} className="h-4 w-4 fill-warning" />
-                ))}
-              </div>
-              <p className="mt-3 text-sm leading-relaxed text-card-foreground">&ldquo;{t.quote}&rdquo;</p>
-              <div className="mt-5 flex items-center gap-3">
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-primary text-xs font-bold text-primary-foreground">
-                  {t.initials}
-                </span>
-                <div>
-                  <p className="text-sm font-semibold text-card-foreground">{t.name}</p>
-                  <p className="text-xs text-muted-foreground">{t.area} · {t.service}</p>
+          {testimonials.map((t, i) => (
+            <Reveal key={t.name} delay={i * 80}>
+              <div className="rounded-2xl border border-border bg-card p-6 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-elevated">
+                <div className="flex items-center gap-1 text-warning">
+                  {Array.from({ length: t.rating }).map((_, k) => (
+                    <Star key={k} className="h-4 w-4 fill-warning" />
+                  ))}
+                </div>
+                <p className="mt-3 text-sm leading-relaxed text-card-foreground">&ldquo;{t.quote}&rdquo;</p>
+                <div className="mt-5 flex items-center gap-3">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-primary text-xs font-bold text-primary-foreground">
+                    {t.initials}
+                  </span>
+                  <div>
+                    <p className="text-sm font-semibold text-card-foreground">{t.name}</p>
+                    <p className="text-xs text-muted-foreground">{t.area} · {t.service}</p>
+                  </div>
                 </div>
               </div>
-            </div>
+            </Reveal>
           ))}
         </div>
       </div>
