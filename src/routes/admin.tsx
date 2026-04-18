@@ -385,6 +385,16 @@ function AdminPage() {
         </Button>
       </header>
 
+      {/* Stats overview */}
+      <section className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
+        <StatCard icon={Users} label="Users" value={stats.totalUsers} />
+        <StatCard icon={Briefcase} label="Approved providers" value={stats.totalProviders} />
+        <StatCard icon={Shield} label="Pending providers" value={stats.pendingProviders} accent={stats.pendingProviders > 0} />
+        <StatCard icon={ClipboardList} label="New applications" value={stats.newApplications} accent={stats.newApplications > 0} />
+        <StatCard icon={CalendarCheck} label="Open leads" value={stats.openLeads} accent={stats.openLeads > 0} />
+        <StatCard icon={Check} label="Completed" value={stats.completedBookings} />
+      </section>
+
       {/* Provider applications */}
       <section className="mt-10 rounded-3xl border border-border bg-card p-6 shadow-soft">
         <div className="flex flex-wrap items-center justify-between gap-3">
