@@ -667,11 +667,84 @@ function AdminPage() {
           </Table>
         </div>
       </section>
+
+      {/* Categories & Areas (read-only catalog) */}
+      <section className="mt-10 grid gap-6 lg:grid-cols-2">
+        <div className="rounded-3xl border border-border bg-card p-6 shadow-soft">
+          <div className="flex items-center gap-2">
+            <Tag className="h-4 w-4 text-primary" />
+            <h2 className="text-xl font-semibold">Service categories</h2>
+          </div>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {categories.length} categories. Edit in <code className="rounded bg-muted px-1 py-0.5 text-xs">src/data/categories.ts</code>.
+          </p>
+          <ul className="mt-4 flex flex-wrap gap-2">
+            {categories.map((c) => (
+              <li
+                key={c.slug}
+                className="rounded-full border border-border bg-background px-3 py-1 text-xs font-medium"
+              >
+                {c.name}
+                <span className="ml-1 text-muted-foreground">
+                  ({c.subcategories?.reduce((n, s) => n + s.services.length, 0) ?? 0})
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="rounded-3xl border border-border bg-card p-6 shadow-soft">
+          <div className="flex items-center gap-2">
+            <MapPin className="h-4 w-4 text-primary" />
+            <h2 className="text-xl font-semibold">Coverage areas</h2>
+          </div>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {areas.length} areas. Edit in <code className="rounded bg-muted px-1 py-0.5 text-xs">src/data/areas.ts</code>.
+          </p>
+          <ul className="mt-4 flex flex-wrap gap-2">
+            {areas.map((a) => (
+              <li
+                key={a.slug}
+                className="rounded-full border border-border bg-background px-3 py-1 text-xs font-medium"
+              >
+                {a.name}
+                <span className="ml-1 text-muted-foreground">· {a.zone}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
     </div>
   );
 }
 
-function StatusBadge({ status }: { status: ProviderStatus }) {
+function StatCard({
+  icon: Icon,
+  label,
+  value,
+  accent = false,
+}: {
+  icon: typeof Shield;
+  label: string;
+  value: number;
+  accent?: boolean;
+}) {
+  return (
+    <div
+      className={`rounded-2xl border p-4 shadow-soft ${
+        accent
+          ? "border-primary/30 bg-primary/5"
+          : "border-border bg-card"
+      }`}
+    >
+      <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+        <Icon className="h-3.5 w-3.5" />
+        {label}
+      </div>
+      <div className="mt-2 text-2xl font-bold">{value}</div>
+    </div>
+  );
+}
   const map: Record<ProviderStatus, string> = {
     pending: "bg-amber-500/15 text-amber-700 dark:text-amber-300",
     approved: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
