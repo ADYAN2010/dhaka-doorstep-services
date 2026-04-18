@@ -84,8 +84,13 @@ function ProviderDashboard() {
     categories: 0,
     areas: 0,
   });
+  const [availability, setAvailability] = useState<
+    Array<{ weekday: number; is_active: boolean; start_time: string; end_time: string }>
+  >([]);
+  const [hasAvailability, setHasAvailability] = useState(false);
   const [loading, setLoading] = useState(true);
   const [acceptingId, setAcceptingId] = useState<string | null>(null);
+  const [respectAvailability, setRespectAvailability] = useState(true);
 
   useEffect(() => {
     if (authLoading || !user) return;
