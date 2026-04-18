@@ -26,6 +26,8 @@ export const Route = createFileRoute("/admin")({
 
 type AppRole = "customer" | "provider" | "admin";
 type ProviderStatus = "not_applicable" | "pending" | "approved" | "rejected";
+type BookingStatus = "new" | "confirmed" | "assigned" | "completed" | "cancelled";
+type ApplicationStatus = "new" | "reviewing" | "approved" | "rejected";
 
 type ProviderRow = {
   id: string;
@@ -42,6 +44,36 @@ type RoleRow = {
   full_name: string | null;
 };
 
+type BookingRow = {
+  id: string;
+  full_name: string;
+  phone: string;
+  email: string | null;
+  category: string;
+  service: string | null;
+  area: string;
+  preferred_date: string;
+  preferred_time_slot: string;
+  budget_range: string | null;
+  notes: string | null;
+  status: BookingStatus;
+  created_at: string;
+};
+
+type ApplicationRow = {
+  id: string;
+  full_name: string;
+  phone: string;
+  email: string;
+  category: string;
+  experience: string;
+  coverage_area: string;
+  applicant_type: string;
+  about: string | null;
+  status: ApplicationStatus;
+  created_at: string;
+};
+
 function AdminPage() {
   const { user, roles, loading: authLoading } = useAuth();
   const navigate = useNavigate();
@@ -52,9 +84,12 @@ function AdminPage() {
 
   const [providers, setProviders] = useState<ProviderRow[]>([]);
   const [roleRows, setRoleRows] = useState<RoleRow[]>([]);
+  const [bookings, setBookings] = useState<BookingRow[]>([]);
+  const [applications, setApplications] = useState<ApplicationRow[]>([]);
   const [loadingData, setLoadingData] = useState(false);
   const [busyUserId, setBusyUserId] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<"pending" | "all">("pending");
+  const [busyRowId, setBusyRowId] = useState<string | null>(null);
 
   // Detect whether any admin exists (for bootstrap UX).
   useEffect(() => {
@@ -86,17 +121,31 @@ function AdminPage() {
 
   async function refresh() {
     setLoadingData(true);
-    const [prov, rolesRes, profilesRes] = await Promise.all([
+    const [prov, rolesRes, profilesRes, bookingsRes, appsRes] = await Promise.all([
       supabase
         .from("profiles")
         .select("id, full_name, phone, area, provider_status, created_at")
         .order("created_at", { ascending: false }),
       supabase.from("user_roles").select("user_id, role"),
       supabase.from("profiles").select("id, full_name"),
+      supabase
+        .from("bookings")
+        .select("id, full_name, phone, email, category, service, area, preferred_date, preferred_time_slot, budget_range, notes, status, created_at")
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("provider_applications")
+        .select("id, full_name, phone, email, category, experience, coverage_area, applicant_type, about, status, created_at")
+        .order("created_at", { ascending: false }),
     ]);
 
     if (prov.error) toast.error(prov.error.message);
     else setProviders((prov.data ?? []) as ProviderRow[]);
+
+    if (bookingsRes.error) toast.error(bookingsRes.error.message);
+    else setBookings((bookingsRes.data ?? []) as BookingRow[]);
+
+    if (appsRes.error) toast.error(appsRes.error.message);
+    else setApplications((appsRes.data ?? []) as ApplicationRow[]);
 
     if (rolesRes.error || profilesRes.error) {
       toast.error(rolesRes.error?.message ?? profilesRes.error?.message ?? "Load failed");
@@ -112,6 +161,27 @@ function AdminPage() {
       );
     }
     setLoadingData(false);
+  }
+
+  async function updateBookingStatus(id: string, status: BookingStatus) {
+    setBusyRowId(id);
+    const { error } = await supabase.from("bookings").update({ status }).eq("id", id);
+    setBusyRowId(null);
+    if (error) return toast.error(error.message);
+    setBookings((prev) => prev.map((b) => (b.id === id ? { ...b, status } : b)));
+    toast.success(`Booking ${status}`);
+  }
+
+  async function updateApplicationStatus(id: string, status: ApplicationStatus) {
+    setBusyRowId(id);
+    const { error } = await supabase
+      .from("provider_applications")
+      .update({ status })
+      .eq("id", id);
+    setBusyRowId(null);
+    if (error) return toast.error(error.message);
+    setApplications((prev) => prev.map((a) => (a.id === id ? { ...a, status } : a)));
+    toast.success(`Application ${status}`);
   }
 
   async function handleClaim() {
@@ -361,6 +431,124 @@ function AdminPage() {
         </div>
       </section>
 
+      {/* Bookings */}
+      <section className="mt-10 rounded-3xl border border-border bg-card p-6 shadow-soft">
+        <h2 className="text-xl font-semibold">Bookings</h2>
+        <p className="mt-1 text-sm text-muted-foreground">All customer service requests.</p>
+
+        <div className="mt-4 overflow-hidden rounded-2xl border border-border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Customer</TableHead>
+                <TableHead>Service</TableHead>
+                <TableHead>Area</TableHead>
+                <TableHead>When</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {bookings.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
+                    {loadingData ? "Loading…" : "No bookings yet"}
+                  </TableCell>
+                </TableRow>
+              ) : (
+                bookings.map((b) => (
+                  <TableRow key={b.id}>
+                    <TableCell>
+                      <div className="font-medium">{b.full_name}</div>
+                      <div className="text-xs text-muted-foreground">{b.phone}</div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="capitalize">{b.category}</div>
+                      {b.service && <div className="text-xs text-muted-foreground">{b.service}</div>}
+                    </TableCell>
+                    <TableCell className="capitalize">{b.area}</TableCell>
+                    <TableCell className="text-xs">
+                      {b.preferred_date}
+                      <div className="text-muted-foreground">{b.preferred_time_slot}</div>
+                    </TableCell>
+                    <TableCell><BookingStatusBadge status={b.status} /></TableCell>
+                    <TableCell className="text-right">
+                      <select
+                        className="rounded-md border border-border bg-background px-2 py-1 text-xs"
+                        value={b.status}
+                        disabled={busyRowId === b.id}
+                        onChange={(e) => updateBookingStatus(b.id, e.target.value as BookingStatus)}
+                      >
+                        {(["new", "confirmed", "assigned", "completed", "cancelled"] as const).map((s) => (
+                          <option key={s} value={s}>{s}</option>
+                        ))}
+                      </select>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </section>
+
+      {/* Provider applications (form submissions) */}
+      <section className="mt-10 rounded-3xl border border-border bg-card p-6 shadow-soft">
+        <h2 className="text-xl font-semibold">Provider applications (form)</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Submissions from the “Become a provider” form.
+        </p>
+
+        <div className="mt-4 overflow-hidden rounded-2xl border border-border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Applicant</TableHead>
+                <TableHead>Category</TableHead>
+                <TableHead>Area</TableHead>
+                <TableHead>Experience</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {applications.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
+                    {loadingData ? "Loading…" : "No applications yet"}
+                  </TableCell>
+                </TableRow>
+              ) : (
+                applications.map((a) => (
+                  <TableRow key={a.id}>
+                    <TableCell>
+                      <div className="font-medium">{a.full_name}</div>
+                      <div className="text-xs text-muted-foreground">{a.email} · {a.phone}</div>
+                    </TableCell>
+                    <TableCell className="capitalize">{a.category}</TableCell>
+                    <TableCell className="capitalize">{a.coverage_area}</TableCell>
+                    <TableCell className="text-xs">{a.experience}</TableCell>
+                    <TableCell><AppStatusBadge status={a.status} /></TableCell>
+                    <TableCell className="text-right">
+                      <select
+                        className="rounded-md border border-border bg-background px-2 py-1 text-xs"
+                        value={a.status}
+                        disabled={busyRowId === a.id}
+                        onChange={(e) => updateApplicationStatus(a.id, e.target.value as ApplicationStatus)}
+                      >
+                        {(["new", "reviewing", "approved", "rejected"] as const).map((s) => (
+                          <option key={s} value={s}>{s}</option>
+                        ))}
+                      </select>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </section>
+
       {/* Roles */}
       <section className="mt-10 rounded-3xl border border-border bg-card p-6 shadow-soft">
         <h2 className="text-xl font-semibold">Roles</h2>
@@ -452,6 +640,35 @@ function StatusBadge({ status }: { status: ProviderStatus }) {
   return (
     <span className={`rounded-full px-2 py-0.5 text-xs font-medium capitalize ${map[status]}`}>
       {status.replace("_", " ")}
+    </span>
+  );
+}
+
+function BookingStatusBadge({ status }: { status: BookingStatus }) {
+  const map: Record<BookingStatus, string> = {
+    new: "bg-sky-500/15 text-sky-700 dark:text-sky-300",
+    confirmed: "bg-amber-500/15 text-amber-700 dark:text-amber-300",
+    assigned: "bg-violet-500/15 text-violet-700 dark:text-violet-300",
+    completed: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
+    cancelled: "bg-rose-500/15 text-rose-700 dark:text-rose-300",
+  };
+  return (
+    <span className={`rounded-full px-2 py-0.5 text-xs font-medium capitalize ${map[status]}`}>
+      {status}
+    </span>
+  );
+}
+
+function AppStatusBadge({ status }: { status: ApplicationStatus }) {
+  const map: Record<ApplicationStatus, string> = {
+    new: "bg-sky-500/15 text-sky-700 dark:text-sky-300",
+    reviewing: "bg-amber-500/15 text-amber-700 dark:text-amber-300",
+    approved: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
+    rejected: "bg-rose-500/15 text-rose-700 dark:text-rose-300",
+  };
+  return (
+    <span className={`rounded-full px-2 py-0.5 text-xs font-medium capitalize ${map[status]}`}>
+      {status}
     </span>
   );
 }
