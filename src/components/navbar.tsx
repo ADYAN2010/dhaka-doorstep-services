@@ -16,7 +16,8 @@ const NAV = [
 export function Navbar() {
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const { user, signOut, loading } = useAuth();
+  const { user, roles, signOut, loading } = useAuth();
+  const isAdmin = roles.includes("admin");
   const navigate = useNavigate();
 
   async function handleSignOut() {
