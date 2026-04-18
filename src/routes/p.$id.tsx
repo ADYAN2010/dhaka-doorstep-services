@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
-import { ArrowRight, BadgeCheck, Heart, Loader2, MapPin, Star } from "lucide-react";
+import { ArrowRight, BadgeCheck, Clock, Heart, Loader2, MapPin, Star } from "lucide-react";
 import { toast } from "sonner";
 import { SiteShell } from "@/components/site-shell";
 import { supabase } from "@/integrations/supabase/client";
