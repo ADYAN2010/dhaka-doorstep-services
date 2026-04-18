@@ -180,18 +180,24 @@ function ProviderDashboard() {
     await refresh();
   }
 
+  // Filter open leads against my saved availability (date weekday + time slot midpoint).
+  const visibleOpenLeads = useMemo(() => {
+    if (!respectAvailability || !hasAvailability) return openLeads;
+    return openLeads.filter((l) => leadMatchesAvailability(l, availability));
+  }, [openLeads, availability, hasAvailability, respectAvailability]);
+
   const stats = useMemo(() => {
     const completed = myJobs.filter((l) => l.status === "completed");
     const earnings = completed.reduce((sum, l) => {
       return sum + (l.budget_range ? (BUDGET_MIDPOINT[l.budget_range] ?? 0) : 0);
     }, 0);
     return {
-      open: openLeads.length,
+      open: visibleOpenLeads.length,
       assigned: myJobs.filter((l) => l.status === "assigned").length,
       completed: completed.length,
       earnings,
     };
-  }, [openLeads, myJobs]);
+  }, [visibleOpenLeads, myJobs]);
 
   if (authLoading || (user && !isProvider)) {
     return (
