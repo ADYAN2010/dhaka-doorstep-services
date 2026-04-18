@@ -431,6 +431,124 @@ function AdminPage() {
         </div>
       </section>
 
+      {/* Bookings */}
+      <section className="mt-10 rounded-3xl border border-border bg-card p-6 shadow-soft">
+        <h2 className="text-xl font-semibold">Bookings</h2>
+        <p className="mt-1 text-sm text-muted-foreground">All customer service requests.</p>
+
+        <div className="mt-4 overflow-hidden rounded-2xl border border-border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Customer</TableHead>
+                <TableHead>Service</TableHead>
+                <TableHead>Area</TableHead>
+                <TableHead>When</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {bookings.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
+                    {loadingData ? "Loading…" : "No bookings yet"}
+                  </TableCell>
+                </TableRow>
+              ) : (
+                bookings.map((b) => (
+                  <TableRow key={b.id}>
+                    <TableCell>
+                      <div className="font-medium">{b.full_name}</div>
+                      <div className="text-xs text-muted-foreground">{b.phone}</div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="capitalize">{b.category}</div>
+                      {b.service && <div className="text-xs text-muted-foreground">{b.service}</div>}
+                    </TableCell>
+                    <TableCell className="capitalize">{b.area}</TableCell>
+                    <TableCell className="text-xs">
+                      {b.preferred_date}
+                      <div className="text-muted-foreground">{b.preferred_time_slot}</div>
+                    </TableCell>
+                    <TableCell><BookingStatusBadge status={b.status} /></TableCell>
+                    <TableCell className="text-right">
+                      <select
+                        className="rounded-md border border-border bg-background px-2 py-1 text-xs"
+                        value={b.status}
+                        disabled={busyRowId === b.id}
+                        onChange={(e) => updateBookingStatus(b.id, e.target.value as BookingStatus)}
+                      >
+                        {(["new", "confirmed", "assigned", "completed", "cancelled"] as const).map((s) => (
+                          <option key={s} value={s}>{s}</option>
+                        ))}
+                      </select>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </section>
+
+      {/* Provider applications (form submissions) */}
+      <section className="mt-10 rounded-3xl border border-border bg-card p-6 shadow-soft">
+        <h2 className="text-xl font-semibold">Provider applications (form)</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Submissions from the “Become a provider” form.
+        </p>
+
+        <div className="mt-4 overflow-hidden rounded-2xl border border-border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Applicant</TableHead>
+                <TableHead>Category</TableHead>
+                <TableHead>Area</TableHead>
+                <TableHead>Experience</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {applications.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
+                    {loadingData ? "Loading…" : "No applications yet"}
+                  </TableCell>
+                </TableRow>
+              ) : (
+                applications.map((a) => (
+                  <TableRow key={a.id}>
+                    <TableCell>
+                      <div className="font-medium">{a.full_name}</div>
+                      <div className="text-xs text-muted-foreground">{a.email} · {a.phone}</div>
+                    </TableCell>
+                    <TableCell className="capitalize">{a.category}</TableCell>
+                    <TableCell className="capitalize">{a.coverage_area}</TableCell>
+                    <TableCell className="text-xs">{a.experience}</TableCell>
+                    <TableCell><AppStatusBadge status={a.status} /></TableCell>
+                    <TableCell className="text-right">
+                      <select
+                        className="rounded-md border border-border bg-background px-2 py-1 text-xs"
+                        value={a.status}
+                        disabled={busyRowId === a.id}
+                        onChange={(e) => updateApplicationStatus(a.id, e.target.value as ApplicationStatus)}
+                      >
+                        {(["new", "reviewing", "approved", "rejected"] as const).map((s) => (
+                          <option key={s} value={s}>{s}</option>
+                        ))}
+                      </select>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </section>
+
       {/* Roles */}
       <section className="mt-10 rounded-3xl border border-border bg-card p-6 shadow-soft">
         <h2 className="text-xl font-semibold">Roles</h2>
