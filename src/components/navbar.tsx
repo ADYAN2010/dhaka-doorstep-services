@@ -1,9 +1,10 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { MapPin, Menu, X, ChevronDown, LogOut, LayoutDashboard, User as UserIcon, Shield } from "lucide-react";
+import { MapPin, Menu, X, ChevronDown, LogOut, LayoutDashboard, User as UserIcon, Shield, MessageCircle } from "lucide-react";
 import { Logo } from "./logo";
 import { ThemeToggle } from "./theme-toggle";
 import { useAuth } from "./auth-provider";
+import { useUnreadMessages } from "@/hooks/use-unread-messages";
 import { supabase } from "@/integrations/supabase/client";
 
 const NAV = [
@@ -22,6 +23,7 @@ export function Navbar() {
   const isProvider = roles.includes("provider");
   const dashboardTo = isProvider ? "/provider-dashboard" : "/dashboard";
   const navigate = useNavigate();
+  const unread = useUnreadMessages();
   const [profile, setProfile] = useState<{ full_name: string | null; avatar_url: string | null } | null>(null);
 
   useEffect(() => {
@@ -118,7 +120,7 @@ export function Navbar() {
               <button
                 type="button"
                 onClick={() => setMenuOpen((v) => !v)}
-                className="flex items-center gap-2 rounded-full border border-border bg-background py-1 pl-1 pr-3 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+                className="relative flex items-center gap-2 rounded-full border border-border bg-background py-1 pl-1 pr-3 text-sm font-medium text-foreground transition-colors hover:bg-muted"
                 aria-label={`Account menu for ${displayName}`}
               >
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-primary text-xs font-bold text-primary-foreground">
@@ -134,6 +136,11 @@ export function Navbar() {
                 </span>
                 <span className="hidden max-w-[120px] truncate lg:inline">{firstName}</span>
                 <ChevronDown className="h-3.5 w-3.5 opacity-60" />
+                {unread > 0 && (
+                  <span className="absolute -right-1 -top-1 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground ring-2 ring-background">
+                    {unread > 9 ? "9+" : unread}
+                  </span>
+                )}
               </button>
               {menuOpen && (
                 <>
@@ -172,6 +179,20 @@ export function Navbar() {
                       className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-muted"
                     >
                       <LayoutDashboard className="h-4 w-4" /> Dashboard
+                    </Link>
+                    <Link
+                      to="/messages"
+                      onClick={() => setMenuOpen(false)}
+                      className="flex items-center justify-between gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-muted"
+                    >
+                      <span className="flex items-center gap-2">
+                        <MessageCircle className="h-4 w-4" /> Messages
+                      </span>
+                      {unread > 0 && (
+                        <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground">
+                          {unread}
+                        </span>
+                      )}
                     </Link>
                     {isProvider && (
                       <Link

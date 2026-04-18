@@ -7,6 +7,7 @@ import {
   Clock,
   Loader2,
   MapPin,
+  MessageCircle,
   Phone,
   TrendingUp,
   XCircle,
@@ -411,7 +412,19 @@ function ProviderDashboard() {
               body="Accepted leads will show up here with the customer's contact details."
             />
           ) : (
-            <LeadsList leads={myJobs} showStatus />
+            <LeadsList
+              leads={myJobs}
+              showStatus
+              renderAction={(l) =>
+                l.status === "assigned" || l.status === "completed" ? (
+                  <Button asChild size="sm" variant="outline">
+                    <Link to="/messages" search={{ booking: l.id }}>
+                      <MessageCircle className="mr-1 h-3.5 w-3.5" /> Message
+                    </Link>
+                  </Button>
+                ) : null
+              }
+            />
           )}
         </div>
       </section>

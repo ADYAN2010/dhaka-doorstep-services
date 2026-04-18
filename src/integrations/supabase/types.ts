@@ -158,6 +158,80 @@ export type Database = {
         }
         Relationships: []
       }
+      message_threads: {
+        Row: {
+          booking_id: string
+          created_at: string
+          customer_id: string
+          customer_unread_count: number
+          id: string
+          last_message_at: string
+          provider_id: string
+          provider_unread_count: number
+          updated_at: string
+        }
+        Insert: {
+          booking_id: string
+          created_at?: string
+          customer_id: string
+          customer_unread_count?: number
+          id?: string
+          last_message_at?: string
+          provider_id: string
+          provider_unread_count?: number
+          updated_at?: string
+        }
+        Update: {
+          booking_id?: string
+          created_at?: string
+          customer_id?: string
+          customer_unread_count?: number
+          id?: string
+          last_message_at?: string
+          provider_id?: string
+          provider_unread_count?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          image_url: string | null
+          read_at: string | null
+          sender_id: string
+          thread_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          read_at?: string | null
+          sender_id: string
+          thread_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          read_at?: string | null
+          sender_id?: string
+          thread_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "message_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           area: string | null
@@ -462,6 +536,26 @@ export type Database = {
         }
       }
       claim_first_admin: { Args: never; Returns: boolean }
+      get_or_create_thread: {
+        Args: { _booking_id: string }
+        Returns: {
+          booking_id: string
+          created_at: string
+          customer_id: string
+          customer_unread_count: number
+          id: string
+          last_message_at: string
+          provider_id: string
+          provider_unread_count: number
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "message_threads"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -470,6 +564,11 @@ export type Database = {
         Returns: boolean
       }
       is_approved_provider: { Args: { _user_id: string }; Returns: boolean }
+      is_thread_participant: {
+        Args: { _thread_id: string; _user_id: string }
+        Returns: boolean
+      }
+      mark_thread_read: { Args: { _thread_id: string }; Returns: undefined }
       provider_available_at: {
         Args: { _time: string; _user_id: string; _weekday: number }
         Returns: boolean

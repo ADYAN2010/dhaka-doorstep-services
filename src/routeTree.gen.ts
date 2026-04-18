@@ -35,6 +35,7 @@ import { Route as DhakaAreaRouteImport } from './routes/dhaka.$area'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthenticatedProviderDashboardRouteImport } from './routes/_authenticated.provider-dashboard'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated.profile'
+import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated.messages'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated.dashboard'
 import { Route as AuthenticatedCoverageRouteImport } from './routes/_authenticated.coverage'
 import { Route as AuthenticatedAvailabilityRouteImport } from './routes/_authenticated.availability'
@@ -171,6 +172,11 @@ const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedMessagesRoute = AuthenticatedMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -217,6 +223,7 @@ export interface FileRoutesByFullPath {
   '/availability': typeof AuthenticatedAvailabilityRoute
   '/coverage': typeof AuthenticatedCoverageRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/messages': typeof AuthenticatedMessagesRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/provider-dashboard': typeof AuthenticatedProviderDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -249,6 +256,7 @@ export interface FileRoutesByTo {
   '/availability': typeof AuthenticatedAvailabilityRoute
   '/coverage': typeof AuthenticatedCoverageRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/messages': typeof AuthenticatedMessagesRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/provider-dashboard': typeof AuthenticatedProviderDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -283,6 +291,7 @@ export interface FileRoutesById {
   '/_authenticated/availability': typeof AuthenticatedAvailabilityRoute
   '/_authenticated/coverage': typeof AuthenticatedCoverageRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/messages': typeof AuthenticatedMessagesRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/provider-dashboard': typeof AuthenticatedProviderDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -317,6 +326,7 @@ export interface FileRouteTypes {
     | '/availability'
     | '/coverage'
     | '/dashboard'
+    | '/messages'
     | '/profile'
     | '/provider-dashboard'
     | '/blog/$slug'
@@ -349,6 +359,7 @@ export interface FileRouteTypes {
     | '/availability'
     | '/coverage'
     | '/dashboard'
+    | '/messages'
     | '/profile'
     | '/provider-dashboard'
     | '/blog/$slug'
@@ -382,6 +393,7 @@ export interface FileRouteTypes {
     | '/_authenticated/availability'
     | '/_authenticated/coverage'
     | '/_authenticated/dashboard'
+    | '/_authenticated/messages'
     | '/_authenticated/profile'
     | '/_authenticated/provider-dashboard'
     | '/blog/$slug'
@@ -609,6 +621,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProfileRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/messages': {
+      id: '/_authenticated/messages'
+      path: '/messages'
+      fullPath: '/messages'
+      preLoaderRoute: typeof AuthenticatedMessagesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -651,6 +670,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedAvailabilityRoute: typeof AuthenticatedAvailabilityRoute
   AuthenticatedCoverageRoute: typeof AuthenticatedCoverageRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedMessagesRoute: typeof AuthenticatedMessagesRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedProviderDashboardRoute: typeof AuthenticatedProviderDashboardRoute
 }
@@ -659,6 +679,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAvailabilityRoute: AuthenticatedAvailabilityRoute,
   AuthenticatedCoverageRoute: AuthenticatedCoverageRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedMessagesRoute: AuthenticatedMessagesRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedProviderDashboardRoute: AuthenticatedProviderDashboardRoute,
 }
