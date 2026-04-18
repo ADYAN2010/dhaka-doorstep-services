@@ -197,14 +197,16 @@ function WhyUs() {
         description="Built for Bangladesh — local providers, local quality, local support."
       />
       <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {items.map((it) => (
-          <div key={it.title} className="rounded-2xl border border-border bg-card p-5">
-            <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-              <it.icon className="h-5 w-5" />
-            </span>
-            <h3 className="mt-4 text-base font-semibold text-card-foreground">{it.title}</h3>
-            <p className="mt-1.5 text-sm text-muted-foreground">{it.desc}</p>
-          </div>
+        {items.map((it, i) => (
+          <Reveal key={it.title} delay={i * 60}>
+            <div className="rounded-2xl border border-border bg-card p-5 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-elevated">
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <it.icon className="h-5 w-5" />
+              </span>
+              <h3 className="mt-4 text-base font-semibold text-card-foreground">{it.title}</h3>
+              <p className="mt-1.5 text-sm text-muted-foreground">{it.desc}</p>
+            </div>
+          </Reveal>
         ))}
       </div>
     </section>
@@ -222,8 +224,10 @@ function FeaturedProviders() {
           action={{ label: "Browse all providers", to: "/providers" }}
         />
         <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {featuredProviders.map((p) => (
-            <ProviderCard key={p.slug} provider={p} />
+          {featuredProviders.map((p, i) => (
+            <Reveal key={p.slug} delay={i * 70}>
+              <ProviderCard provider={p} />
+            </Reveal>
           ))}
         </div>
       </div>
