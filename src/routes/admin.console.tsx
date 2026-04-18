@@ -28,7 +28,7 @@ function ConsoleLayout() {
   }
 
   if (!user) {
-    throw redirect({ to: "/login", search: { next: "/admin/console" } });
+    throw redirect({ to: "/login" });
   }
 
   if (!roles.includes("admin")) {
