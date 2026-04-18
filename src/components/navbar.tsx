@@ -1,8 +1,9 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { MapPin, Menu, X, ChevronDown } from "lucide-react";
+import { MapPin, Menu, X, ChevronDown, LogOut, LayoutDashboard, User as UserIcon } from "lucide-react";
 import { Logo } from "./logo";
 import { ThemeToggle } from "./theme-toggle";
+import { useAuth } from "./auth-provider";
 
 const NAV = [
   { to: "/services", label: "Services" },
@@ -14,6 +15,22 @@ const NAV = [
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const { user, signOut, loading } = useAuth();
+  const navigate = useNavigate();
+
+  async function handleSignOut() {
+    await signOut();
+    setMenuOpen(false);
+    navigate({ to: "/" });
+  }
+
+  const initials = (user?.user_metadata?.full_name as string | undefined)
+    ?.split(" ")
+    .map((s) => s[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase() ?? user?.email?.[0]?.toUpperCase() ?? "U";
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/70">
@@ -47,18 +64,73 @@ export function Navbar() {
 
           <ThemeToggle />
 
-          <Link
-            to="/become-provider"
-            className="hidden rounded-full border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted md:inline-flex"
-          >
-            Join as Provider
-          </Link>
-          <Link
-            to="/book"
-            className="hidden rounded-full bg-gradient-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-soft transition-transform hover:scale-[1.02] md:inline-flex"
-          >
-            Book a Service
-          </Link>
+          {!loading && user ? (
+            <div className="relative hidden md:block">
+              <button
+                type="button"
+                onClick={() => setMenuOpen((v) => !v)}
+                className="flex items-center gap-2 rounded-full border border-border bg-background py-1 pl-1 pr-3 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+              >
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-primary text-xs font-bold text-primary-foreground">
+                  {initials}
+                </span>
+                <ChevronDown className="h-3.5 w-3.5 opacity-60" />
+              </button>
+              {menuOpen && (
+                <>
+                  <button
+                    type="button"
+                    aria-hidden
+                    className="fixed inset-0 z-40 cursor-default"
+                    onClick={() => setMenuOpen(false)}
+                  />
+                  <div className="absolute right-0 z-50 mt-2 w-56 overflow-hidden rounded-2xl border border-border bg-popover p-1 shadow-elevated">
+                    <div className="px-3 py-2 text-xs text-muted-foreground">
+                      Signed in as
+                      <div className="truncate text-sm font-medium text-foreground">{user.email}</div>
+                    </div>
+                    <div className="my-1 h-px bg-border" />
+                    <Link
+                      to="/"
+                      onClick={() => setMenuOpen(false)}
+                      className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-muted"
+                    >
+                      <LayoutDashboard className="h-4 w-4" /> Dashboard
+                    </Link>
+                    <Link
+                      to="/"
+                      onClick={() => setMenuOpen(false)}
+                      className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-muted"
+                    >
+                      <UserIcon className="h-4 w-4" /> Profile
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={handleSignOut}
+                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-foreground hover:bg-muted"
+                    >
+                      <LogOut className="h-4 w-4" /> Log out
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          ) : !loading ? (
+            <>
+              <Link
+                to="/login"
+                className="hidden rounded-full px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted md:inline-flex"
+              >
+                Log in
+              </Link>
+              <Link
+                to="/signup"
+                className="hidden rounded-full bg-gradient-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-soft transition-transform hover:scale-[1.02] md:inline-flex"
+              >
+                Sign up
+              </Link>
+            </>
+          ) : null}
 
           <button
             type="button"
@@ -85,20 +157,38 @@ export function Navbar() {
               </Link>
             ))}
             <div className="mt-2 flex flex-col gap-2">
-              <Link
-                to="/become-provider"
-                onClick={() => setOpen(false)}
-                className="rounded-full border border-border px-4 py-2 text-center text-sm font-medium"
-              >
-                Join as Provider
-              </Link>
-              <Link
-                to="/book"
-                onClick={() => setOpen(false)}
-                className="rounded-full bg-gradient-primary px-4 py-2 text-center text-sm font-semibold text-primary-foreground"
-              >
-                Book a Service
-              </Link>
+              {user ? (
+                <>
+                  <div className="rounded-lg bg-muted px-3 py-2 text-sm">
+                    <div className="text-xs text-muted-foreground">Signed in</div>
+                    <div className="truncate font-medium text-foreground">{user.email}</div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => { setOpen(false); handleSignOut(); }}
+                    className="rounded-full border border-border px-4 py-2 text-center text-sm font-medium"
+                  >
+                    Log out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    onClick={() => setOpen(false)}
+                    className="rounded-full border border-border px-4 py-2 text-center text-sm font-medium"
+                  >
+                    Log in
+                  </Link>
+                  <Link
+                    to="/signup"
+                    onClick={() => setOpen(false)}
+                    className="rounded-full bg-gradient-primary px-4 py-2 text-center text-sm font-semibold text-primary-foreground"
+                  >
+                    Sign up
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>
