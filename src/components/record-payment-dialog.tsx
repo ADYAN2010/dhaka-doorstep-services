@@ -74,9 +74,9 @@ export function RecordPaymentDialog({
         _amount: value,
         _method: method,
         _gateway: METHOD_TO_GATEWAY[method],
-        _gateway_ref: ref || null,
+        _gateway_ref: ref || undefined,
         _status: "paid",
-        _notes: notes || null,
+        _notes: notes || undefined,
       });
       if (error) throw error;
       toast.success("Payment recorded");
