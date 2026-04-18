@@ -253,9 +253,18 @@ export function Navbar() {
             <div className="mt-2 flex flex-col gap-2">
               {user ? (
                 <>
-                  <div className="rounded-lg bg-muted px-3 py-2 text-sm">
-                    <div className="text-xs text-muted-foreground">Signed in</div>
-                    <div className="truncate font-medium text-foreground">{user.email}</div>
+                  <div className="flex items-center gap-3 rounded-lg bg-muted px-3 py-2 text-sm">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-primary text-xs font-bold text-primary-foreground">
+                      {profile?.avatar_url ? (
+                        <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
+                      ) : (
+                        initials
+                      )}
+                    </span>
+                    <div className="min-w-0">
+                      <div className="truncate font-medium text-foreground">{displayName}</div>
+                      <div className="truncate text-xs text-muted-foreground">{user.email}</div>
+                    </div>
                   </div>
                   <button
                     type="button"
