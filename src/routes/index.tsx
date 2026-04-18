@@ -64,6 +64,17 @@ function Hero() {
       />
       <div className="absolute inset-0 -z-10 bg-gradient-to-t from-midnight via-midnight/70 to-transparent" />
 
+      {/* Floating illustration — large screens only, decorative */}
+      <img
+        src={heroIllustration}
+        alt=""
+        aria-hidden="true"
+        width={540}
+        height={540}
+        className="pointer-events-none absolute right-0 top-1/2 hidden -translate-y-1/2 select-none opacity-90 drop-shadow-2xl lg:block xl:right-8"
+        style={{ width: "min(42vw, 540px)", animation: "float 6s ease-in-out infinite" }}
+      />
+
       <div className="container-page py-20 md:py-28">
         <div className="mx-auto max-w-3xl text-center">
           <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-3 py-1 text-xs font-medium backdrop-blur">
