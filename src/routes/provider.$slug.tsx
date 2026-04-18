@@ -3,6 +3,7 @@ import { ArrowRight, BadgeCheck, Briefcase, Clock, MapPin, Star, Users } from "l
 import { SiteShell } from "@/components/site-shell";
 import { findProvider } from "@/data/providers";
 import { areas as ALL_AREAS } from "@/data/areas";
+import { buildSeo, OG } from "@/lib/seo";
 
 export const Route = createFileRoute("/provider/$slug")({
   loader: ({ params }) => {
@@ -10,17 +11,23 @@ export const Route = createFileRoute("/provider/$slug")({
     if (!provider) throw notFound();
     return { provider };
   },
-  head: ({ loaderData }) => {
+  head: ({ loaderData, params }) => {
     const p = loaderData?.provider;
-    if (!p) return { meta: [{ title: "Provider — Shebabd" }] };
-    return {
-      meta: [
-        { title: `${p.name} — ${p.categoryName} in Dhaka | Shebabd` },
-        { name: "description", content: `${p.bio.slice(0, 150)}` },
-        { property: "og:title", content: `${p.name} — ${p.categoryName} in Dhaka` },
-        { property: "og:description", content: p.bio.slice(0, 150) },
-      ],
-    };
+    if (!p) {
+      return buildSeo({
+        title: "Provider — Shebabd",
+        description: "Verified service provider on Shebabd.",
+        canonical: `/provider/${params.slug}`,
+        noindex: true,
+      });
+    }
+    return buildSeo({
+      title: `${p.name} — ${p.categoryName} in Dhaka | Shebabd`,
+      description: p.bio.slice(0, 160),
+      canonical: `/provider/${p.slug}`,
+      image: OG.providers,
+      type: "profile",
+    });
   },
   notFoundComponent: () => (
     <SiteShell>
