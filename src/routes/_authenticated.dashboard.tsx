@@ -11,6 +11,7 @@ import {
   Heart,
   Star,
   ArrowRight,
+  MessageCircle,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/auth-provider";
@@ -396,7 +397,14 @@ function BookingsCard({
                       <TableCell className="text-xs text-muted-foreground">
                         {new Date(b.created_at).toLocaleDateString()}
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-right space-x-2">
+                        {b.provider_id && (b.status === "assigned" || b.status === "completed") && (
+                          <Button asChild size="sm" variant="outline">
+                            <Link to="/messages" search={{ booking: b.id }}>
+                              <MessageCircle className="mr-1 h-3.5 w-3.5" /> Message
+                            </Link>
+                          </Button>
+                        )}
                         {canCancel && (
                           <Button size="sm" variant="outline" onClick={() => onCancel(b.id)}>
                             <X className="mr-1 h-3.5 w-3.5" /> Cancel
@@ -447,6 +455,13 @@ function BookingsCard({
                     </div>
                   </div>
                   <div className="mt-3 flex flex-wrap gap-2">
+                    {b.provider_id && (b.status === "assigned" || b.status === "completed") && (
+                      <Button asChild size="sm" variant="outline">
+                        <Link to="/messages" search={{ booking: b.id }}>
+                          <MessageCircle className="mr-1 h-3.5 w-3.5" /> Message
+                        </Link>
+                      </Button>
+                    )}
                     {canCancel && (
                       <Button size="sm" variant="outline" onClick={() => onCancel(b.id)}>
                         <X className="mr-1 h-3.5 w-3.5" /> Cancel booking
