@@ -14,6 +14,63 @@ export type Database = {
   }
   public: {
     Tables: {
+      bookings: {
+        Row: {
+          address: string | null
+          area: string
+          budget_range: string | null
+          category: string
+          created_at: string
+          email: string | null
+          full_name: string
+          id: string
+          notes: string | null
+          phone: string
+          preferred_date: string
+          preferred_time_slot: string
+          service: string | null
+          status: Database["public"]["Enums"]["booking_status"]
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          address?: string | null
+          area: string
+          budget_range?: string | null
+          category: string
+          created_at?: string
+          email?: string | null
+          full_name: string
+          id?: string
+          notes?: string | null
+          phone: string
+          preferred_date: string
+          preferred_time_slot: string
+          service?: string | null
+          status?: Database["public"]["Enums"]["booking_status"]
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          address?: string | null
+          area?: string
+          budget_range?: string | null
+          category?: string
+          created_at?: string
+          email?: string | null
+          full_name?: string
+          id?: string
+          notes?: string | null
+          phone?: string
+          preferred_date?: string
+          preferred_time_slot?: string
+          service?: string | null
+          status?: Database["public"]["Enums"]["booking_status"]
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           area: string | null
@@ -44,6 +101,60 @@ export type Database = {
           phone?: string | null
           provider_status?: Database["public"]["Enums"]["provider_status"]
           updated_at?: string
+        }
+        Relationships: []
+      }
+      provider_applications: {
+        Row: {
+          about: string | null
+          applicant_type: string
+          availability: string | null
+          category: string
+          coverage_area: string
+          created_at: string
+          email: string
+          experience: string
+          full_name: string
+          id: string
+          phone: string
+          status: Database["public"]["Enums"]["application_status"]
+          team_size: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          about?: string | null
+          applicant_type: string
+          availability?: string | null
+          category: string
+          coverage_area: string
+          created_at?: string
+          email: string
+          experience: string
+          full_name: string
+          id?: string
+          phone: string
+          status?: Database["public"]["Enums"]["application_status"]
+          team_size?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          about?: string | null
+          applicant_type?: string
+          availability?: string | null
+          category?: string
+          coverage_area?: string
+          created_at?: string
+          email?: string
+          experience?: string
+          full_name?: string
+          id?: string
+          phone?: string
+          status?: Database["public"]["Enums"]["application_status"]
+          team_size?: string | null
+          updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -91,6 +202,13 @@ export type Database = {
     }
     Enums: {
       app_role: "customer" | "provider" | "admin"
+      application_status: "new" | "reviewing" | "approved" | "rejected"
+      booking_status:
+        | "new"
+        | "confirmed"
+        | "assigned"
+        | "completed"
+        | "cancelled"
       provider_status: "not_applicable" | "pending" | "approved" | "rejected"
     }
     CompositeTypes: {
@@ -220,6 +338,14 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["customer", "provider", "admin"],
+      application_status: ["new", "reviewing", "approved", "rejected"],
+      booking_status: [
+        "new",
+        "confirmed",
+        "assigned",
+        "completed",
+        "cancelled",
+      ],
       provider_status: ["not_applicable", "pending", "approved", "rejected"],
     },
   },
