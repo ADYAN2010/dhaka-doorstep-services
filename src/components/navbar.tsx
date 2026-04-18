@@ -1,9 +1,10 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { MapPin, Menu, X, ChevronDown, LogOut, LayoutDashboard, User as UserIcon, Shield } from "lucide-react";
+import { MapPin, Menu, X, ChevronDown, LogOut, LayoutDashboard, User as UserIcon, Shield, MessageCircle } from "lucide-react";
 import { Logo } from "./logo";
 import { ThemeToggle } from "./theme-toggle";
 import { useAuth } from "./auth-provider";
+import { useUnreadMessages } from "@/hooks/use-unread-messages";
 import { supabase } from "@/integrations/supabase/client";
 
 const NAV = [
@@ -22,6 +23,7 @@ export function Navbar() {
   const isProvider = roles.includes("provider");
   const dashboardTo = isProvider ? "/provider-dashboard" : "/dashboard";
   const navigate = useNavigate();
+  const unread = useUnreadMessages();
   const [profile, setProfile] = useState<{ full_name: string | null; avatar_url: string | null } | null>(null);
 
   useEffect(() => {
@@ -172,6 +174,20 @@ export function Navbar() {
                       className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-muted"
                     >
                       <LayoutDashboard className="h-4 w-4" /> Dashboard
+                    </Link>
+                    <Link
+                      to="/messages"
+                      onClick={() => setMenuOpen(false)}
+                      className="flex items-center justify-between gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-muted"
+                    >
+                      <span className="flex items-center gap-2">
+                        <MessageCircle className="h-4 w-4" /> Messages
+                      </span>
+                      {unread > 0 && (
+                        <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground">
+                          {unread}
+                        </span>
+                      )}
                     </Link>
                     {isProvider && (
                       <Link
