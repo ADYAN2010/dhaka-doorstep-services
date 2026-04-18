@@ -1,9 +1,13 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, BadgeCheck, Briefcase, Calendar, ShieldCheck, TrendingUp, Upload, Users, Wallet } from "lucide-react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState, type FormEvent } from "react";
+import { ArrowRight, BadgeCheck, Briefcase, Calendar, Loader2, ShieldCheck, TrendingUp, Upload, Users, Wallet } from "lucide-react";
+import { toast } from "sonner";
 import { SiteShell } from "@/components/site-shell";
 import { PageHeader } from "@/components/page-header";
 import { categories } from "@/data/categories";
 import { areas } from "@/data/areas";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/components/auth-provider";
 
 export const Route = createFileRoute("/become-provider")({
   head: () => ({
@@ -17,7 +21,62 @@ export const Route = createFileRoute("/become-provider")({
   component: BecomeProviderPage,
 });
 
+const APPLICANT_TYPES = ["Individual professional", "Small agency / team", "Established company"] as const;
+const EXPERIENCE = ["0–1 years", "2–5 years", "6–10 years", "10+ years"] as const;
+const TEAM_SIZES = ["Just me", "2–5", "6–15", "16+"] as const;
+const AVAILABILITIES = ["Full-time", "Part-time", "Weekends only"] as const;
+
 function BecomeProviderPage() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [submitting, setSubmitting] = useState(false);
+  const [form, setForm] = useState({
+    full_name: "",
+    phone: "",
+    email: "",
+    applicant_type: APPLICANT_TYPES[0] as string,
+    category: "",
+    experience: EXPERIENCE[0] as string,
+    coverage_area: "",
+    team_size: TEAM_SIZES[0] as string,
+    availability: AVAILABILITIES[0] as string,
+    about: "",
+  });
+
+  function update<K extends keyof typeof form>(key: K, value: string) {
+    setForm((f) => ({ ...f, [key]: value }));
+  }
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    if (!form.full_name || !form.phone || !form.email || !form.category || !form.coverage_area) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
+    setSubmitting(true);
+    const { error } = await supabase.from("provider_applications").insert({
+      user_id: user?.id ?? null,
+      full_name: form.full_name,
+      phone: form.phone,
+      email: form.email,
+      applicant_type: form.applicant_type,
+      category: form.category,
+      experience: form.experience,
+      coverage_area: form.coverage_area,
+      team_size: form.team_size || null,
+      availability: form.availability || null,
+      about: form.about || null,
+    });
+    setSubmitting(false);
+
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Application submitted! We'll review within 2–5 business days.");
+    navigate({ to: "/" });
+  }
+
   return (
     <SiteShell>
       <PageHeader
@@ -45,78 +104,83 @@ function BecomeProviderPage() {
 
       <section className="container-page pb-16">
         <div className="grid gap-10 lg:grid-cols-[1fr_360px]">
-          <form className="rounded-2xl border border-border bg-card p-6 shadow-soft md:p-8">
+          <form
+            onSubmit={handleSubmit}
+            className="rounded-2xl border border-border bg-card p-6 shadow-soft md:p-8"
+          >
             <h2 className="text-xl font-bold text-card-foreground">Provider application</h2>
             <p className="mt-1 text-sm text-muted-foreground">We review applications within 2–5 business days.</p>
 
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              <Field label="Full name / business name *"><input className="input" placeholder="Your name or business" /></Field>
-              <Field label="Phone *"><input className="input" type="tel" placeholder="+880 1700 000000" /></Field>
-              <Field label="Email *"><input className="input" type="email" /></Field>
+              <Field label="Full name / business name *">
+                <input className="input" placeholder="Your name or business" required value={form.full_name} onChange={(e) => update("full_name", e.target.value)} />
+              </Field>
+              <Field label="Phone *">
+                <input className="input" type="tel" placeholder="+880 1700 000000" required value={form.phone} onChange={(e) => update("phone", e.target.value)} />
+              </Field>
+              <Field label="Email *">
+                <input className="input" type="email" required value={form.email} onChange={(e) => update("email", e.target.value)} />
+              </Field>
 
               <Field label="I am applying as">
-                <select className="input">
-                  <option>Individual professional</option>
-                  <option>Small agency / team</option>
-                  <option>Established company</option>
+                <select className="input" value={form.applicant_type} onChange={(e) => update("applicant_type", e.target.value)}>
+                  {APPLICANT_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
                 </select>
               </Field>
 
               <Field label="Service category *">
-                <select className="input">
+                <select className="input" required value={form.category} onChange={(e) => update("category", e.target.value)}>
                   <option value="">Choose a category</option>
                   {categories.map((c) => <option key={c.slug} value={c.slug}>{c.name}</option>)}
                 </select>
               </Field>
 
               <Field label="Years of experience *">
-                <select className="input">
-                  <option>0–1 years</option>
-                  <option>2–5 years</option>
-                  <option>6–10 years</option>
-                  <option>10+ years</option>
+                <select className="input" value={form.experience} onChange={(e) => update("experience", e.target.value)}>
+                  {EXPERIENCE.map((x) => <option key={x} value={x}>{x}</option>)}
                 </select>
               </Field>
 
               <Field label="Coverage area *">
-                <select className="input">
+                <select className="input" required value={form.coverage_area} onChange={(e) => update("coverage_area", e.target.value)}>
                   <option value="">Select area</option>
                   {areas.map((a) => <option key={a.slug} value={a.slug}>{a.name}</option>)}
-                  <option>All Dhaka</option>
+                  <option value="all-dhaka">All Dhaka</option>
                 </select>
               </Field>
 
               <Field label="Team size">
-                <select className="input">
-                  <option>Just me</option>
-                  <option>2–5</option>
-                  <option>6–15</option>
-                  <option>16+</option>
+                <select className="input" value={form.team_size} onChange={(e) => update("team_size", e.target.value)}>
+                  {TEAM_SIZES.map((t) => <option key={t} value={t}>{t}</option>)}
                 </select>
               </Field>
 
               <Field label="Availability">
-                <select className="input">
-                  <option>Full-time</option>
-                  <option>Part-time</option>
-                  <option>Weekends only</option>
+                <select className="input" value={form.availability} onChange={(e) => update("availability", e.target.value)}>
+                  {AVAILABILITIES.map((a) => <option key={a} value={a}>{a}</option>)}
                 </select>
               </Field>
             </div>
 
             <div className="mt-4">
               <Field label="About you / portfolio link">
-                <textarea rows={4} className="input" placeholder="Briefly describe your work, achievements, or paste a portfolio link" />
+                <textarea rows={4} className="input" placeholder="Briefly describe your work, achievements, or paste a portfolio link" value={form.about} onChange={(e) => update("about", e.target.value)} />
               </Field>
             </div>
 
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <UploadBox label="NID / Trade license" />
-              <UploadBox label="Portfolio / past work (optional)" />
+              <UploadBox label="NID / Trade license (coming soon)" />
+              <UploadBox label="Portfolio / past work (coming soon)" />
             </div>
 
-            <button type="button" className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-primary px-5 py-3.5 text-sm font-semibold text-primary-foreground shadow-soft">
-              Submit application <ArrowRight className="h-4 w-4" />
+            <button
+              type="submit"
+              disabled={submitting}
+              className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-primary px-5 py-3.5 text-sm font-semibold text-primary-foreground shadow-soft disabled:opacity-60"
+            >
+              {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+              {submitting ? "Submitting…" : "Submit application"}
+              {!submitting && <ArrowRight className="h-4 w-4" />}
             </button>
             <p className="mt-3 text-center text-xs text-muted-foreground">By applying, you agree to our <Link to="/terms" className="underline">Terms</Link> and <Link to="/privacy" className="underline">Privacy Policy</Link>.</p>
 
@@ -168,7 +232,7 @@ function UploadBox({ label }: { label: string }) {
     <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-dashed border-border bg-background p-4 text-sm text-muted-foreground hover:bg-muted">
       <Upload className="h-4 w-4 text-primary" />
       <span>{label}</span>
-      <input type="file" className="hidden" />
+      <input type="file" className="hidden" disabled />
     </label>
   );
 }

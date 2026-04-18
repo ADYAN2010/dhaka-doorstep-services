@@ -1,9 +1,13 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Calendar, Clock, MapPin, Upload, User, Wallet } from "lucide-react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState, type FormEvent } from "react";
+import { ArrowRight, Calendar, Clock, Loader2, MapPin, Upload, User, Wallet } from "lucide-react";
+import { toast } from "sonner";
 import { SiteShell } from "@/components/site-shell";
 import { PageHeader } from "@/components/page-header";
 import { categories } from "@/data/categories";
 import { areas } from "@/data/areas";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/components/auth-provider";
 
 export const Route = createFileRoute("/book")({
   head: () => ({
@@ -17,7 +21,74 @@ export const Route = createFileRoute("/book")({
   component: BookPage,
 });
 
+const TIME_SLOTS = [
+  "Morning (8am – 12pm)",
+  "Afternoon (12pm – 4pm)",
+  "Evening (4pm – 8pm)",
+  "Anytime",
+] as const;
+
+const BUDGET_RANGES = [
+  "No preference",
+  "Under ৳1,000",
+  "৳1,000 – ৳5,000",
+  "৳5,000 – ৳20,000",
+  "Above ৳20,000",
+] as const;
+
 function BookPage() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [submitting, setSubmitting] = useState(false);
+  const [form, setForm] = useState({
+    full_name: "",
+    phone: "",
+    email: "",
+    category: "",
+    service: "",
+    area: "",
+    address: "",
+    preferred_date: "",
+    preferred_time_slot: TIME_SLOTS[0] as string,
+    budget_range: BUDGET_RANGES[0] as string,
+    notes: "",
+  });
+
+  function update<K extends keyof typeof form>(key: K, value: string) {
+    setForm((f) => ({ ...f, [key]: value }));
+  }
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    if (!form.full_name || !form.phone || !form.category || !form.area || !form.preferred_date) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
+    setSubmitting(true);
+    const { error } = await supabase.from("bookings").insert({
+      user_id: user?.id ?? null,
+      full_name: form.full_name,
+      phone: form.phone,
+      email: form.email || null,
+      category: form.category,
+      service: form.service || null,
+      area: form.area,
+      address: form.address || null,
+      preferred_date: form.preferred_date,
+      preferred_time_slot: form.preferred_time_slot,
+      budget_range: form.budget_range || null,
+      notes: form.notes || null,
+    });
+    setSubmitting(false);
+
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Booking submitted! We'll call you within an hour.");
+    navigate({ to: "/" });
+  }
+
   return (
     <SiteShell>
       <PageHeader
@@ -28,68 +99,82 @@ function BookPage() {
 
       <section className="container-page py-12">
         <div className="grid gap-10 lg:grid-cols-[1fr_360px]">
-          <form className="rounded-2xl border border-border bg-card p-6 shadow-soft md:p-8">
+          <form
+            onSubmit={handleSubmit}
+            className="rounded-2xl border border-border bg-card p-6 shadow-soft md:p-8"
+          >
             <h2 className="text-xl font-bold text-card-foreground">Service request details</h2>
             <p className="mt-1 text-sm text-muted-foreground">No payment required to book — pay only when the work is done.</p>
 
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              <Field label="Full name *"><input className="input" placeholder="Your name" /></Field>
-              <Field label="Phone *"><input className="input" type="tel" placeholder="+880 1700 000000" /></Field>
-              <Field label="Email"><input className="input" type="email" placeholder="optional" /></Field>
+              <Field label="Full name *">
+                <input className="input" placeholder="Your name" required value={form.full_name} onChange={(e) => update("full_name", e.target.value)} />
+              </Field>
+              <Field label="Phone *">
+                <input className="input" type="tel" placeholder="+880 1700 000000" required value={form.phone} onChange={(e) => update("phone", e.target.value)} />
+              </Field>
+              <Field label="Email">
+                <input className="input" type="email" placeholder="optional" value={form.email} onChange={(e) => update("email", e.target.value)} />
+              </Field>
 
               <Field label="Service category *">
-                <select className="input">
+                <select className="input" required value={form.category} onChange={(e) => update("category", e.target.value)}>
                   <option value="">Choose a category</option>
                   {categories.map((c) => <option key={c.slug} value={c.slug}>{c.name}</option>)}
                 </select>
               </Field>
 
-              <Field label="Specific service"><input className="input" placeholder="e.g. AC General Service" /></Field>
+              <Field label="Specific service">
+                <input className="input" placeholder="e.g. AC General Service" value={form.service} onChange={(e) => update("service", e.target.value)} />
+              </Field>
 
               <Field label="Area in Dhaka *">
-                <select className="input">
+                <select className="input" required value={form.area} onChange={(e) => update("area", e.target.value)}>
                   <option value="">Pick your area</option>
                   {areas.map((a) => <option key={a.slug} value={a.slug}>{a.name}</option>)}
                 </select>
               </Field>
 
-              <Field label="Address / landmark"><input className="input" placeholder="House, road, apartment" /></Field>
-              <Field label="Preferred date *"><input className="input" type="date" /></Field>
+              <Field label="Address / landmark">
+                <input className="input" placeholder="House, road, apartment" value={form.address} onChange={(e) => update("address", e.target.value)} />
+              </Field>
+              <Field label="Preferred date *">
+                <input className="input" type="date" required value={form.preferred_date} onChange={(e) => update("preferred_date", e.target.value)} />
+              </Field>
               <Field label="Preferred time *">
-                <select className="input">
-                  <option>Morning (8am – 12pm)</option>
-                  <option>Afternoon (12pm – 4pm)</option>
-                  <option>Evening (4pm – 8pm)</option>
-                  <option>Anytime</option>
+                <select className="input" value={form.preferred_time_slot} onChange={(e) => update("preferred_time_slot", e.target.value)}>
+                  {TIME_SLOTS.map((s) => <option key={s} value={s}>{s}</option>)}
                 </select>
               </Field>
               <Field label="Budget range">
-                <select className="input">
-                  <option>No preference</option>
-                  <option>Under ৳1,000</option>
-                  <option>৳1,000 – ৳5,000</option>
-                  <option>৳5,000 – ৳20,000</option>
-                  <option>Above ৳20,000</option>
+                <select className="input" value={form.budget_range} onChange={(e) => update("budget_range", e.target.value)}>
+                  {BUDGET_RANGES.map((b) => <option key={b} value={b}>{b}</option>)}
                 </select>
               </Field>
             </div>
 
             <div className="mt-4">
               <Field label="Notes / problem description">
-                <textarea rows={4} className="input" placeholder="Briefly describe the work needed" />
+                <textarea rows={4} className="input" placeholder="Briefly describe the work needed" value={form.notes} onChange={(e) => update("notes", e.target.value)} />
               </Field>
             </div>
 
             <div className="mt-4">
               <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-dashed border-border bg-background p-4 text-sm text-muted-foreground hover:bg-muted">
                 <Upload className="h-4 w-4 text-primary" />
-                <span>Upload a photo (optional) — helps us send the right pro</span>
-                <input type="file" className="hidden" />
+                <span>Upload a photo (optional) — coming soon</span>
+                <input type="file" className="hidden" disabled />
               </label>
             </div>
 
-            <button type="button" className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-primary px-5 py-3.5 text-sm font-semibold text-primary-foreground shadow-soft">
-              Submit booking request <ArrowRight className="h-4 w-4" />
+            <button
+              type="submit"
+              disabled={submitting}
+              className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-primary px-5 py-3.5 text-sm font-semibold text-primary-foreground shadow-soft disabled:opacity-60"
+            >
+              {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+              {submitting ? "Submitting…" : "Submit booking request"}
+              {!submitting && <ArrowRight className="h-4 w-4" />}
             </button>
             <p className="mt-3 text-center text-xs text-muted-foreground">By submitting, you agree to our <Link to="/terms" className="underline">Terms</Link> and <Link to="/privacy" className="underline">Privacy Policy</Link>.</p>
 
