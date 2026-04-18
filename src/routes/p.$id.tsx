@@ -106,16 +106,16 @@ function RealProviderProfile() {
 
   const initials = (provider.full_name || "?")
     .split(" ")
-    .map((s) => s[0])
+    .map((s: string) => s[0])
     .slice(0, 2)
     .join("")
     .toUpperCase();
 
-  const categoryNames = categories.map(
-    (slug) => ALL_CATEGORIES.find((c) => c.slug === slug)?.name ?? slug,
+  const categoryNames = (categories as string[]).map(
+    (slug: string) => ALL_CATEGORIES.find((c) => c.slug === slug)?.name ?? slug,
   );
-  const areaNames = areas.map(
-    (slug) => ALL_AREAS.find((a) => a.slug === slug)?.name ?? slug,
+  const areaNames = (areas as string[]).map(
+    (slug: string) => ALL_AREAS.find((a) => a.slug === slug)?.name ?? slug,
   );
 
   return (
