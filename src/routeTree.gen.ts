@@ -9,38 +9,346 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TrustSafetyRouteImport } from './routes/trust-safety'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as HowItWorksRouteImport } from './routes/how-it-works'
+import { Route as FaqRouteImport } from './routes/faq'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as BookRouteImport } from './routes/book'
+import { Route as BecomeProviderRouteImport } from './routes/become-provider'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ServicesIndexRouteImport } from './routes/services.index'
+import { Route as ProvidersIndexRouteImport } from './routes/providers.index'
+import { Route as BlogIndexRouteImport } from './routes/blog.index'
+import { Route as AreasIndexRouteImport } from './routes/areas.index'
+import { Route as ProviderSlugRouteImport } from './routes/provider.$slug'
+import { Route as DhakaAreaRouteImport } from './routes/dhaka.$area'
+import { Route as ServicesCategoryIndexRouteImport } from './routes/services.$category.index'
+import { Route as ServicesCategoryServiceRouteImport } from './routes/services.$category.$service'
 
+const TrustSafetyRoute = TrustSafetyRouteImport.update({
+  id: '/trust-safety',
+  path: '/trust-safety',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HowItWorksRoute = HowItWorksRouteImport.update({
+  id: '/how-it-works',
+  path: '/how-it-works',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FaqRoute = FaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BookRoute = BookRouteImport.update({
+  id: '/book',
+  path: '/book',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BecomeProviderRoute = BecomeProviderRouteImport.update({
+  id: '/become-provider',
+  path: '/become-provider',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ServicesIndexRoute = ServicesIndexRouteImport.update({
+  id: '/services/',
+  path: '/services/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProvidersIndexRoute = ProvidersIndexRouteImport.update({
+  id: '/providers/',
+  path: '/providers/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AreasIndexRoute = AreasIndexRouteImport.update({
+  id: '/areas/',
+  path: '/areas/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProviderSlugRoute = ProviderSlugRouteImport.update({
+  id: '/provider/$slug',
+  path: '/provider/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DhakaAreaRoute = DhakaAreaRouteImport.update({
+  id: '/dhaka/$area',
+  path: '/dhaka/$area',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ServicesCategoryIndexRoute = ServicesCategoryIndexRouteImport.update({
+  id: '/services/$category/',
+  path: '/services/$category/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ServicesCategoryServiceRoute = ServicesCategoryServiceRouteImport.update({
+  id: '/services/$category/$service',
+  path: '/services/$category/$service',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/become-provider': typeof BecomeProviderRoute
+  '/book': typeof BookRoute
+  '/contact': typeof ContactRoute
+  '/faq': typeof FaqRoute
+  '/how-it-works': typeof HowItWorksRoute
+  '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
+  '/trust-safety': typeof TrustSafetyRoute
+  '/dhaka/$area': typeof DhakaAreaRoute
+  '/provider/$slug': typeof ProviderSlugRoute
+  '/areas/': typeof AreasIndexRoute
+  '/blog/': typeof BlogIndexRoute
+  '/providers/': typeof ProvidersIndexRoute
+  '/services/': typeof ServicesIndexRoute
+  '/services/$category/$service': typeof ServicesCategoryServiceRoute
+  '/services/$category/': typeof ServicesCategoryIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/become-provider': typeof BecomeProviderRoute
+  '/book': typeof BookRoute
+  '/contact': typeof ContactRoute
+  '/faq': typeof FaqRoute
+  '/how-it-works': typeof HowItWorksRoute
+  '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
+  '/trust-safety': typeof TrustSafetyRoute
+  '/dhaka/$area': typeof DhakaAreaRoute
+  '/provider/$slug': typeof ProviderSlugRoute
+  '/areas': typeof AreasIndexRoute
+  '/blog': typeof BlogIndexRoute
+  '/providers': typeof ProvidersIndexRoute
+  '/services': typeof ServicesIndexRoute
+  '/services/$category/$service': typeof ServicesCategoryServiceRoute
+  '/services/$category': typeof ServicesCategoryIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/become-provider': typeof BecomeProviderRoute
+  '/book': typeof BookRoute
+  '/contact': typeof ContactRoute
+  '/faq': typeof FaqRoute
+  '/how-it-works': typeof HowItWorksRoute
+  '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
+  '/trust-safety': typeof TrustSafetyRoute
+  '/dhaka/$area': typeof DhakaAreaRoute
+  '/provider/$slug': typeof ProviderSlugRoute
+  '/areas/': typeof AreasIndexRoute
+  '/blog/': typeof BlogIndexRoute
+  '/providers/': typeof ProvidersIndexRoute
+  '/services/': typeof ServicesIndexRoute
+  '/services/$category/$service': typeof ServicesCategoryServiceRoute
+  '/services/$category/': typeof ServicesCategoryIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/become-provider'
+    | '/book'
+    | '/contact'
+    | '/faq'
+    | '/how-it-works'
+    | '/pricing'
+    | '/privacy'
+    | '/terms'
+    | '/trust-safety'
+    | '/dhaka/$area'
+    | '/provider/$slug'
+    | '/areas/'
+    | '/blog/'
+    | '/providers/'
+    | '/services/'
+    | '/services/$category/$service'
+    | '/services/$category/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/about'
+    | '/become-provider'
+    | '/book'
+    | '/contact'
+    | '/faq'
+    | '/how-it-works'
+    | '/pricing'
+    | '/privacy'
+    | '/terms'
+    | '/trust-safety'
+    | '/dhaka/$area'
+    | '/provider/$slug'
+    | '/areas'
+    | '/blog'
+    | '/providers'
+    | '/services'
+    | '/services/$category/$service'
+    | '/services/$category'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/become-provider'
+    | '/book'
+    | '/contact'
+    | '/faq'
+    | '/how-it-works'
+    | '/pricing'
+    | '/privacy'
+    | '/terms'
+    | '/trust-safety'
+    | '/dhaka/$area'
+    | '/provider/$slug'
+    | '/areas/'
+    | '/blog/'
+    | '/providers/'
+    | '/services/'
+    | '/services/$category/$service'
+    | '/services/$category/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
+  BecomeProviderRoute: typeof BecomeProviderRoute
+  BookRoute: typeof BookRoute
+  ContactRoute: typeof ContactRoute
+  FaqRoute: typeof FaqRoute
+  HowItWorksRoute: typeof HowItWorksRoute
+  PricingRoute: typeof PricingRoute
+  PrivacyRoute: typeof PrivacyRoute
+  TermsRoute: typeof TermsRoute
+  TrustSafetyRoute: typeof TrustSafetyRoute
+  DhakaAreaRoute: typeof DhakaAreaRoute
+  ProviderSlugRoute: typeof ProviderSlugRoute
+  AreasIndexRoute: typeof AreasIndexRoute
+  BlogIndexRoute: typeof BlogIndexRoute
+  ProvidersIndexRoute: typeof ProvidersIndexRoute
+  ServicesIndexRoute: typeof ServicesIndexRoute
+  ServicesCategoryServiceRoute: typeof ServicesCategoryServiceRoute
+  ServicesCategoryIndexRoute: typeof ServicesCategoryIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/trust-safety': {
+      id: '/trust-safety'
+      path: '/trust-safety'
+      fullPath: '/trust-safety'
+      preLoaderRoute: typeof TrustSafetyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/how-it-works': {
+      id: '/how-it-works'
+      path: '/how-it-works'
+      fullPath: '/how-it-works'
+      preLoaderRoute: typeof HowItWorksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/faq': {
+      id: '/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof FaqRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/book': {
+      id: '/book'
+      path: '/book'
+      fullPath: '/book'
+      preLoaderRoute: typeof BookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/become-provider': {
+      id: '/become-provider'
+      path: '/become-provider'
+      fullPath: '/become-provider'
+      preLoaderRoute: typeof BecomeProviderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +356,85 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/services/': {
+      id: '/services/'
+      path: '/services'
+      fullPath: '/services/'
+      preLoaderRoute: typeof ServicesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/providers/': {
+      id: '/providers/'
+      path: '/providers'
+      fullPath: '/providers/'
+      preLoaderRoute: typeof ProvidersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/': {
+      id: '/blog/'
+      path: '/blog'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BlogIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/areas/': {
+      id: '/areas/'
+      path: '/areas'
+      fullPath: '/areas/'
+      preLoaderRoute: typeof AreasIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/provider/$slug': {
+      id: '/provider/$slug'
+      path: '/provider/$slug'
+      fullPath: '/provider/$slug'
+      preLoaderRoute: typeof ProviderSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dhaka/$area': {
+      id: '/dhaka/$area'
+      path: '/dhaka/$area'
+      fullPath: '/dhaka/$area'
+      preLoaderRoute: typeof DhakaAreaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/services/$category/': {
+      id: '/services/$category/'
+      path: '/services/$category'
+      fullPath: '/services/$category/'
+      preLoaderRoute: typeof ServicesCategoryIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/services/$category/$service': {
+      id: '/services/$category/$service'
+      path: '/services/$category/$service'
+      fullPath: '/services/$category/$service'
+      preLoaderRoute: typeof ServicesCategoryServiceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
+  BecomeProviderRoute: BecomeProviderRoute,
+  BookRoute: BookRoute,
+  ContactRoute: ContactRoute,
+  FaqRoute: FaqRoute,
+  HowItWorksRoute: HowItWorksRoute,
+  PricingRoute: PricingRoute,
+  PrivacyRoute: PrivacyRoute,
+  TermsRoute: TermsRoute,
+  TrustSafetyRoute: TrustSafetyRoute,
+  DhakaAreaRoute: DhakaAreaRoute,
+  ProviderSlugRoute: ProviderSlugRoute,
+  AreasIndexRoute: AreasIndexRoute,
+  BlogIndexRoute: BlogIndexRoute,
+  ProvidersIndexRoute: ProvidersIndexRoute,
+  ServicesIndexRoute: ServicesIndexRoute,
+  ServicesCategoryServiceRoute: ServicesCategoryServiceRoute,
+  ServicesCategoryIndexRoute: ServicesCategoryIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
