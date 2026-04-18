@@ -20,7 +20,7 @@ export const Route = createFileRoute("/p/$id")({
       .maybeSingle();
     if (!profile || profile.provider_status !== "approved") throw notFound();
 
-    const [{ data: cats }, { data: ars }, { data: stats }] = await Promise.all([
+    const [{ data: cats }, { data: ars }, { data: stats }, { data: avail }] = await Promise.all([
       supabase.from("provider_categories").select("category").eq("user_id", params.id),
       supabase.from("provider_areas").select("area").eq("user_id", params.id),
       supabase
@@ -28,6 +28,11 @@ export const Route = createFileRoute("/p/$id")({
         .select("avg_rating, review_count")
         .eq("provider_id", params.id)
         .maybeSingle(),
+      supabase
+        .from("provider_availability")
+        .select("weekday, is_active, start_time, end_time")
+        .eq("user_id", params.id)
+        .order("weekday", { ascending: true }),
     ]);
 
     return {
@@ -36,6 +41,12 @@ export const Route = createFileRoute("/p/$id")({
       areas: (ars ?? []).map((a) => a.area),
       avgRating: stats?.avg_rating ? Number(stats.avg_rating) : null,
       reviewCount: stats?.review_count ?? 0,
+      availability: (avail ?? []) as Array<{
+        weekday: number;
+        is_active: boolean;
+        start_time: string;
+        end_time: string;
+      }>,
     };
   },
   head: ({ loaderData }) => {
