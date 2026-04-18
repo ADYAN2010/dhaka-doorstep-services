@@ -389,8 +389,12 @@ export function findService(
 export const popularCategories = categories.filter((c) => c.popular);
 
 export const mainGroups = [
-  { name: "Home Services", slugs: ["home-cleaning", "ac-service", "electrician", "plumbing", "appliance-repair", "pest-control", "painting", "movers"] },
-  { name: "Personal Services", slugs: ["beauty-at-home", "caregiving", "tuition", "car-wash"] },
+  { name: "Home Services", slugs: ["home-cleaning", "ac-service", "electrician", "plumbing", "appliance-repair", "painting", "movers"] },
+  { name: "Personal Services", slugs: ["beauty-at-home", "car-wash"] },
   { name: "Business Services", slugs: ["digital-marketing", "web-development", "graphic-design", "business-consultancy", "legal-assistance"] },
-  { name: "Lifestyle & Events", slugs: ["event-services", "interior-design", "cctv-security"] },
+  { name: "Technical Services", slugs: ["cctv-security", "interior-design"] },
+  { name: "Emergency Services", slugs: ["plumbing", "electrician", "pest-control", "appliance-repair"] },
+  { name: "Event Services", slugs: ["event-services"] },
+  { name: "Education Services", slugs: ["tuition"] },
+  { name: "Healthcare Support Services", slugs: ["caregiving"] },
 ];
