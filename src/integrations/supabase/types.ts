@@ -122,6 +122,84 @@ export type Database = {
         }
         Relationships: []
       }
+      categories: {
+        Row: {
+          commission_rate: number
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          commission_rate?: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          commission_rate?: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      commission_ledger: {
+        Row: {
+          booking_id: string
+          category: string
+          commission_amount: number
+          commission_rate: number
+          created_at: string
+          currency: string
+          customer_id: string | null
+          gross_amount: number
+          id: string
+          paid_out: boolean
+          payout_id: string | null
+          provider_id: string
+          provider_net: number
+        }
+        Insert: {
+          booking_id: string
+          category: string
+          commission_amount: number
+          commission_rate: number
+          created_at?: string
+          currency?: string
+          customer_id?: string | null
+          gross_amount: number
+          id?: string
+          paid_out?: boolean
+          payout_id?: string | null
+          provider_id: string
+          provider_net: number
+        }
+        Update: {
+          booking_id?: string
+          category?: string
+          commission_amount?: number
+          commission_rate?: number
+          created_at?: string
+          currency?: string
+          customer_id?: string | null
+          gross_amount?: number
+          id?: string
+          paid_out?: boolean
+          payout_id?: string | null
+          provider_id?: string
+          provider_net?: number
+        }
+        Relationships: []
+      }
       contact_messages: {
         Row: {
           created_at: string
@@ -155,6 +233,54 @@ export type Database = {
           phone?: string | null
           updated_at?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      invoices: {
+        Row: {
+          booking_id: string
+          created_at: string
+          currency: string
+          id: string
+          invoice_number: string
+          issued_at: string | null
+          paid_at: string | null
+          pdf_url: string | null
+          status: Database["public"]["Enums"]["invoice_status"]
+          subtotal: number
+          tax: number
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          booking_id: string
+          created_at?: string
+          currency?: string
+          id?: string
+          invoice_number: string
+          issued_at?: string | null
+          paid_at?: string | null
+          pdf_url?: string | null
+          status?: Database["public"]["Enums"]["invoice_status"]
+          subtotal?: number
+          tax?: number
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          booking_id?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          invoice_number?: string
+          issued_at?: string | null
+          paid_at?: string | null
+          pdf_url?: string | null
+          status?: Database["public"]["Enums"]["invoice_status"]
+          subtotal?: number
+          tax?: number
+          total?: number
+          updated_at?: string
         }
         Relationships: []
       }
@@ -231,6 +357,138 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      payments: {
+        Row: {
+          amount: number
+          booking_id: string
+          created_at: string
+          currency: string
+          gateway: Database["public"]["Enums"]["payment_gateway"]
+          gateway_ref: string | null
+          id: string
+          method: Database["public"]["Enums"]["payment_method"]
+          notes: string | null
+          recorded_by: string | null
+          status: Database["public"]["Enums"]["payment_status"]
+        }
+        Insert: {
+          amount: number
+          booking_id: string
+          created_at?: string
+          currency?: string
+          gateway?: Database["public"]["Enums"]["payment_gateway"]
+          gateway_ref?: string | null
+          id?: string
+          method: Database["public"]["Enums"]["payment_method"]
+          notes?: string | null
+          recorded_by?: string | null
+          status?: Database["public"]["Enums"]["payment_status"]
+        }
+        Update: {
+          amount?: number
+          booking_id?: string
+          created_at?: string
+          currency?: string
+          gateway?: Database["public"]["Enums"]["payment_gateway"]
+          gateway_ref?: string | null
+          id?: string
+          method?: Database["public"]["Enums"]["payment_method"]
+          notes?: string | null
+          recorded_by?: string | null
+          status?: Database["public"]["Enums"]["payment_status"]
+        }
+        Relationships: []
+      }
+      payout_items: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          ledger_id: string
+          payout_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          ledger_id: string
+          payout_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          ledger_id?: string
+          payout_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payout_items_ledger_id_fkey"
+            columns: ["ledger_id"]
+            isOneToOne: true
+            referencedRelation: "commission_ledger"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payout_items_payout_id_fkey"
+            columns: ["payout_id"]
+            isOneToOne: false
+            referencedRelation: "payouts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payouts: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          currency: string
+          id: string
+          method: Database["public"]["Enums"]["payout_method"]
+          notes: string | null
+          paid_at: string | null
+          period_end: string | null
+          period_start: string | null
+          provider_id: string
+          reference: string | null
+          status: Database["public"]["Enums"]["payout_status"]
+          total_net: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          id?: string
+          method?: Database["public"]["Enums"]["payout_method"]
+          notes?: string | null
+          paid_at?: string | null
+          period_end?: string | null
+          period_start?: string | null
+          provider_id: string
+          reference?: string | null
+          status?: Database["public"]["Enums"]["payout_status"]
+          total_net?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          id?: string
+          method?: Database["public"]["Enums"]["payout_method"]
+          notes?: string | null
+          paid_at?: string | null
+          period_end?: string | null
+          period_start?: string | null
+          provider_id?: string
+          reference?: string | null
+          status?: Database["public"]["Enums"]["payout_status"]
+          total_net?: number
+          updated_at?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -535,6 +793,38 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      admin_create_payout: {
+        Args: {
+          _ledger_ids: string[]
+          _method?: Database["public"]["Enums"]["payout_method"]
+          _notes?: string
+          _provider_id: string
+          _reference?: string
+        }
+        Returns: {
+          created_at: string
+          created_by: string | null
+          currency: string
+          id: string
+          method: Database["public"]["Enums"]["payout_method"]
+          notes: string | null
+          paid_at: string | null
+          period_end: string | null
+          period_start: string | null
+          provider_id: string
+          reference: string | null
+          status: Database["public"]["Enums"]["payout_status"]
+          total_net: number
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "payouts"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      category_commission_rate: { Args: { _category: string }; Returns: number }
       claim_first_admin: { Args: never; Returns: boolean }
       get_or_create_thread: {
         Args: { _booking_id: string }
@@ -568,7 +858,36 @@ export type Database = {
         Args: { _thread_id: string; _user_id: string }
         Returns: boolean
       }
+      mark_booking_completed: {
+        Args: { _booking_id: string }
+        Returns: {
+          address: string | null
+          area: string
+          budget_range: string | null
+          category: string
+          created_at: string
+          email: string | null
+          full_name: string
+          id: string
+          notes: string | null
+          phone: string
+          preferred_date: string
+          preferred_time_slot: string
+          provider_id: string | null
+          service: string | null
+          status: Database["public"]["Enums"]["booking_status"]
+          updated_at: string
+          user_id: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "bookings"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       mark_thread_read: { Args: { _thread_id: string }; Returns: undefined }
+      next_invoice_number: { Args: never; Returns: string }
       provider_available_at: {
         Args: { _time: string; _user_id: string; _weekday: number }
         Returns: boolean
@@ -576,6 +895,36 @@ export type Database = {
       provider_covers: {
         Args: { _area: string; _category: string; _user_id: string }
         Returns: boolean
+      }
+      record_booking_payment: {
+        Args: {
+          _amount: number
+          _booking_id: string
+          _gateway?: Database["public"]["Enums"]["payment_gateway"]
+          _gateway_ref?: string
+          _method: Database["public"]["Enums"]["payment_method"]
+          _notes?: string
+          _status?: Database["public"]["Enums"]["payment_status"]
+        }
+        Returns: {
+          amount: number
+          booking_id: string
+          created_at: string
+          currency: string
+          gateway: Database["public"]["Enums"]["payment_gateway"]
+          gateway_ref: string | null
+          id: string
+          method: Database["public"]["Enums"]["payment_method"]
+          notes: string | null
+          recorded_by: string | null
+          status: Database["public"]["Enums"]["payment_status"]
+        }
+        SetofOptions: {
+          from: "*"
+          to: "payments"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       set_provider_status: {
         Args: {
@@ -594,6 +943,18 @@ export type Database = {
         | "assigned"
         | "completed"
         | "cancelled"
+      invoice_status: "draft" | "issued" | "paid" | "void"
+      payment_gateway: "none" | "stripe" | "bkash" | "nagad" | "manual"
+      payment_method:
+        | "cash"
+        | "card"
+        | "bkash"
+        | "nagad"
+        | "bank_transfer"
+        | "other"
+      payment_status: "pending" | "paid" | "failed" | "refunded"
+      payout_method: "bank_transfer" | "bkash" | "nagad" | "cash" | "other"
+      payout_status: "pending" | "paid" | "failed"
       provider_status: "not_applicable" | "pending" | "approved" | "rejected"
     }
     CompositeTypes: {
@@ -731,6 +1092,19 @@ export const Constants = {
         "completed",
         "cancelled",
       ],
+      invoice_status: ["draft", "issued", "paid", "void"],
+      payment_gateway: ["none", "stripe", "bkash", "nagad", "manual"],
+      payment_method: [
+        "cash",
+        "card",
+        "bkash",
+        "nagad",
+        "bank_transfer",
+        "other",
+      ],
+      payment_status: ["pending", "paid", "failed", "refunded"],
+      payout_method: ["bank_transfer", "bkash", "nagad", "cash", "other"],
+      payout_status: ["pending", "paid", "failed"],
       provider_status: ["not_applicable", "pending", "approved", "rejected"],
     },
   },

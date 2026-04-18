@@ -14,6 +14,8 @@ import {
   AlertCircle,
   Sparkles,
   Settings2,
+  CheckCheck,
+  Wallet,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -28,6 +30,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { RecordPaymentDialog } from "@/components/record-payment-dialog";
 
 export const Route = createFileRoute("/_authenticated/provider-dashboard")({
   component: ProviderDashboard,
@@ -121,6 +124,7 @@ function ProviderDashboard() {
   const [loading, setLoading] = useState(true);
   const [acceptingId, setAcceptingId] = useState<string | null>(null);
   const [respectAvailability, setRespectAvailability] = useState(true);
+  const [activePaymentJob, setActivePaymentJob] = useState<{ id: string; complete: boolean } | null>(null);
 
   useEffect(() => {
     if (authLoading || !user) return;
@@ -415,19 +419,50 @@ function ProviderDashboard() {
             <LeadsList
               leads={myJobs}
               showStatus
-              renderAction={(l) =>
-                l.status === "assigned" || l.status === "completed" ? (
-                  <Button asChild size="sm" variant="outline">
-                    <Link to="/messages" search={{ booking: l.id }}>
-                      <MessageCircle className="mr-1 h-3.5 w-3.5" /> Message
-                    </Link>
-                  </Button>
-                ) : null
-              }
+              renderAction={(l) => (
+                <div className="flex flex-wrap gap-2">
+                  {(l.status === "assigned" || l.status === "completed") && (
+                    <Button asChild size="sm" variant="outline">
+                      <Link to="/messages" search={{ booking: l.id }}>
+                        <MessageCircle className="mr-1 h-3.5 w-3.5" /> Message
+                      </Link>
+                    </Button>
+                  )}
+                  {l.status === "assigned" && (
+                    <Button
+                      size="sm"
+                      onClick={() => setActivePaymentJob({ id: l.id, complete: true })}
+                    >
+                      <CheckCheck className="mr-1 h-3.5 w-3.5" /> Complete & record payment
+                    </Button>
+                  )}
+                  {l.status === "completed" && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setActivePaymentJob({ id: l.id, complete: false })}
+                    >
+                      <Wallet className="mr-1 h-3.5 w-3.5" /> Add payment
+                    </Button>
+                  )}
+                </div>
+              )}
             />
           )}
         </div>
       </section>
+      {activePaymentJob && (
+        <RecordPaymentDialog
+          bookingId={activePaymentJob.id}
+          open={!!activePaymentJob}
+          onOpenChange={(v) => !v && setActivePaymentJob(null)}
+          alsoCompleteBooking={activePaymentJob.complete}
+          onRecorded={() => {
+            setActivePaymentJob(null);
+            void refresh();
+          }}
+        />
+      )}
     </SiteShell>
   );
 }
