@@ -1,10 +1,15 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Shield, Check, X, UserPlus, UserMinus, Loader2 } from "lucide-react";
+import {
+  Shield, Check, X, UserPlus, UserMinus, Loader2,
+  Users, Briefcase, ClipboardList, CalendarCheck, MapPin, Tag,
+} from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/auth-provider";
 import { Button } from "@/components/ui/button";
+import { categories } from "@/data/categories";
+import { areas } from "@/data/areas";
 import {
   Table,
   TableBody,
