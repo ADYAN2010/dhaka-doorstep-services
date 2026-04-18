@@ -4,10 +4,12 @@ import {
   ShieldCheck, Sparkles, Star, Wallet, Zap, Users,
 } from "lucide-react";
 import heroBg from "@/assets/hero-bg.jpg";
+import heroIllustration from "@/assets/hero-illustration.png";
 import { SiteShell } from "@/components/site-shell";
 import { HeroSearch } from "@/components/hero-search";
 import { CategoryCard } from "@/components/category-card";
 import { ProviderCard } from "@/components/provider-card";
+import { Reveal } from "@/components/reveal";
 import { categories } from "@/data/categories";
 import { areas } from "@/data/areas";
 import { featuredProviders } from "@/data/providers";
