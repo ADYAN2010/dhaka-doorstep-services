@@ -35,6 +35,7 @@ import { Route as PIdRouteImport } from './routes/p.$id'
 import { Route as DhakaAreaRouteImport } from './routes/dhaka.$area'
 import { Route as BookingStatusIdRouteImport } from './routes/booking-status.$id'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
+import { Route as AdminConsoleRouteImport } from './routes/admin.console'
 import { Route as AuthenticatedProviderDashboardRouteImport } from './routes/_authenticated.provider-dashboard'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated.profile'
 import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated.messages'
@@ -44,6 +45,7 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedCoverageRouteImport } from './routes/_authenticated.coverage'
 import { Route as AuthenticatedAvailabilityRouteImport } from './routes/_authenticated.availability'
 import { Route as ServicesCategoryIndexRouteImport } from './routes/services.$category.index'
+import { Route as AdminConsoleIndexRouteImport } from './routes/admin.console.index'
 import { Route as ServicesCategoryServiceRouteImport } from './routes/services.$category.$service'
 
 const TrustSafetyRoute = TrustSafetyRouteImport.update({
@@ -175,6 +177,11 @@ const BlogSlugRoute = BlogSlugRouteImport.update({
   path: '/blog/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminConsoleRoute = AdminConsoleRouteImport.update({
+  id: '/console',
+  path: '/console',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AuthenticatedProviderDashboardRoute =
   AuthenticatedProviderDashboardRouteImport.update({
     id: '/provider-dashboard',
@@ -222,6 +229,11 @@ const ServicesCategoryIndexRoute = ServicesCategoryIndexRouteImport.update({
   path: '/services/$category/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminConsoleIndexRoute = AdminConsoleIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminConsoleRoute,
+} as any)
 const ServicesCategoryServiceRoute = ServicesCategoryServiceRouteImport.update({
   id: '/services/$category/$service',
   path: '/services/$category/$service',
@@ -231,7 +243,7 @@ const ServicesCategoryServiceRoute = ServicesCategoryServiceRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/become-provider': typeof BecomeProviderRoute
   '/book': typeof BookRoute
   '/contact': typeof ContactRoute
@@ -253,6 +265,7 @@ export interface FileRoutesByFullPath {
   '/messages': typeof AuthenticatedMessagesRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/provider-dashboard': typeof AuthenticatedProviderDashboardRoute
+  '/admin/console': typeof AdminConsoleRouteWithChildren
   '/blog/$slug': typeof BlogSlugRoute
   '/booking-status/$id': typeof BookingStatusIdRoute
   '/dhaka/$area': typeof DhakaAreaRoute
@@ -263,12 +276,13 @@ export interface FileRoutesByFullPath {
   '/providers/': typeof ProvidersIndexRoute
   '/services/': typeof ServicesIndexRoute
   '/services/$category/$service': typeof ServicesCategoryServiceRoute
+  '/admin/console/': typeof AdminConsoleIndexRoute
   '/services/$category/': typeof ServicesCategoryIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/become-provider': typeof BecomeProviderRoute
   '/book': typeof BookRoute
   '/contact': typeof ContactRoute
@@ -300,6 +314,7 @@ export interface FileRoutesByTo {
   '/providers': typeof ProvidersIndexRoute
   '/services': typeof ServicesIndexRoute
   '/services/$category/$service': typeof ServicesCategoryServiceRoute
+  '/admin/console': typeof AdminConsoleIndexRoute
   '/services/$category': typeof ServicesCategoryIndexRoute
 }
 export interface FileRoutesById {
@@ -307,7 +322,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/about': typeof AboutRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/become-provider': typeof BecomeProviderRoute
   '/book': typeof BookRoute
   '/contact': typeof ContactRoute
@@ -329,6 +344,7 @@ export interface FileRoutesById {
   '/_authenticated/messages': typeof AuthenticatedMessagesRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/provider-dashboard': typeof AuthenticatedProviderDashboardRoute
+  '/admin/console': typeof AdminConsoleRouteWithChildren
   '/blog/$slug': typeof BlogSlugRoute
   '/booking-status/$id': typeof BookingStatusIdRoute
   '/dhaka/$area': typeof DhakaAreaRoute
@@ -339,6 +355,7 @@ export interface FileRoutesById {
   '/providers/': typeof ProvidersIndexRoute
   '/services/': typeof ServicesIndexRoute
   '/services/$category/$service': typeof ServicesCategoryServiceRoute
+  '/admin/console/': typeof AdminConsoleIndexRoute
   '/services/$category/': typeof ServicesCategoryIndexRoute
 }
 export interface FileRouteTypes {
@@ -368,6 +385,7 @@ export interface FileRouteTypes {
     | '/messages'
     | '/profile'
     | '/provider-dashboard'
+    | '/admin/console'
     | '/blog/$slug'
     | '/booking-status/$id'
     | '/dhaka/$area'
@@ -378,6 +396,7 @@ export interface FileRouteTypes {
     | '/providers/'
     | '/services/'
     | '/services/$category/$service'
+    | '/admin/console/'
     | '/services/$category/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -415,6 +434,7 @@ export interface FileRouteTypes {
     | '/providers'
     | '/services'
     | '/services/$category/$service'
+    | '/admin/console'
     | '/services/$category'
   id:
     | '__root__'
@@ -443,6 +463,7 @@ export interface FileRouteTypes {
     | '/_authenticated/messages'
     | '/_authenticated/profile'
     | '/_authenticated/provider-dashboard'
+    | '/admin/console'
     | '/blog/$slug'
     | '/booking-status/$id'
     | '/dhaka/$area'
@@ -453,6 +474,7 @@ export interface FileRouteTypes {
     | '/providers/'
     | '/services/'
     | '/services/$category/$service'
+    | '/admin/console/'
     | '/services/$category/'
   fileRoutesById: FileRoutesById
 }
@@ -460,7 +482,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AboutRoute: typeof AboutRoute
-  AdminRoute: typeof AdminRoute
+  AdminRoute: typeof AdminRouteWithChildren
   BecomeProviderRoute: typeof BecomeProviderRoute
   BookRoute: typeof BookRoute
   ContactRoute: typeof ContactRoute
@@ -671,6 +693,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/console': {
+      id: '/admin/console'
+      path: '/console'
+      fullPath: '/admin/console'
+      preLoaderRoute: typeof AdminConsoleRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/_authenticated/provider-dashboard': {
       id: '/_authenticated/provider-dashboard'
       path: '/provider-dashboard'
@@ -734,6 +763,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ServicesCategoryIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/console/': {
+      id: '/admin/console/'
+      path: '/'
+      fullPath: '/admin/console/'
+      preLoaderRoute: typeof AdminConsoleIndexRouteImport
+      parentRoute: typeof AdminConsoleRoute
+    }
     '/services/$category/$service': {
       id: '/services/$category/$service'
       path: '/services/$category/$service'
@@ -770,11 +806,33 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,
 )
 
+interface AdminConsoleRouteChildren {
+  AdminConsoleIndexRoute: typeof AdminConsoleIndexRoute
+}
+
+const AdminConsoleRouteChildren: AdminConsoleRouteChildren = {
+  AdminConsoleIndexRoute: AdminConsoleIndexRoute,
+}
+
+const AdminConsoleRouteWithChildren = AdminConsoleRoute._addFileChildren(
+  AdminConsoleRouteChildren,
+)
+
+interface AdminRouteChildren {
+  AdminConsoleRoute: typeof AdminConsoleRouteWithChildren
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminConsoleRoute: AdminConsoleRouteWithChildren,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AboutRoute: AboutRoute,
-  AdminRoute: AdminRoute,
+  AdminRoute: AdminRouteWithChildren,
   BecomeProviderRoute: BecomeProviderRoute,
   BookRoute: BookRoute,
   ContactRoute: ContactRoute,
