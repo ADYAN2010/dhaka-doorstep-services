@@ -1,8 +1,8 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { ArrowRight, Clock, Tag } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { SiteShell } from "@/components/site-shell";
-import { PageHeader } from "@/components/page-header";
 import { ProviderCard } from "@/components/provider-card";
+import { ServiceCatalog } from "@/components/service-catalog";
 import { findCategory } from "@/data/categories";
 import { providers } from "@/data/providers";
 import { buildSeo, jsonLdScript, OG, SITE_URL, absUrl } from "@/lib/seo";
@@ -99,28 +99,7 @@ function CategoryPage() {
         </div>
       </section>
 
-      {category.subcategories.map((sub: import("@/data/categories").Subcategory) => (
-        <section key={sub.slug} className="container-page py-12">
-          <h2 className="text-2xl font-bold tracking-tight text-foreground">{sub.name}</h2>
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {sub.services.map((s: import("@/data/categories").Service) => (
-              <Link
-                key={s.slug}
-                to="/services/$category/$service"
-                params={{ category: category.slug, service: s.slug }}
-                className="group flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-elevated"
-              >
-                <h3 className="text-base font-semibold text-card-foreground">{s.name}</h3>
-                <p className="text-sm text-muted-foreground">{s.short}</p>
-                <div className="mt-auto flex items-center justify-between border-t border-border pt-3 text-xs text-muted-foreground">
-                  <span className="inline-flex items-center gap-1.5"><Tag className="h-3.5 w-3.5 text-primary" /><span className="font-semibold text-foreground">৳{s.startingPrice.toLocaleString()}</span> {s.unit}</span>
-                  {s.duration && <span className="inline-flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> {s.duration}</span>}
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-      ))}
+      <ServiceCatalog initialCategory={category.slug} lockCategory />
 
       {matchingProviders.length > 0 && (
         <section className="border-t border-border bg-surface">
