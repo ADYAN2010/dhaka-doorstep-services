@@ -26,6 +26,8 @@ export const Route = createFileRoute("/admin")({
 
 type AppRole = "customer" | "provider" | "admin";
 type ProviderStatus = "not_applicable" | "pending" | "approved" | "rejected";
+type BookingStatus = "new" | "confirmed" | "assigned" | "completed" | "cancelled";
+type ApplicationStatus = "new" | "reviewing" | "approved" | "rejected";
 
 type ProviderRow = {
   id: string;
@@ -40,6 +42,36 @@ type RoleRow = {
   user_id: string;
   role: AppRole;
   full_name: string | null;
+};
+
+type BookingRow = {
+  id: string;
+  full_name: string;
+  phone: string;
+  email: string | null;
+  category: string;
+  service: string | null;
+  area: string;
+  preferred_date: string;
+  preferred_time_slot: string;
+  budget_range: string | null;
+  notes: string | null;
+  status: BookingStatus;
+  created_at: string;
+};
+
+type ApplicationRow = {
+  id: string;
+  full_name: string;
+  phone: string;
+  email: string;
+  category: string;
+  experience: string;
+  coverage_area: string;
+  applicant_type: string;
+  about: string | null;
+  status: ApplicationStatus;
+  created_at: string;
 };
 
 function AdminPage() {
