@@ -78,12 +78,12 @@ function CoveragePage() {
     const areasToAdd = [...selectedAreas].filter((a) => !currentAreaSet.has(a));
     const areasToRemove = [...currentAreaSet].filter((a) => !selectedAreas.has(a));
 
-    const ops: Promise<{ error: unknown }>[] = [];
+    const ops: Array<PromiseLike<{ error: unknown }>> = [];
     if (catsToAdd.length) {
       ops.push(
         supabase
           .from("provider_categories")
-          .insert(catsToAdd.map((category) => ({ user_id: user.id, category }))),
+          .insert(catsToAdd.map((category) => ({ user_id: user.id, category }))) as unknown as PromiseLike<{ error: unknown }>,
       );
     }
     if (catsToRemove.length) {
@@ -92,14 +92,14 @@ function CoveragePage() {
           .from("provider_categories")
           .delete()
           .eq("user_id", user.id)
-          .in("category", catsToRemove),
+          .in("category", catsToRemove) as unknown as PromiseLike<{ error: unknown }>,
       );
     }
     if (areasToAdd.length) {
       ops.push(
         supabase
           .from("provider_areas")
-          .insert(areasToAdd.map((area) => ({ user_id: user.id, area }))),
+          .insert(areasToAdd.map((area) => ({ user_id: user.id, area }))) as unknown as PromiseLike<{ error: unknown }>,
       );
     }
     if (areasToRemove.length) {
@@ -108,7 +108,7 @@ function CoveragePage() {
           .from("provider_areas")
           .delete()
           .eq("user_id", user.id)
-          .in("area", areasToRemove),
+          .in("area", areasToRemove) as unknown as PromiseLike<{ error: unknown }>,
       );
     }
 

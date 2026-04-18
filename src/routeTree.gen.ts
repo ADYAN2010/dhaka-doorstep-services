@@ -34,6 +34,7 @@ import { Route as DhakaAreaRouteImport } from './routes/dhaka.$area'
 import { Route as AuthenticatedProviderDashboardRouteImport } from './routes/_authenticated.provider-dashboard'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated.profile'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated.dashboard'
+import { Route as AuthenticatedCoverageRouteImport } from './routes/_authenticated.coverage'
 import { Route as ServicesCategoryIndexRouteImport } from './routes/services.$category.index'
 import { Route as ServicesCategoryServiceRouteImport } from './routes/services.$category.$service'
 
@@ -162,6 +163,11 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedCoverageRoute = AuthenticatedCoverageRouteImport.update({
+  id: '/coverage',
+  path: '/coverage',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const ServicesCategoryIndexRoute = ServicesCategoryIndexRouteImport.update({
   id: '/services/$category/',
   path: '/services/$category/',
@@ -189,6 +195,7 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
   '/trust-safety': typeof TrustSafetyRoute
+  '/coverage': typeof AuthenticatedCoverageRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/provider-dashboard': typeof AuthenticatedProviderDashboardRoute
@@ -217,6 +224,7 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
   '/trust-safety': typeof TrustSafetyRoute
+  '/coverage': typeof AuthenticatedCoverageRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/provider-dashboard': typeof AuthenticatedProviderDashboardRoute
@@ -247,6 +255,7 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
   '/trust-safety': typeof TrustSafetyRoute
+  '/_authenticated/coverage': typeof AuthenticatedCoverageRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/provider-dashboard': typeof AuthenticatedProviderDashboardRoute
@@ -277,6 +286,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/terms'
     | '/trust-safety'
+    | '/coverage'
     | '/dashboard'
     | '/profile'
     | '/provider-dashboard'
@@ -305,6 +315,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/terms'
     | '/trust-safety'
+    | '/coverage'
     | '/dashboard'
     | '/profile'
     | '/provider-dashboard'
@@ -334,6 +345,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/terms'
     | '/trust-safety'
+    | '/_authenticated/coverage'
     | '/_authenticated/dashboard'
     | '/_authenticated/profile'
     | '/_authenticated/provider-dashboard'
@@ -551,6 +563,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/coverage': {
+      id: '/_authenticated/coverage'
+      path: '/coverage'
+      fullPath: '/coverage'
+      preLoaderRoute: typeof AuthenticatedCoverageRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/services/$category/': {
       id: '/services/$category/'
       path: '/services/$category'
@@ -569,12 +588,14 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteChildren {
+  AuthenticatedCoverageRoute: typeof AuthenticatedCoverageRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedProviderDashboardRoute: typeof AuthenticatedProviderDashboardRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedCoverageRoute: AuthenticatedCoverageRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedProviderDashboardRoute: AuthenticatedProviderDashboardRoute,
