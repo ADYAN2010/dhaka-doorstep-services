@@ -72,6 +72,35 @@ const BUDGET_MIDPOINT: Record<string, number> = {
   "20000+": 25000,
 };
 
+// Map a customer's preferred slot to a representative HH:MM:SS for availability checks.
+function slotToTime(slot: string): string {
+  const s = slot.toLowerCase();
+  if (s.includes("morning")) return "10:00:00";
+  if (s.includes("afternoon")) return "14:00:00";
+  if (s.includes("evening")) return "18:00:00";
+  // "Anytime" or anything else → mid-morning, broadest match.
+  return "11:00:00";
+}
+
+function leadMatchesAvailability(
+  l: { preferred_date: string; preferred_time_slot: string },
+  availability: Array<{
+    weekday: number;
+    is_active: boolean;
+    start_time: string;
+    end_time: string;
+  }>,
+): boolean {
+  if (!availability.length) return true;
+  // Anytime matches any active day at all.
+  const weekday = new Date(`${l.preferred_date}T00:00:00`).getDay();
+  const slot = availability.find((a) => a.weekday === weekday);
+  if (!slot || !slot.is_active) return false;
+  if (l.preferred_time_slot.toLowerCase().includes("anytime")) return true;
+  const t = slotToTime(l.preferred_time_slot);
+  return slot.start_time <= t && slot.end_time > t;
+}
+
 function ProviderDashboard() {
   const { user, roles, loading: authLoading } = useAuth();
   const navigate = useNavigate();
