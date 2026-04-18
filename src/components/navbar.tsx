@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { MapPin, Menu, X, ChevronDown, LogOut, LayoutDashboard, User as UserIcon } from "lucide-react";
+import { MapPin, Menu, X, ChevronDown, LogOut, LayoutDashboard, User as UserIcon, Shield } from "lucide-react";
 import { Logo } from "./logo";
 import { ThemeToggle } from "./theme-toggle";
 import { useAuth } from "./auth-provider";
@@ -16,7 +16,8 @@ const NAV = [
 export function Navbar() {
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const { user, signOut, loading } = useAuth();
+  const { user, roles, signOut, loading } = useAuth();
+  const isAdmin = roles.includes("admin");
   const navigate = useNavigate();
 
   async function handleSignOut() {
@@ -104,6 +105,15 @@ export function Navbar() {
                     >
                       <UserIcon className="h-4 w-4" /> Profile
                     </Link>
+                    {isAdmin && (
+                      <Link
+                        to="/admin"
+                        onClick={() => setMenuOpen(false)}
+                        className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-muted"
+                      >
+                        <Shield className="h-4 w-4" /> Admin
+                      </Link>
+                    )}
                     <button
                       type="button"
                       onClick={handleSignOut}
