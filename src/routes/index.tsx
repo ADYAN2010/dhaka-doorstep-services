@@ -122,8 +122,10 @@ function PopularCategories() {
         action={{ label: "All services", to: "/services" }}
       />
       <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-        {top.map((c) => (
-          <CategoryCard key={c.slug} category={c} />
+        {top.map((c, i) => (
+          <Reveal key={c.slug} delay={i * 50}>
+            <CategoryCard category={c} />
+          </Reveal>
         ))}
       </div>
     </section>
