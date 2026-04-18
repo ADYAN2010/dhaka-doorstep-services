@@ -224,6 +224,9 @@ function RealProviderProfile() {
               )}
             </div>
 
+            <h2 className="mt-10 text-xl font-semibold text-foreground">Working hours</h2>
+            <AvailabilityList availability={availability} />
+
             <h2 className="mt-10 text-xl font-semibold text-foreground">Reviews</h2>
             <ReviewSection
               providerId={provider.id}
