@@ -72,6 +72,35 @@ const BUDGET_MIDPOINT: Record<string, number> = {
   "20000+": 25000,
 };
 
+// Map a customer's preferred slot to a representative HH:MM:SS for availability checks.
+function slotToTime(slot: string): string {
+  const s = slot.toLowerCase();
+  if (s.includes("morning")) return "10:00:00";
+  if (s.includes("afternoon")) return "14:00:00";
+  if (s.includes("evening")) return "18:00:00";
+  // "Anytime" or anything else → mid-morning, broadest match.
+  return "11:00:00";
+}
+
+function leadMatchesAvailability(
+  l: { preferred_date: string; preferred_time_slot: string },
+  availability: Array<{
+    weekday: number;
+    is_active: boolean;
+    start_time: string;
+    end_time: string;
+  }>,
+): boolean {
+  if (!availability.length) return true;
+  // Anytime matches any active day at all.
+  const weekday = new Date(`${l.preferred_date}T00:00:00`).getDay();
+  const slot = availability.find((a) => a.weekday === weekday);
+  if (!slot || !slot.is_active) return false;
+  if (l.preferred_time_slot.toLowerCase().includes("anytime")) return true;
+  const t = slotToTime(l.preferred_time_slot);
+  return slot.start_time <= t && slot.end_time > t;
+}
+
 function ProviderDashboard() {
   const { user, roles, loading: authLoading } = useAuth();
   const navigate = useNavigate();
@@ -84,8 +113,13 @@ function ProviderDashboard() {
     categories: 0,
     areas: 0,
   });
+  const [availability, setAvailability] = useState<
+    Array<{ weekday: number; is_active: boolean; start_time: string; end_time: string }>
+  >([]);
+  const [hasAvailability, setHasAvailability] = useState(false);
   const [loading, setLoading] = useState(true);
   const [acceptingId, setAcceptingId] = useState<string | null>(null);
+  const [respectAvailability, setRespectAvailability] = useState(true);
 
   useEffect(() => {
     if (authLoading || !user) return;
@@ -103,6 +137,7 @@ function ProviderDashboard() {
       { data: minedData },
       { count: catCount },
       { count: areaCount },
+      { data: availData },
     ] = await Promise.all([
       supabase
         .from("profiles")
@@ -132,11 +167,23 @@ function ProviderDashboard() {
         .from("provider_areas")
         .select("*", { count: "exact", head: true })
         .eq("user_id", user.id),
+      supabase
+        .from("provider_availability")
+        .select("weekday, is_active, start_time, end_time")
+        .eq("user_id", user.id),
     ]);
     setProfile((prof as Profile | null) ?? null);
     setOpenLeads((openData ?? []) as LeadRow[]);
     setMyJobs((minedData ?? []) as LeadRow[]);
     setCoverage({ categories: catCount ?? 0, areas: areaCount ?? 0 });
+    const av = (availData ?? []) as Array<{
+      weekday: number;
+      is_active: boolean;
+      start_time: string;
+      end_time: string;
+    }>;
+    setAvailability(av);
+    setHasAvailability(av.length > 0);
     setLoading(false);
   }, [user, isProvider]);
 
@@ -162,18 +209,24 @@ function ProviderDashboard() {
     await refresh();
   }
 
+  // Filter open leads against my saved availability (date weekday + time slot midpoint).
+  const visibleOpenLeads = useMemo(() => {
+    if (!respectAvailability || !hasAvailability) return openLeads;
+    return openLeads.filter((l) => leadMatchesAvailability(l, availability));
+  }, [openLeads, availability, hasAvailability, respectAvailability]);
+
   const stats = useMemo(() => {
     const completed = myJobs.filter((l) => l.status === "completed");
     const earnings = completed.reduce((sum, l) => {
       return sum + (l.budget_range ? (BUDGET_MIDPOINT[l.budget_range] ?? 0) : 0);
     }, 0);
     return {
-      open: openLeads.length,
+      open: visibleOpenLeads.length,
       assigned: myJobs.filter((l) => l.status === "assigned").length,
       completed: completed.length,
       earnings,
     };
-  }, [openLeads, myJobs]);
+  }, [visibleOpenLeads, myJobs]);
 
   if (authLoading || (user && !isProvider)) {
     return (
@@ -264,34 +317,62 @@ function ProviderDashboard() {
 
         {/* Open leads */}
         <div className="mt-10 rounded-3xl border border-border bg-card shadow-soft">
-          <div className="flex items-center justify-between border-b border-border px-6 py-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-6 py-4">
             <div>
               <h2 className="text-lg font-semibold text-card-foreground">Open leads</h2>
               <p className="text-xs text-muted-foreground">
-                First provider to accept gets the job.
+                {hasAvailability && respectAvailability
+                  ? `Showing leads that fit your hours (${visibleOpenLeads.length} of ${openLeads.length}).`
+                  : "First provider to accept gets the job."}
               </p>
             </div>
-            <Briefcase className="h-5 w-5 text-muted-foreground" />
+            <div className="flex items-center gap-3">
+              {isApproved && hasAvailability && (
+                <label className="inline-flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
+                  <input
+                    type="checkbox"
+                    checked={respectAvailability}
+                    onChange={(e) => setRespectAvailability(e.target.checked)}
+                    className="h-3.5 w-3.5 rounded border-border"
+                  />
+                  Match my hours
+                </label>
+              )}
+              {isApproved && !hasAvailability && (
+                <Button asChild variant="outline" size="sm">
+                  <Link to="/availability">
+                    <Clock className="mr-1 h-3.5 w-3.5" /> Set hours
+                  </Link>
+                </Button>
+              )}
+              <Briefcase className="h-5 w-5 text-muted-foreground" />
+            </div>
           </div>
 
           {loading ? (
             <div className="flex items-center justify-center py-16">
               <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
             </div>
-          ) : openLeads.length === 0 ? (
+          ) : visibleOpenLeads.length === 0 ? (
             <EmptyState
-              title="No open leads right now"
+              title={
+                openLeads.length > 0 && respectAvailability && hasAvailability
+                  ? "No leads match your hours"
+                  : "No open leads right now"
+              }
               body={
-                isApproved
-                  ? noCoverage
-                    ? "Set your coverage to start receiving matched leads."
-                    : "We'll show new jobs in your categories and areas as soon as they come in."
-                  : "Once your provider application is approved, matching leads will appear here."
+                openLeads.length > 0 && respectAvailability && hasAvailability
+                  ? "Uncheck \"Match my hours\" to see all open leads, or update your working hours."
+                  : isApproved
+                    ? noCoverage
+                      ? "Set your coverage to start receiving matched leads."
+                      : "We'll show new jobs in your categories and areas as soon as they come in."
+                    : "Once your provider application is approved, matching leads will appear here."
               }
             />
           ) : (
             <LeadsList
-              leads={openLeads}
+              leads={visibleOpenLeads}
               renderAction={(l) => (
                 <Button
                   size="sm"

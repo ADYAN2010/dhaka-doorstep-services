@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
-import { ArrowRight, BadgeCheck, Heart, Loader2, MapPin, Star } from "lucide-react";
+import { ArrowRight, BadgeCheck, Clock, Heart, Loader2, MapPin, Star } from "lucide-react";
 import { toast } from "sonner";
 import { SiteShell } from "@/components/site-shell";
 import { supabase } from "@/integrations/supabase/client";
@@ -20,7 +20,7 @@ export const Route = createFileRoute("/p/$id")({
       .maybeSingle();
     if (!profile || profile.provider_status !== "approved") throw notFound();
 
-    const [{ data: cats }, { data: ars }, { data: stats }] = await Promise.all([
+    const [{ data: cats }, { data: ars }, { data: stats }, { data: avail }] = await Promise.all([
       supabase.from("provider_categories").select("category").eq("user_id", params.id),
       supabase.from("provider_areas").select("area").eq("user_id", params.id),
       supabase
@@ -28,6 +28,11 @@ export const Route = createFileRoute("/p/$id")({
         .select("avg_rating, review_count")
         .eq("provider_id", params.id)
         .maybeSingle(),
+      supabase
+        .from("provider_availability")
+        .select("weekday, is_active, start_time, end_time")
+        .eq("user_id", params.id)
+        .order("weekday", { ascending: true }),
     ]);
 
     return {
@@ -36,6 +41,12 @@ export const Route = createFileRoute("/p/$id")({
       areas: (ars ?? []).map((a) => a.area),
       avgRating: stats?.avg_rating ? Number(stats.avg_rating) : null,
       reviewCount: stats?.review_count ?? 0,
+      availability: (avail ?? []) as Array<{
+        weekday: number;
+        is_active: boolean;
+        start_time: string;
+        end_time: string;
+      }>,
     };
   },
   head: ({ loaderData }) => {
@@ -72,7 +83,8 @@ type Review = {
 };
 
 function RealProviderProfile() {
-  const { provider, categories, areas, avgRating, reviewCount } = Route.useLoaderData();
+  const { provider, categories, areas, avgRating, reviewCount, availability } =
+    Route.useLoaderData();
   const { user } = useAuth();
   const router = useRouter();
   const { saved, working, toggle, signedIn } = useSavedProvider(provider.id);
@@ -211,6 +223,9 @@ function RealProviderProfile() {
                 ))
               )}
             </div>
+
+            <h2 className="mt-10 text-xl font-semibold text-foreground">Working hours</h2>
+            <AvailabilityList availability={availability} />
 
             <h2 className="mt-10 text-xl font-semibold text-foreground">Reviews</h2>
             <ReviewSection
@@ -381,5 +396,63 @@ function ReviewSection({
         </ul>
       )}
     </div>
+  );
+}
+
+const WEEKDAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+function fmt(t: string) {
+  // "09:00:00" -> "9:00 AM"
+  const [hStr, mStr] = t.split(":");
+  const h = Number(hStr);
+  const m = Number(mStr);
+  const period = h >= 12 ? "PM" : "AM";
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  return `${h12}:${m.toString().padStart(2, "0")} ${period}`;
+}
+
+function AvailabilityList({
+  availability,
+}: {
+  availability: Array<{
+    weekday: number;
+    is_active: boolean;
+    start_time: string;
+    end_time: string;
+  }>;
+}) {
+  if (!availability || availability.length === 0) {
+    return (
+      <p className="mt-3 text-sm text-muted-foreground">
+        Available any time — message to coordinate.
+      </p>
+    );
+  }
+  const byDay = new Map(availability.map((a) => [a.weekday, a]));
+  return (
+    <ul className="mt-3 grid gap-2 rounded-2xl border border-border bg-card p-4 sm:grid-cols-2">
+      {WEEKDAY_LABELS.map((label, idx) => {
+        const slot = byDay.get(idx);
+        const open = slot?.is_active;
+        return (
+          <li
+            key={idx}
+            className="flex items-center justify-between gap-3 rounded-lg px-2 py-1.5 text-sm"
+          >
+            <span className="inline-flex items-center gap-2 font-medium text-foreground">
+              <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+              {label}
+            </span>
+            {open ? (
+              <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                {fmt(slot!.start_time)} – {fmt(slot!.end_time)}
+              </span>
+            ) : (
+              <span className="text-xs text-muted-foreground">Closed</span>
+            )}
+          </li>
+        );
+      })}
+    </ul>
   );
 }
