@@ -1,23 +1,42 @@
-import { useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Search, ArrowRight } from "lucide-react";
 import { categories } from "@/data/categories";
 
+type CategorySuggestion = {
+  kind: "category";
+  label: string;
+  sub: string;
+  category: string;
+};
+
+type ServiceSuggestion = {
+  kind: "service";
+  label: string;
+  sub: string;
+  category: string;
+  service: string;
+};
+
+type Suggestion = CategorySuggestion | ServiceSuggestion;
+
 export function HeroSearch() {
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
 
   const all = useMemo<Suggestion[]>(() => {
     const list: Suggestion[] = [];
     for (const c of categories) {
-      list.push({ label: c.name, sub: "Category", to: "/services/$category", params: { category: c.slug } });
+      list.push({ kind: "category", label: c.name, sub: "Category", category: c.slug });
       for (const sub of c.subcategories) {
         for (const s of sub.services) {
           list.push({
+            kind: "service",
             label: s.name,
             sub: c.name,
-            to: "/services/$category/$service",
-            params: { category: c.slug, service: s.slug },
+            category: c.slug,
+            service: s.slug,
           });
         }
       }
@@ -30,6 +49,17 @@ export function HeroSearch() {
     if (!needle) return all.slice(0, 6);
     return all.filter((s) => s.label.toLowerCase().includes(needle)).slice(0, 8);
   }, [q, all]);
+
+  const goTo = (m: Suggestion) => {
+    if (m.kind === "category") {
+      navigate({ to: "/services/$category", params: { category: m.category } });
+    } else {
+      navigate({
+        to: "/services/$category/$service",
+        params: { category: m.category, service: m.service },
+      });
+    }
+  };
 
   return (
     <div className="relative w-full">
@@ -58,20 +88,21 @@ export function HeroSearch() {
         <div className="absolute left-0 right-0 top-full z-20 mt-2 overflow-hidden rounded-2xl border border-border bg-popover shadow-elevated">
           <ul className="max-h-80 overflow-y-auto">
             {matches.map((m) => (
-              <li key={`${m.to}-${m.label}-${m.sub}`}>
-                <Link
-                  // @ts-expect-error dynamic params route
-                  to={m.to}
-                  // @ts-expect-error dynamic params route
-                  params={m.params}
-                  className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-muted"
+              <li key={`${m.kind}-${m.label}-${m.sub}`}>
+                <button
+                  type="button"
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    goTo(m);
+                  }}
+                  className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left hover:bg-muted"
                 >
                   <span>
                     <span className="block text-sm font-medium text-popover-foreground">{m.label}</span>
                     <span className="block text-xs text-muted-foreground">{m.sub}</span>
                   </span>
                   <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                </Link>
+                </button>
               </li>
             ))}
           </ul>
