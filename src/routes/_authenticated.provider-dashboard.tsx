@@ -124,6 +124,7 @@ function ProviderDashboard() {
   const [loading, setLoading] = useState(true);
   const [acceptingId, setAcceptingId] = useState<string | null>(null);
   const [respectAvailability, setRespectAvailability] = useState(true);
+  const [activePaymentJob, setActivePaymentJob] = useState<{ id: string; complete: boolean } | null>(null);
 
   useEffect(() => {
     if (authLoading || !user) return;
@@ -458,7 +459,7 @@ function ProviderDashboard() {
           alsoCompleteBooking={activePaymentJob.complete}
           onRecorded={() => {
             setActivePaymentJob(null);
-            void load();
+            void refresh();
           }}
         />
       )}
