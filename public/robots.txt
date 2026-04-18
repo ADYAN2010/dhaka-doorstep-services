@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+
+# Block authenticated/admin/auth flows from indexing
+Disallow: /dashboard
+Disallow: /provider-dashboard
+Disallow: /messages
+Disallow: /invoices
+Disallow: /earnings
+Disallow: /profile
+Disallow: /availability
+Disallow: /coverage
+Disallow: /admin
+Disallow: /login
+Disallow: /signup
+Disallow: /reset-password
+Disallow: /book
+
+Sitemap: https://shebabd.com/sitemap.xml
