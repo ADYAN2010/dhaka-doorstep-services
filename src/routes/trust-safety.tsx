@@ -2,16 +2,17 @@ import { createFileRoute } from "@tanstack/react-router";
 import { BadgeCheck, FileCheck2, Headphones, Lock, RefreshCcw, ShieldCheck } from "lucide-react";
 import { SiteShell } from "@/components/site-shell";
 import { PageHeader } from "@/components/page-header";
+import { buildSeo, OG } from "@/lib/seo";
 
 export const Route = createFileRoute("/trust-safety")({
-  head: () => ({
-    meta: [
-      { title: "Trust & Safety — Shebabd" },
-      { name: "description", content: "How we keep customers and providers safe on Shebabd: verification, background checks, secure payments and our service guarantee." },
-      { property: "og:title", content: "Trust & Safety — Shebabd" },
-      { property: "og:description", content: "Verification, secure payments, and a service guarantee on every booking." },
-    ],
-  }),
+  head: () =>
+    buildSeo({
+      title: "Trust & Safety — Verified Providers + Service Guarantee | Shebabd",
+      description:
+        "How we keep customers and providers safe on Shebabd: verification, background checks, secure payments and our service guarantee.",
+      canonical: "/trust-safety",
+      image: OG.home,
+    }),
   component: TrustPage,
 });
 

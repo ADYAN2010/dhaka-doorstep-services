@@ -8,16 +8,17 @@ import { categories } from "@/data/categories";
 import { areas } from "@/data/areas";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/auth-provider";
+import { buildSeo, OG } from "@/lib/seo";
 
 export const Route = createFileRoute("/become-provider")({
-  head: () => ({
-    meta: [
-      { title: "Become a Provider — Grow your service business with Shebabd" },
-      { name: "description", content: "Get verified leads in Dhaka. We handle marketing, bookings and customer support — you focus on great work. Apply in 5 minutes." },
-      { property: "og:title", content: "Become a Provider — Shebabd" },
-      { property: "og:description", content: "Steady leads, weekly payouts, support team behind you." },
-    ],
-  }),
+  head: () =>
+    buildSeo({
+      title: "Become a Provider — Grow your service business with Shebabd",
+      description:
+        "Get verified leads in Dhaka. We handle marketing, bookings and customer support — you focus on great work. Apply in 5 minutes.",
+      canonical: "/become-provider",
+      image: OG.becomeProvider,
+    }),
   component: BecomeProviderPage,
 });
 

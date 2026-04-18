@@ -4,23 +4,17 @@ import { SiteShell } from "@/components/site-shell";
 import { PageHeader } from "@/components/page-header";
 import { CategoryCard } from "@/components/category-card";
 import { categories, mainGroups } from "@/data/categories";
+import { buildSeo, OG } from "@/lib/seo";
 
 export const Route = createFileRoute("/services/")({
-  head: () => ({
-    meta: [
-      { title: "All Services in Dhaka — Shebabd" },
-      {
-        name: "description",
-        content:
-          "Browse 200+ services across home, personal, business and technical categories. Verified pros, transparent pricing.",
-      },
-      { property: "og:title", content: "All Services in Dhaka — Shebabd" },
-      {
-        property: "og:description",
-        content: "Verified pros across 20+ categories. Same-day booking in Dhaka.",
-      },
-    ],
-  }),
+  head: () =>
+    buildSeo({
+      title: "All Services in Dhaka — 200+ Verified Categories | Shebabd",
+      description:
+        "Browse 200+ services across home, personal, business and technical categories. Verified pros, transparent pricing, same-day booking in Dhaka.",
+      canonical: "/services",
+      image: OG.services,
+    }),
   component: AllServicesPage,
 });
 

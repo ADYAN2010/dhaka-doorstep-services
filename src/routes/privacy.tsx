@@ -1,14 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteShell } from "@/components/site-shell";
 import { PageHeader } from "@/components/page-header";
+import { buildSeo } from "@/lib/seo";
 
 export const Route = createFileRoute("/privacy")({
-  head: () => ({
-    meta: [
-      { title: "Privacy Policy — Shebabd" },
-      { name: "description", content: "How Shebabd collects, uses and protects your personal information." },
-    ],
-  }),
+  head: () =>
+    buildSeo({
+      title: "Privacy Policy — Shebabd",
+      description: "How Shebabd collects, uses and protects your personal information.",
+      canonical: "/privacy",
+    }),
   component: PrivacyPage,
 });
 

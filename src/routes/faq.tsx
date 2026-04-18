@@ -2,16 +2,32 @@ import { createFileRoute } from "@tanstack/react-router";
 import { SiteShell } from "@/components/site-shell";
 import { PageHeader } from "@/components/page-header";
 import { ChevronDown } from "lucide-react";
+import { buildSeo, jsonLdScript, OG } from "@/lib/seo";
 
 export const Route = createFileRoute("/faq")({
-  head: () => ({
-    meta: [
-      { title: "FAQ — Shebabd" },
-      { name: "description", content: "Answers to common questions about booking services, pricing, providers, and our service guarantee." },
-      { property: "og:title", content: "Frequently Asked Questions — Shebabd" },
-      { property: "og:description", content: "Answers about booking, pricing, providers, and our guarantee." },
-    ],
-  }),
+  head: () => {
+    const seo = buildSeo({
+      title: "FAQ — Booking, Pricing & Provider Questions | Shebabd",
+      description:
+        "Answers to common questions about booking services, pricing, providers, and our service guarantee in Dhaka.",
+      canonical: "/faq",
+      image: OG.home,
+    });
+    return {
+      ...seo,
+      scripts: [
+        jsonLdScript({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: FAQS.map((f) => ({
+            "@type": "Question",
+            name: f.q,
+            acceptedAnswer: { "@type": "Answer", text: f.a },
+          })),
+        }),
+      ],
+    };
+  },
   component: FaqPage,
 });
 

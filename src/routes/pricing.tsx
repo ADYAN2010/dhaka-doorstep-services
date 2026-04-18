@@ -3,16 +3,17 @@ import { ArrowRight, Tag } from "lucide-react";
 import { SiteShell } from "@/components/site-shell";
 import { PageHeader } from "@/components/page-header";
 import { categories } from "@/data/categories";
+import { buildSeo, OG } from "@/lib/seo";
 
 export const Route = createFileRoute("/pricing")({
-  head: () => ({
-    meta: [
-      { title: "Pricing & Service Charges — Shebabd" },
-      { name: "description", content: "Transparent starting prices for every service category in Dhaka. No hidden fees, pay only after the work is done." },
-      { property: "og:title", content: "Transparent Pricing — Shebabd" },
-      { property: "og:description", content: "Starting prices for every category in Dhaka. No hidden fees." },
-    ],
-  }),
+  head: () =>
+    buildSeo({
+      title: "Pricing & Service Charges — Transparent Rates | Shebabd",
+      description:
+        "Transparent starting prices for every service category in Dhaka. No hidden fees, pay only after the work is done.",
+      canonical: "/pricing",
+      image: OG.services,
+    }),
   component: PricingPage,
 });
 

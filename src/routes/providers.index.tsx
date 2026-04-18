@@ -6,16 +6,17 @@ import { ProviderCard } from "@/components/provider-card";
 import { RealProviderCard, type RealProvider } from "@/components/real-provider-card";
 import { providers } from "@/data/providers";
 import { supabase } from "@/integrations/supabase/client";
+import { buildSeo, OG } from "@/lib/seo";
 
 export const Route = createFileRoute("/providers/")({
-  head: () => ({
-    meta: [
-      { title: "Verified Service Providers in Dhaka — Shebabd" },
-      { name: "description", content: "Browse top-rated, verified service providers across Dhaka. Compare ratings, response times and coverage areas." },
-      { property: "og:title", content: "Verified Service Providers in Dhaka — Shebabd" },
-      { property: "og:description", content: "Top-rated, background-checked professionals across all categories." },
-    ],
-  }),
+  head: () =>
+    buildSeo({
+      title: "Verified Service Providers in Dhaka — Shebabd",
+      description:
+        "Browse top-rated, verified service providers across Dhaka. Compare ratings, response times and coverage areas. Background-checked professionals across all categories.",
+      canonical: "/providers",
+      image: OG.providers,
+    }),
   component: ProvidersPage,
 });
 

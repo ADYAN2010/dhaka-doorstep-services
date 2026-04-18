@@ -2,16 +2,17 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, BadgeCheck, ClipboardList, Headphones, Search, ShieldCheck, Sparkles, Users, Wallet } from "lucide-react";
 import { SiteShell } from "@/components/site-shell";
 import { PageHeader } from "@/components/page-header";
+import { buildSeo, OG } from "@/lib/seo";
 
 export const Route = createFileRoute("/how-it-works")({
-  head: () => ({
-    meta: [
-      { title: "How Shebabd Works — Provider, We, Consumer" },
-      { name: "description", content: "We are the trusted middle layer between skilled providers and customers in Dhaka. Here's exactly how booking, matching, and quality control work." },
-      { property: "og:title", content: "How Shebabd Works — Provider, We, Consumer" },
-      { property: "og:description", content: "Verified providers + our quality layer + happy customers." },
-    ],
-  }),
+  head: () =>
+    buildSeo({
+      title: "How Shebabd Works — Provider, We, Consumer",
+      description:
+        "We are the trusted middle layer between skilled providers and customers in Dhaka. Here's exactly how booking, matching, and quality control work.",
+      canonical: "/how-it-works",
+      image: OG.home,
+    }),
   component: HowItWorksPage,
 });
 

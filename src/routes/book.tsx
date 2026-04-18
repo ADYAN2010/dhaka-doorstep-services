@@ -8,16 +8,18 @@ import { categories } from "@/data/categories";
 import { areas } from "@/data/areas";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/auth-provider";
+import { buildSeo, OG } from "@/lib/seo";
 
 export const Route = createFileRoute("/book")({
-  head: () => ({
-    meta: [
-      { title: "Book a Service — Shebabd" },
-      { name: "description", content: "Book a verified service provider in Dhaka. Pick your category, area, time and budget — we'll match the best pro for the job." },
-      { property: "og:title", content: "Book a Service in Dhaka — Shebabd" },
-      { property: "og:description", content: "Pick your category, area, and time. We match the best verified pro." },
-    ],
-  }),
+  head: () =>
+    buildSeo({
+      title: "Book a Service in Dhaka — Shebabd",
+      description:
+        "Book a verified service provider in Dhaka. Pick your category, area, time and budget — we'll match the best pro for the job.",
+      canonical: "/book",
+      image: OG.home,
+      noindex: true,
+    }),
   component: BookPage,
 });
 

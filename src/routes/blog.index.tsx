@@ -4,16 +4,17 @@ import { Loader2, ArrowRight, AlertTriangle } from "lucide-react";
 import { SiteShell } from "@/components/site-shell";
 import { PageHeader } from "@/components/page-header";
 import { supabase } from "@/integrations/supabase/client";
+import { buildSeo, OG } from "@/lib/seo";
 
 export const Route = createFileRoute("/blog/")({
-  head: () => ({
-    meta: [
-      { title: "Blog & Insights — Shebabd" },
-      { name: "description", content: "Tips, guides and stories about home services, providers and the future of Bangladesh's service economy." },
-      { property: "og:title", content: "Blog & Insights — Shebabd" },
-      { property: "og:description", content: "Tips, guides and stories from Bangladesh's service economy." },
-    ],
-  }),
+  head: () =>
+    buildSeo({
+      title: "Blog & Insights — Shebabd",
+      description:
+        "Tips, guides and stories about home services, providers and the future of Bangladesh's service economy.",
+      canonical: "/blog",
+      image: OG.home,
+    }),
   component: BlogPage,
 });
 

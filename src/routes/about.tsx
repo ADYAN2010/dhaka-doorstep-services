@@ -2,16 +2,17 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Globe, Heart, Target } from "lucide-react";
 import { SiteShell } from "@/components/site-shell";
 import { PageHeader } from "@/components/page-header";
+import { buildSeo, OG } from "@/lib/seo";
 
 export const Route = createFileRoute("/about")({
-  head: () => ({
-    meta: [
-      { title: "About Shebabd — Bangladesh's All-in-One Service Platform" },
-      { name: "description", content: "Shebabd connects skilled providers with everyday customers across Dhaka. Built in Bangladesh, for Bangladesh — starting in Dhaka, scaling to all 64 districts." },
-      { property: "og:title", content: "About Shebabd" },
-      { property: "og:description", content: "Built in Bangladesh, for Bangladesh — starting in Dhaka." },
-    ],
-  }),
+  head: () =>
+    buildSeo({
+      title: "About Shebabd — Built in Bangladesh, for Bangladesh",
+      description:
+        "Shebabd connects skilled providers with everyday customers across Dhaka. Built in Bangladesh, for Bangladesh — starting in Dhaka, scaling to all 64 districts.",
+      canonical: "/about",
+      image: OG.home,
+    }),
   component: AboutPage,
 });
 

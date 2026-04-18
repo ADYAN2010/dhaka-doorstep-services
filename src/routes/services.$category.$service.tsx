@@ -4,6 +4,7 @@ import { SiteShell } from "@/components/site-shell";
 import { ProviderCard } from "@/components/provider-card";
 import { findService } from "@/data/categories";
 import { providers } from "@/data/providers";
+import { buildSeo, jsonLdScript, OG, SITE_URL, absUrl } from "@/lib/seo";
 
 export const Route = createFileRoute("/services/$category/$service")({
   loader: ({ params }) => {
@@ -11,15 +12,47 @@ export const Route = createFileRoute("/services/$category/$service")({
     if (!found) throw notFound();
     return found;
   },
-  head: ({ loaderData }) => {
-    if (!loaderData) return { meta: [{ title: "Service — Shebabd" }] };
+  head: ({ loaderData, params }) => {
+    if (!loaderData) {
+      return buildSeo({
+        title: "Service — Shebabd",
+        description: "Service in Dhaka.",
+        canonical: `/services/${params.category}/${params.service}`,
+        noindex: true,
+      });
+    }
     const { service, category } = loaderData;
+    const seo = buildSeo({
+      title: `${service.name} in Dhaka — from ৳${service.startingPrice.toLocaleString()} | Shebabd`,
+      description: `${service.short}. Book verified ${category.name.toLowerCase()} pros in Dhaka — transparent pricing, on-time service.`,
+      canonical: `/services/${category.slug}/${service.slug}`,
+      image: OG.services,
+    });
     return {
-      meta: [
-        { title: `${service.name} in Dhaka — from ৳${service.startingPrice.toLocaleString()} | Shebabd` },
-        { name: "description", content: `${service.short}. Book verified ${category.name.toLowerCase()} pros in Dhaka — transparent pricing, on-time service.` },
-        { property: "og:title", content: `${service.name} in Dhaka — Shebabd` },
-        { property: "og:description", content: service.short },
+      ...seo,
+      scripts: [
+        jsonLdScript({
+          "@context": "https://schema.org",
+          "@type": "Service",
+          name: service.name,
+          description: service.short,
+          serviceType: category.name,
+          provider: {
+            "@type": "LocalBusiness",
+            "@id": `${SITE_URL}/#organization`,
+            name: "Shebabd",
+            url: SITE_URL,
+          },
+          areaServed: { "@type": "City", name: "Dhaka" },
+          url: absUrl(`/services/${category.slug}/${service.slug}`),
+          offers: {
+            "@type": "Offer",
+            price: service.startingPrice,
+            priceCurrency: "BDT",
+            availability: "https://schema.org/InStock",
+            url: absUrl(`/services/${category.slug}/${service.slug}`),
+          },
+        }),
       ],
     };
   },

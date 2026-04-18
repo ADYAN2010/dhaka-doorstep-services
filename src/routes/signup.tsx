@@ -6,14 +6,16 @@ import { SiteShell } from "@/components/site-shell";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/auth-provider";
 import { areas } from "@/data/areas";
+import { buildSeo } from "@/lib/seo";
 
 export const Route = createFileRoute("/signup")({
-  head: () => ({
-    meta: [
-      { title: "Sign up — Shebabd" },
-      { name: "description", content: "Create your Shebabd account to book or offer services in Dhaka." },
-    ],
-  }),
+  head: () =>
+    buildSeo({
+      title: "Sign up — Shebabd",
+      description: "Create your Shebabd account to book or offer services in Dhaka.",
+      canonical: "/signup",
+      noindex: true,
+    }),
   component: SignupPage,
 });
 
