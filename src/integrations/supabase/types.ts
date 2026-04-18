@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      blog_posts: {
+        Row: {
+          author_id: string | null
+          body: string
+          cover_image_url: string | null
+          created_at: string
+          excerpt: string
+          id: string
+          published: boolean
+          published_at: string | null
+          read_minutes: number
+          slug: string
+          tag: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_id?: string | null
+          body: string
+          cover_image_url?: string | null
+          created_at?: string
+          excerpt: string
+          id?: string
+          published?: boolean
+          published_at?: string | null
+          read_minutes?: number
+          slug: string
+          tag?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string | null
+          body?: string
+          cover_image_url?: string | null
+          created_at?: string
+          excerpt?: string
+          id?: string
+          published?: boolean
+          published_at?: string | null
+          read_minutes?: number
+          slug?: string
+          tag?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       bookings: {
         Row: {
           address: string | null
@@ -69,6 +117,42 @@ export type Database = {
           provider_id?: string | null
           service?: string | null
           status?: Database["public"]["Enums"]["booking_status"]
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      contact_messages: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string
+          handled: boolean
+          id: string
+          message: string
+          phone: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name: string
+          handled?: boolean
+          id?: string
+          message: string
+          phone?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          handled?: boolean
+          id?: string
+          message?: string
+          phone?: string | null
           updated_at?: string
           user_id?: string | null
         }

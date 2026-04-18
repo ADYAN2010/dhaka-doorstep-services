@@ -18,6 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { AdminBlogAndMessages } from "@/components/admin-blog-and-messages";
 
 export const Route = createFileRoute("/admin")({
   component: AdminPage,
@@ -667,6 +668,9 @@ function AdminPage() {
           </Table>
         </div>
       </section>
+
+      {/* Blog CMS + Contact inbox */}
+      <AdminBlogAndMessages />
 
       {/* Categories & Areas (read-only catalog) */}
       <section className="mt-10 grid gap-6 lg:grid-cols-2">
