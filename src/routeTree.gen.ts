@@ -36,6 +36,7 @@ import { Route as AuthenticatedProviderDashboardRouteImport } from './routes/_au
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated.profile'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated.dashboard'
 import { Route as AuthenticatedCoverageRouteImport } from './routes/_authenticated.coverage'
+import { Route as AuthenticatedAvailabilityRouteImport } from './routes/_authenticated.availability'
 import { Route as ServicesCategoryIndexRouteImport } from './routes/services.$category.index'
 import { Route as ServicesCategoryServiceRouteImport } from './routes/services.$category.$service'
 
@@ -174,6 +175,12 @@ const AuthenticatedCoverageRoute = AuthenticatedCoverageRouteImport.update({
   path: '/coverage',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedAvailabilityRoute =
+  AuthenticatedAvailabilityRouteImport.update({
+    id: '/availability',
+    path: '/availability',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const ServicesCategoryIndexRoute = ServicesCategoryIndexRouteImport.update({
   id: '/services/$category/',
   path: '/services/$category/',
@@ -201,6 +208,7 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
   '/trust-safety': typeof TrustSafetyRoute
+  '/availability': typeof AuthenticatedAvailabilityRoute
   '/coverage': typeof AuthenticatedCoverageRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/profile': typeof AuthenticatedProfileRoute
@@ -231,6 +239,7 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
   '/trust-safety': typeof TrustSafetyRoute
+  '/availability': typeof AuthenticatedAvailabilityRoute
   '/coverage': typeof AuthenticatedCoverageRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/profile': typeof AuthenticatedProfileRoute
@@ -263,6 +272,7 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
   '/trust-safety': typeof TrustSafetyRoute
+  '/_authenticated/availability': typeof AuthenticatedAvailabilityRoute
   '/_authenticated/coverage': typeof AuthenticatedCoverageRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
@@ -295,6 +305,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/terms'
     | '/trust-safety'
+    | '/availability'
     | '/coverage'
     | '/dashboard'
     | '/profile'
@@ -325,6 +336,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/terms'
     | '/trust-safety'
+    | '/availability'
     | '/coverage'
     | '/dashboard'
     | '/profile'
@@ -356,6 +368,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/terms'
     | '/trust-safety'
+    | '/_authenticated/availability'
     | '/_authenticated/coverage'
     | '/_authenticated/dashboard'
     | '/_authenticated/profile'
@@ -590,6 +603,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCoverageRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/availability': {
+      id: '/_authenticated/availability'
+      path: '/availability'
+      fullPath: '/availability'
+      preLoaderRoute: typeof AuthenticatedAvailabilityRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/services/$category/': {
       id: '/services/$category/'
       path: '/services/$category'
@@ -608,6 +628,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteChildren {
+  AuthenticatedAvailabilityRoute: typeof AuthenticatedAvailabilityRoute
   AuthenticatedCoverageRoute: typeof AuthenticatedCoverageRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
@@ -615,6 +636,7 @@ interface AuthenticatedRouteChildren {
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedAvailabilityRoute: AuthenticatedAvailabilityRoute,
   AuthenticatedCoverageRoute: AuthenticatedCoverageRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
@@ -655,3 +677,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
