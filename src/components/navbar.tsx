@@ -1,9 +1,10 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MapPin, Menu, X, ChevronDown, LogOut, LayoutDashboard, User as UserIcon, Shield } from "lucide-react";
 import { Logo } from "./logo";
 import { ThemeToggle } from "./theme-toggle";
 import { useAuth } from "./auth-provider";
+import { supabase } from "@/integrations/supabase/client";
 
 const NAV = [
   { to: "/services", label: "Services" },
@@ -21,6 +22,41 @@ export function Navbar() {
   const isProvider = roles.includes("provider");
   const dashboardTo = isProvider ? "/provider-dashboard" : "/dashboard";
   const navigate = useNavigate();
+  const [profile, setProfile] = useState<{ full_name: string | null; avatar_url: string | null } | null>(null);
+
+  useEffect(() => {
+    if (!user) {
+      setProfile(null);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("full_name, avatar_url")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (!cancelled) setProfile(data ?? null);
+    })();
+
+    // Refresh when the profiles row for this user changes (e.g., after avatar upload).
+    const channel = supabase
+      .channel(`navbar-profile-${user.id}`)
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "profiles", filter: `id=eq.${user.id}` },
+        (payload) => {
+          const next = payload.new as { full_name: string | null; avatar_url: string | null };
+          setProfile({ full_name: next.full_name, avatar_url: next.avatar_url });
+        },
+      )
+      .subscribe();
+
+    return () => {
+      cancelled = true;
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
 
   async function handleSignOut() {
     await signOut();
@@ -28,12 +64,22 @@ export function Navbar() {
     navigate({ to: "/" });
   }
 
-  const initials = (user?.user_metadata?.full_name as string | undefined)
-    ?.split(" ")
-    .map((s) => s[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase() ?? user?.email?.[0]?.toUpperCase() ?? "U";
+  const displayName =
+    profile?.full_name?.trim() ||
+    (user?.user_metadata?.full_name as string | undefined) ||
+    user?.email ||
+    "Account";
+  const firstName = displayName.split(" ")[0];
+  const initials =
+    displayName
+      .split(" ")
+      .map((s) => s[0])
+      .filter(Boolean)
+      .slice(0, 2)
+      .join("")
+      .toUpperCase() ||
+    user?.email?.[0]?.toUpperCase() ||
+    "U";
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/70">
@@ -73,10 +119,20 @@ export function Navbar() {
                 type="button"
                 onClick={() => setMenuOpen((v) => !v)}
                 className="flex items-center gap-2 rounded-full border border-border bg-background py-1 pl-1 pr-3 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+                aria-label={`Account menu for ${displayName}`}
               >
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-primary text-xs font-bold text-primary-foreground">
-                  {initials}
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-primary text-xs font-bold text-primary-foreground">
+                  {profile?.avatar_url ? (
+                    <img
+                      src={profile.avatar_url}
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    initials
+                  )}
                 </span>
+                <span className="hidden max-w-[120px] truncate lg:inline">{firstName}</span>
                 <ChevronDown className="h-3.5 w-3.5 opacity-60" />
               </button>
               {menuOpen && (
@@ -87,10 +143,27 @@ export function Navbar() {
                     className="fixed inset-0 z-40 cursor-default"
                     onClick={() => setMenuOpen(false)}
                   />
-                  <div className="absolute right-0 z-50 mt-2 w-56 overflow-hidden rounded-2xl border border-border bg-popover p-1 shadow-elevated">
-                    <div className="px-3 py-2 text-xs text-muted-foreground">
-                      Signed in as
-                      <div className="truncate text-sm font-medium text-foreground">{user.email}</div>
+                  <div className="absolute right-0 z-50 mt-2 w-64 overflow-hidden rounded-2xl border border-border bg-popover p-1 shadow-elevated">
+                    <div className="flex items-center gap-3 px-3 py-3">
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-primary text-sm font-bold text-primary-foreground">
+                        {profile?.avatar_url ? (
+                          <img
+                            src={profile.avatar_url}
+                            alt=""
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          initials
+                        )}
+                      </span>
+                      <div className="min-w-0">
+                        <div className="truncate text-sm font-semibold text-foreground">
+                          {displayName}
+                        </div>
+                        <div className="truncate text-xs text-muted-foreground">
+                          {user.email}
+                        </div>
+                      </div>
                     </div>
                     <div className="my-1 h-px bg-border" />
                     <Link
@@ -180,9 +253,18 @@ export function Navbar() {
             <div className="mt-2 flex flex-col gap-2">
               {user ? (
                 <>
-                  <div className="rounded-lg bg-muted px-3 py-2 text-sm">
-                    <div className="text-xs text-muted-foreground">Signed in</div>
-                    <div className="truncate font-medium text-foreground">{user.email}</div>
+                  <div className="flex items-center gap-3 rounded-lg bg-muted px-3 py-2 text-sm">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-primary text-xs font-bold text-primary-foreground">
+                      {profile?.avatar_url ? (
+                        <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
+                      ) : (
+                        initials
+                      )}
+                    </span>
+                    <div className="min-w-0">
+                      <div className="truncate font-medium text-foreground">{displayName}</div>
+                      <div className="truncate text-xs text-muted-foreground">{user.email}</div>
+                    </div>
                   </div>
                   <button
                     type="button"
