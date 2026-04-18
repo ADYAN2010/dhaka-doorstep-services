@@ -18,6 +18,8 @@ export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { user, roles, signOut, loading } = useAuth();
   const isAdmin = roles.includes("admin");
+  const isProvider = roles.includes("provider");
+  const dashboardTo = isProvider ? "/provider-dashboard" : "/dashboard";
   const navigate = useNavigate();
 
   async function handleSignOut() {
@@ -92,19 +94,21 @@ export function Navbar() {
                     </div>
                     <div className="my-1 h-px bg-border" />
                     <Link
-                      to="/"
+                      to={dashboardTo}
                       onClick={() => setMenuOpen(false)}
                       className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-muted"
                     >
                       <LayoutDashboard className="h-4 w-4" /> Dashboard
                     </Link>
-                    <Link
-                      to="/"
-                      onClick={() => setMenuOpen(false)}
-                      className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-muted"
-                    >
-                      <UserIcon className="h-4 w-4" /> Profile
-                    </Link>
+                    {isProvider && (
+                      <Link
+                        to="/dashboard"
+                        onClick={() => setMenuOpen(false)}
+                        className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-muted"
+                      >
+                        <UserIcon className="h-4 w-4" /> My bookings
+                      </Link>
+                    )}
                     {isAdmin && (
                       <Link
                         to="/admin"
