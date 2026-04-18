@@ -235,35 +235,76 @@ function CustomerDashboard() {
               </div>
               {/* Mobile */}
               <ul className="divide-y divide-border md:hidden">
-                {bookings.map((b) => (
-                  <li key={b.id} className="px-6 py-4">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <div className="font-medium text-foreground">
-                          {b.service ?? b.category}
+                {bookings.map((b) => {
+                  const canCancel = b.status === "new" || b.status === "confirmed";
+                  return (
+                    <li key={b.id} className="px-6 py-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <div className="font-medium text-foreground">
+                            {b.service ?? b.category}
+                          </div>
+                          <div className="text-xs text-muted-foreground capitalize">
+                            {b.category}
+                          </div>
                         </div>
-                        <div className="text-xs text-muted-foreground capitalize">
-                          {b.category}
+                        <StatusBadge status={b.status} />
+                      </div>
+                      <div className="mt-3 grid grid-cols-1 gap-1.5 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-1.5">
+                          <Calendar className="h-3.5 w-3.5" />
+                          {new Date(b.preferred_date).toLocaleDateString()} · {b.preferred_time_slot}
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <MapPin className="h-3.5 w-3.5" /> {b.area}
                         </div>
                       </div>
-                      <StatusBadge status={b.status} />
-                    </div>
-                    <div className="mt-3 grid grid-cols-1 gap-1.5 text-xs text-muted-foreground">
-                      <div className="flex items-center gap-1.5">
-                        <Calendar className="h-3.5 w-3.5" />
-                        {new Date(b.preferred_date).toLocaleDateString()} · {b.preferred_time_slot}
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <MapPin className="h-3.5 w-3.5" /> {b.area}
-                      </div>
-                    </div>
-                  </li>
-                ))}
+                      {canCancel && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="mt-3"
+                          onClick={() => setPendingCancelId(b.id)}
+                        >
+                          <X className="mr-1 h-3.5 w-3.5" /> Cancel booking
+                        </Button>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             </>
           )}
         </div>
       </section>
+
+      <AlertDialog
+        open={pendingCancelId !== null}
+        onOpenChange={(open) => !open && !cancelling && setPendingCancelId(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cancel this booking?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will mark your booking as cancelled. You can always book the same service again later.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={cancelling}>Keep booking</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={cancelling}
+              onClick={(e) => {
+                e.preventDefault();
+                confirmCancel();
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {cancelling && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}
+              Yes, cancel
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </SiteShell>
   );
 }
