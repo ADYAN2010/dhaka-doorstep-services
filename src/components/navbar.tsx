@@ -1,9 +1,10 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MapPin, Menu, X, ChevronDown, LogOut, LayoutDashboard, User as UserIcon, Shield } from "lucide-react";
 import { Logo } from "./logo";
 import { ThemeToggle } from "./theme-toggle";
 import { useAuth } from "./auth-provider";
+import { supabase } from "@/integrations/supabase/client";
 
 const NAV = [
   { to: "/services", label: "Services" },
@@ -21,6 +22,41 @@ export function Navbar() {
   const isProvider = roles.includes("provider");
   const dashboardTo = isProvider ? "/provider-dashboard" : "/dashboard";
   const navigate = useNavigate();
+  const [profile, setProfile] = useState<{ full_name: string | null; avatar_url: string | null } | null>(null);
+
+  useEffect(() => {
+    if (!user) {
+      setProfile(null);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("full_name, avatar_url")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (!cancelled) setProfile(data ?? null);
+    })();
+
+    // Refresh when the profiles row for this user changes (e.g., after avatar upload).
+    const channel = supabase
+      .channel(`navbar-profile-${user.id}`)
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "profiles", filter: `id=eq.${user.id}` },
+        (payload) => {
+          const next = payload.new as { full_name: string | null; avatar_url: string | null };
+          setProfile({ full_name: next.full_name, avatar_url: next.avatar_url });
+        },
+      )
+      .subscribe();
+
+    return () => {
+      cancelled = true;
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
 
   async function handleSignOut() {
     await signOut();
@@ -28,12 +64,22 @@ export function Navbar() {
     navigate({ to: "/" });
   }
 
-  const initials = (user?.user_metadata?.full_name as string | undefined)
-    ?.split(" ")
-    .map((s) => s[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase() ?? user?.email?.[0]?.toUpperCase() ?? "U";
+  const displayName =
+    profile?.full_name?.trim() ||
+    (user?.user_metadata?.full_name as string | undefined) ||
+    user?.email ||
+    "Account";
+  const firstName = displayName.split(" ")[0];
+  const initials =
+    displayName
+      .split(" ")
+      .map((s) => s[0])
+      .filter(Boolean)
+      .slice(0, 2)
+      .join("")
+      .toUpperCase() ||
+    user?.email?.[0]?.toUpperCase() ||
+    "U";
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/70">
