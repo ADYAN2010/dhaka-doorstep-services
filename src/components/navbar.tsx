@@ -105,6 +105,15 @@ export function Navbar() {
                     >
                       <UserIcon className="h-4 w-4" /> Profile
                     </Link>
+                    {isAdmin && (
+                      <Link
+                        to="/admin"
+                        onClick={() => setMenuOpen(false)}
+                        className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-muted"
+                      >
+                        <Shield className="h-4 w-4" /> Admin
+                      </Link>
+                    )}
                     <button
                       type="button"
                       onClick={handleSignOut}
