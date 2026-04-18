@@ -43,7 +43,7 @@ function LoginPage() {
       return;
     }
     setBusy(true);
-    const { error } = await supabase.auth.signInWithPassword(parsed.data);
+    const { data, error } = await supabase.auth.signInWithPassword(parsed.data);
     setBusy(false);
     if (error) {
       setError(
@@ -51,6 +51,12 @@ function LoginPage() {
           ? "Wrong email or password."
           : error.message,
       );
+      return;
+    }
+    // If they're flagged to change their password, send them to the admin
+    // settings panel so they can rotate it before doing anything else.
+    if (data.user?.user_metadata?.must_change_password) {
+      navigate({ to: "/admin", hash: "admin-account" });
       return;
     }
     navigate({ to: "/" });
