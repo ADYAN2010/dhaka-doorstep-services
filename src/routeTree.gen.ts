@@ -36,6 +36,8 @@ import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthenticatedProviderDashboardRouteImport } from './routes/_authenticated.provider-dashboard'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated.profile'
 import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated.messages'
+import { Route as AuthenticatedInvoicesRouteImport } from './routes/_authenticated.invoices'
+import { Route as AuthenticatedEarningsRouteImport } from './routes/_authenticated.earnings'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated.dashboard'
 import { Route as AuthenticatedCoverageRouteImport } from './routes/_authenticated.coverage'
 import { Route as AuthenticatedAvailabilityRouteImport } from './routes/_authenticated.availability'
@@ -177,6 +179,16 @@ const AuthenticatedMessagesRoute = AuthenticatedMessagesRouteImport.update({
   path: '/messages',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedInvoicesRoute = AuthenticatedInvoicesRouteImport.update({
+  id: '/invoices',
+  path: '/invoices',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedEarningsRoute = AuthenticatedEarningsRouteImport.update({
+  id: '/earnings',
+  path: '/earnings',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -223,6 +235,8 @@ export interface FileRoutesByFullPath {
   '/availability': typeof AuthenticatedAvailabilityRoute
   '/coverage': typeof AuthenticatedCoverageRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/earnings': typeof AuthenticatedEarningsRoute
+  '/invoices': typeof AuthenticatedInvoicesRoute
   '/messages': typeof AuthenticatedMessagesRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/provider-dashboard': typeof AuthenticatedProviderDashboardRoute
@@ -256,6 +270,8 @@ export interface FileRoutesByTo {
   '/availability': typeof AuthenticatedAvailabilityRoute
   '/coverage': typeof AuthenticatedCoverageRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/earnings': typeof AuthenticatedEarningsRoute
+  '/invoices': typeof AuthenticatedInvoicesRoute
   '/messages': typeof AuthenticatedMessagesRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/provider-dashboard': typeof AuthenticatedProviderDashboardRoute
@@ -291,6 +307,8 @@ export interface FileRoutesById {
   '/_authenticated/availability': typeof AuthenticatedAvailabilityRoute
   '/_authenticated/coverage': typeof AuthenticatedCoverageRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/earnings': typeof AuthenticatedEarningsRoute
+  '/_authenticated/invoices': typeof AuthenticatedInvoicesRoute
   '/_authenticated/messages': typeof AuthenticatedMessagesRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/provider-dashboard': typeof AuthenticatedProviderDashboardRoute
@@ -326,6 +344,8 @@ export interface FileRouteTypes {
     | '/availability'
     | '/coverage'
     | '/dashboard'
+    | '/earnings'
+    | '/invoices'
     | '/messages'
     | '/profile'
     | '/provider-dashboard'
@@ -359,6 +379,8 @@ export interface FileRouteTypes {
     | '/availability'
     | '/coverage'
     | '/dashboard'
+    | '/earnings'
+    | '/invoices'
     | '/messages'
     | '/profile'
     | '/provider-dashboard'
@@ -393,6 +415,8 @@ export interface FileRouteTypes {
     | '/_authenticated/availability'
     | '/_authenticated/coverage'
     | '/_authenticated/dashboard'
+    | '/_authenticated/earnings'
+    | '/_authenticated/invoices'
     | '/_authenticated/messages'
     | '/_authenticated/profile'
     | '/_authenticated/provider-dashboard'
@@ -628,6 +652,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMessagesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/invoices': {
+      id: '/_authenticated/invoices'
+      path: '/invoices'
+      fullPath: '/invoices'
+      preLoaderRoute: typeof AuthenticatedInvoicesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/earnings': {
+      id: '/_authenticated/earnings'
+      path: '/earnings'
+      fullPath: '/earnings'
+      preLoaderRoute: typeof AuthenticatedEarningsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -670,6 +708,8 @@ interface AuthenticatedRouteChildren {
   AuthenticatedAvailabilityRoute: typeof AuthenticatedAvailabilityRoute
   AuthenticatedCoverageRoute: typeof AuthenticatedCoverageRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedEarningsRoute: typeof AuthenticatedEarningsRoute
+  AuthenticatedInvoicesRoute: typeof AuthenticatedInvoicesRoute
   AuthenticatedMessagesRoute: typeof AuthenticatedMessagesRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedProviderDashboardRoute: typeof AuthenticatedProviderDashboardRoute
@@ -679,6 +719,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAvailabilityRoute: AuthenticatedAvailabilityRoute,
   AuthenticatedCoverageRoute: AuthenticatedCoverageRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedEarningsRoute: AuthenticatedEarningsRoute,
+  AuthenticatedInvoicesRoute: AuthenticatedInvoicesRoute,
   AuthenticatedMessagesRoute: AuthenticatedMessagesRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedProviderDashboardRoute: AuthenticatedProviderDashboardRoute,
