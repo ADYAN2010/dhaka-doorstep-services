@@ -317,34 +317,62 @@ function ProviderDashboard() {
 
         {/* Open leads */}
         <div className="mt-10 rounded-3xl border border-border bg-card shadow-soft">
-          <div className="flex items-center justify-between border-b border-border px-6 py-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-6 py-4">
             <div>
               <h2 className="text-lg font-semibold text-card-foreground">Open leads</h2>
               <p className="text-xs text-muted-foreground">
-                First provider to accept gets the job.
+                {hasAvailability && respectAvailability
+                  ? `Showing leads that fit your hours (${visibleOpenLeads.length} of ${openLeads.length}).`
+                  : "First provider to accept gets the job."}
               </p>
             </div>
-            <Briefcase className="h-5 w-5 text-muted-foreground" />
+            <div className="flex items-center gap-3">
+              {isApproved && hasAvailability && (
+                <label className="inline-flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
+                  <input
+                    type="checkbox"
+                    checked={respectAvailability}
+                    onChange={(e) => setRespectAvailability(e.target.checked)}
+                    className="h-3.5 w-3.5 rounded border-border"
+                  />
+                  Match my hours
+                </label>
+              )}
+              {isApproved && !hasAvailability && (
+                <Button asChild variant="outline" size="sm">
+                  <Link to="/availability">
+                    <Clock className="mr-1 h-3.5 w-3.5" /> Set hours
+                  </Link>
+                </Button>
+              )}
+              <Briefcase className="h-5 w-5 text-muted-foreground" />
+            </div>
           </div>
 
           {loading ? (
             <div className="flex items-center justify-center py-16">
               <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
             </div>
-          ) : openLeads.length === 0 ? (
+          ) : visibleOpenLeads.length === 0 ? (
             <EmptyState
-              title="No open leads right now"
+              title={
+                openLeads.length > 0 && respectAvailability && hasAvailability
+                  ? "No leads match your hours"
+                  : "No open leads right now"
+              }
               body={
-                isApproved
-                  ? noCoverage
-                    ? "Set your coverage to start receiving matched leads."
-                    : "We'll show new jobs in your categories and areas as soon as they come in."
-                  : "Once your provider application is approved, matching leads will appear here."
+                openLeads.length > 0 && respectAvailability && hasAvailability
+                  ? "Uncheck \"Match my hours\" to see all open leads, or update your working hours."
+                  : isApproved
+                    ? noCoverage
+                      ? "Set your coverage to start receiving matched leads."
+                      : "We'll show new jobs in your categories and areas as soon as they come in."
+                    : "Once your provider application is approved, matching leads will appear here."
               }
             />
           ) : (
             <LeadsList
-              leads={openLeads}
+              leads={visibleOpenLeads}
               renderAction={(l) => (
                 <Button
                   size="sm"
