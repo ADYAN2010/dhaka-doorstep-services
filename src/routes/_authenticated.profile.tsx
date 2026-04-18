@@ -132,8 +132,11 @@ function ProfilePage() {
     setError(null);
     setInfo(null);
 
-    if (!file.type.startsWith("image/")) {
-      setError("Please select an image file.");
+    // Some mobile browsers (and HEIC files) report empty or non-image MIME types.
+    const looksLikeImage =
+      file.type.startsWith("image/") || /\.(jpe?g|png|webp|gif|heic|heif)$/i.test(file.name);
+    if (!looksLikeImage) {
+      setError("Please select an image file (JPG, PNG, WEBP).");
       return;
     }
     if (file.size > 3 * 1024 * 1024) {
@@ -142,34 +145,63 @@ function ProfilePage() {
     }
 
     setUploading(true);
-    const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-    const path = `${user.id}/avatar-${Date.now()}.${ext}`;
-    const { error: upErr } = await supabase.storage
-      .from("avatars")
-      .upload(path, file, { upsert: true, contentType: file.type });
+    try {
+      // Confirm we still have a live session (uploads need a JWT to satisfy storage RLS).
+      const { data: sess } = await supabase.auth.getSession();
+      if (!sess.session) {
+        setUploading(false);
+        setError("Your session expired. Please sign in again.");
+        return;
+      }
 
-    if (upErr) {
+      const rawExt = file.name.split(".").pop()?.toLowerCase() || "";
+      const ext = ["jpg", "jpeg", "png", "webp", "gif"].includes(rawExt) ? rawExt : "jpg";
+      const path = `${user.id}/avatar-${Date.now()}.${ext}`;
+      const contentType = file.type && file.type.startsWith("image/") ? file.type : `image/${ext === "jpg" ? "jpeg" : ext}`;
+
+      const { error: upErr } = await supabase.storage
+        .from("avatars")
+        .upload(path, file, { upsert: true, contentType, cacheControl: "3600" });
+
+      if (upErr) {
+        console.error("[avatar] upload failed", upErr);
+        setUploading(false);
+        setError(`Upload failed: ${upErr.message}`);
+        return;
+      }
+
+      const { data: pub } = supabase.storage.from("avatars").getPublicUrl(path);
+      const publicUrl = pub.publicUrl;
+
+      const { error: updErr, data: updData } = await supabase
+        .from("profiles")
+        .update({ avatar_url: publicUrl })
+        .eq("id", user.id)
+        .select("avatar_url")
+        .maybeSingle();
+
+      if (updErr) {
+        console.error("[avatar] profile update failed", updErr);
+        setUploading(false);
+        setError(`Saved file but couldn't update profile: ${updErr.message}`);
+        return;
+      }
+      if (!updData) {
+        console.error("[avatar] profile update affected 0 rows");
+        setUploading(false);
+        setError("Profile row not found — please sign out and back in.");
+        return;
+      }
+
+      setAvatarUrl(publicUrl);
+      setInfo("Avatar updated.");
+      if (fileRef.current) fileRef.current.value = "";
+    } catch (err) {
+      console.error("[avatar] unexpected error", err);
+      setError(err instanceof Error ? err.message : "Unknown error during upload.");
+    } finally {
       setUploading(false);
-      setError(upErr.message);
-      return;
     }
-
-    const { data: pub } = supabase.storage.from("avatars").getPublicUrl(path);
-    const publicUrl = pub.publicUrl;
-
-    const { error: updErr } = await supabase
-      .from("profiles")
-      .update({ avatar_url: publicUrl })
-      .eq("id", user.id);
-
-    setUploading(false);
-    if (updErr) {
-      setError(updErr.message);
-      return;
-    }
-    setAvatarUrl(publicUrl);
-    setInfo("Avatar updated.");
-    if (fileRef.current) fileRef.current.value = "";
   }
 
   if (loading) {
