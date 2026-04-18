@@ -83,7 +83,8 @@ type Review = {
 };
 
 function RealProviderProfile() {
-  const { provider, categories, areas, avgRating, reviewCount } = Route.useLoaderData();
+  const { provider, categories, areas, avgRating, reviewCount, availability } =
+    Route.useLoaderData();
   const { user } = useAuth();
   const router = useRouter();
   const { saved, working, toggle, signedIn } = useSavedProvider(provider.id);
