@@ -47,6 +47,12 @@ import { Route as AuthenticatedAvailabilityRouteImport } from './routes/_authent
 import { Route as ServicesCategoryIndexRouteImport } from './routes/services.$category.index'
 import { Route as AdminConsoleIndexRouteImport } from './routes/admin.console.index'
 import { Route as ServicesCategoryServiceRouteImport } from './routes/services.$category.$service'
+import { Route as AdminConsoleProvidersRouteImport } from './routes/admin.console.providers'
+import { Route as AdminConsoleOverviewRouteImport } from './routes/admin.console.overview'
+import { Route as AdminConsoleFinanceRouteImport } from './routes/admin.console.finance'
+import { Route as AdminConsoleCustomersRouteImport } from './routes/admin.console.customers'
+import { Route as AdminConsoleContentRouteImport } from './routes/admin.console.content'
+import { Route as AdminConsoleBookingsRouteImport } from './routes/admin.console.bookings'
 
 const TrustSafetyRoute = TrustSafetyRouteImport.update({
   id: '/trust-safety',
@@ -239,6 +245,36 @@ const ServicesCategoryServiceRoute = ServicesCategoryServiceRouteImport.update({
   path: '/services/$category/$service',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminConsoleProvidersRoute = AdminConsoleProvidersRouteImport.update({
+  id: '/providers',
+  path: '/providers',
+  getParentRoute: () => AdminConsoleRoute,
+} as any)
+const AdminConsoleOverviewRoute = AdminConsoleOverviewRouteImport.update({
+  id: '/overview',
+  path: '/overview',
+  getParentRoute: () => AdminConsoleRoute,
+} as any)
+const AdminConsoleFinanceRoute = AdminConsoleFinanceRouteImport.update({
+  id: '/finance',
+  path: '/finance',
+  getParentRoute: () => AdminConsoleRoute,
+} as any)
+const AdminConsoleCustomersRoute = AdminConsoleCustomersRouteImport.update({
+  id: '/customers',
+  path: '/customers',
+  getParentRoute: () => AdminConsoleRoute,
+} as any)
+const AdminConsoleContentRoute = AdminConsoleContentRouteImport.update({
+  id: '/content',
+  path: '/content',
+  getParentRoute: () => AdminConsoleRoute,
+} as any)
+const AdminConsoleBookingsRoute = AdminConsoleBookingsRouteImport.update({
+  id: '/bookings',
+  path: '/bookings',
+  getParentRoute: () => AdminConsoleRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -275,6 +311,12 @@ export interface FileRoutesByFullPath {
   '/blog/': typeof BlogIndexRoute
   '/providers/': typeof ProvidersIndexRoute
   '/services/': typeof ServicesIndexRoute
+  '/admin/console/bookings': typeof AdminConsoleBookingsRoute
+  '/admin/console/content': typeof AdminConsoleContentRoute
+  '/admin/console/customers': typeof AdminConsoleCustomersRoute
+  '/admin/console/finance': typeof AdminConsoleFinanceRoute
+  '/admin/console/overview': typeof AdminConsoleOverviewRoute
+  '/admin/console/providers': typeof AdminConsoleProvidersRoute
   '/services/$category/$service': typeof ServicesCategoryServiceRoute
   '/admin/console/': typeof AdminConsoleIndexRoute
   '/services/$category/': typeof ServicesCategoryIndexRoute
@@ -313,6 +355,12 @@ export interface FileRoutesByTo {
   '/blog': typeof BlogIndexRoute
   '/providers': typeof ProvidersIndexRoute
   '/services': typeof ServicesIndexRoute
+  '/admin/console/bookings': typeof AdminConsoleBookingsRoute
+  '/admin/console/content': typeof AdminConsoleContentRoute
+  '/admin/console/customers': typeof AdminConsoleCustomersRoute
+  '/admin/console/finance': typeof AdminConsoleFinanceRoute
+  '/admin/console/overview': typeof AdminConsoleOverviewRoute
+  '/admin/console/providers': typeof AdminConsoleProvidersRoute
   '/services/$category/$service': typeof ServicesCategoryServiceRoute
   '/admin/console': typeof AdminConsoleIndexRoute
   '/services/$category': typeof ServicesCategoryIndexRoute
@@ -354,6 +402,12 @@ export interface FileRoutesById {
   '/blog/': typeof BlogIndexRoute
   '/providers/': typeof ProvidersIndexRoute
   '/services/': typeof ServicesIndexRoute
+  '/admin/console/bookings': typeof AdminConsoleBookingsRoute
+  '/admin/console/content': typeof AdminConsoleContentRoute
+  '/admin/console/customers': typeof AdminConsoleCustomersRoute
+  '/admin/console/finance': typeof AdminConsoleFinanceRoute
+  '/admin/console/overview': typeof AdminConsoleOverviewRoute
+  '/admin/console/providers': typeof AdminConsoleProvidersRoute
   '/services/$category/$service': typeof ServicesCategoryServiceRoute
   '/admin/console/': typeof AdminConsoleIndexRoute
   '/services/$category/': typeof ServicesCategoryIndexRoute
@@ -395,6 +449,12 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/providers/'
     | '/services/'
+    | '/admin/console/bookings'
+    | '/admin/console/content'
+    | '/admin/console/customers'
+    | '/admin/console/finance'
+    | '/admin/console/overview'
+    | '/admin/console/providers'
     | '/services/$category/$service'
     | '/admin/console/'
     | '/services/$category/'
@@ -433,6 +493,12 @@ export interface FileRouteTypes {
     | '/blog'
     | '/providers'
     | '/services'
+    | '/admin/console/bookings'
+    | '/admin/console/content'
+    | '/admin/console/customers'
+    | '/admin/console/finance'
+    | '/admin/console/overview'
+    | '/admin/console/providers'
     | '/services/$category/$service'
     | '/admin/console'
     | '/services/$category'
@@ -473,6 +539,12 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/providers/'
     | '/services/'
+    | '/admin/console/bookings'
+    | '/admin/console/content'
+    | '/admin/console/customers'
+    | '/admin/console/finance'
+    | '/admin/console/overview'
+    | '/admin/console/providers'
     | '/services/$category/$service'
     | '/admin/console/'
     | '/services/$category/'
@@ -777,6 +849,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ServicesCategoryServiceRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/console/providers': {
+      id: '/admin/console/providers'
+      path: '/providers'
+      fullPath: '/admin/console/providers'
+      preLoaderRoute: typeof AdminConsoleProvidersRouteImport
+      parentRoute: typeof AdminConsoleRoute
+    }
+    '/admin/console/overview': {
+      id: '/admin/console/overview'
+      path: '/overview'
+      fullPath: '/admin/console/overview'
+      preLoaderRoute: typeof AdminConsoleOverviewRouteImport
+      parentRoute: typeof AdminConsoleRoute
+    }
+    '/admin/console/finance': {
+      id: '/admin/console/finance'
+      path: '/finance'
+      fullPath: '/admin/console/finance'
+      preLoaderRoute: typeof AdminConsoleFinanceRouteImport
+      parentRoute: typeof AdminConsoleRoute
+    }
+    '/admin/console/customers': {
+      id: '/admin/console/customers'
+      path: '/customers'
+      fullPath: '/admin/console/customers'
+      preLoaderRoute: typeof AdminConsoleCustomersRouteImport
+      parentRoute: typeof AdminConsoleRoute
+    }
+    '/admin/console/content': {
+      id: '/admin/console/content'
+      path: '/content'
+      fullPath: '/admin/console/content'
+      preLoaderRoute: typeof AdminConsoleContentRouteImport
+      parentRoute: typeof AdminConsoleRoute
+    }
+    '/admin/console/bookings': {
+      id: '/admin/console/bookings'
+      path: '/bookings'
+      fullPath: '/admin/console/bookings'
+      preLoaderRoute: typeof AdminConsoleBookingsRouteImport
+      parentRoute: typeof AdminConsoleRoute
+    }
   }
 }
 
@@ -807,10 +921,22 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 )
 
 interface AdminConsoleRouteChildren {
+  AdminConsoleBookingsRoute: typeof AdminConsoleBookingsRoute
+  AdminConsoleContentRoute: typeof AdminConsoleContentRoute
+  AdminConsoleCustomersRoute: typeof AdminConsoleCustomersRoute
+  AdminConsoleFinanceRoute: typeof AdminConsoleFinanceRoute
+  AdminConsoleOverviewRoute: typeof AdminConsoleOverviewRoute
+  AdminConsoleProvidersRoute: typeof AdminConsoleProvidersRoute
   AdminConsoleIndexRoute: typeof AdminConsoleIndexRoute
 }
 
 const AdminConsoleRouteChildren: AdminConsoleRouteChildren = {
+  AdminConsoleBookingsRoute: AdminConsoleBookingsRoute,
+  AdminConsoleContentRoute: AdminConsoleContentRoute,
+  AdminConsoleCustomersRoute: AdminConsoleCustomersRoute,
+  AdminConsoleFinanceRoute: AdminConsoleFinanceRoute,
+  AdminConsoleOverviewRoute: AdminConsoleOverviewRoute,
+  AdminConsoleProvidersRoute: AdminConsoleProvidersRoute,
   AdminConsoleIndexRoute: AdminConsoleIndexRoute,
 }
 
@@ -861,3 +987,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
