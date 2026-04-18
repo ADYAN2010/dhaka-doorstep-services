@@ -33,6 +33,7 @@ import { Route as AreasIndexRouteImport } from './routes/areas.index'
 import { Route as ProviderSlugRouteImport } from './routes/provider.$slug'
 import { Route as PIdRouteImport } from './routes/p.$id'
 import { Route as DhakaAreaRouteImport } from './routes/dhaka.$area'
+import { Route as BookingStatusIdRouteImport } from './routes/booking-status.$id'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthenticatedProviderDashboardRouteImport } from './routes/_authenticated.provider-dashboard'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated.profile'
@@ -164,6 +165,11 @@ const DhakaAreaRoute = DhakaAreaRouteImport.update({
   path: '/dhaka/$area',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BookingStatusIdRoute = BookingStatusIdRouteImport.update({
+  id: '/booking-status/$id',
+  path: '/booking-status/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BlogSlugRoute = BlogSlugRouteImport.update({
   id: '/blog/$slug',
   path: '/blog/$slug',
@@ -248,6 +254,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof AuthenticatedProfileRoute
   '/provider-dashboard': typeof AuthenticatedProviderDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/booking-status/$id': typeof BookingStatusIdRoute
   '/dhaka/$area': typeof DhakaAreaRoute
   '/p/$id': typeof PIdRoute
   '/provider/$slug': typeof ProviderSlugRoute
@@ -284,6 +291,7 @@ export interface FileRoutesByTo {
   '/profile': typeof AuthenticatedProfileRoute
   '/provider-dashboard': typeof AuthenticatedProviderDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/booking-status/$id': typeof BookingStatusIdRoute
   '/dhaka/$area': typeof DhakaAreaRoute
   '/p/$id': typeof PIdRoute
   '/provider/$slug': typeof ProviderSlugRoute
@@ -322,6 +330,7 @@ export interface FileRoutesById {
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/provider-dashboard': typeof AuthenticatedProviderDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/booking-status/$id': typeof BookingStatusIdRoute
   '/dhaka/$area': typeof DhakaAreaRoute
   '/p/$id': typeof PIdRoute
   '/provider/$slug': typeof ProviderSlugRoute
@@ -360,6 +369,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/provider-dashboard'
     | '/blog/$slug'
+    | '/booking-status/$id'
     | '/dhaka/$area'
     | '/p/$id'
     | '/provider/$slug'
@@ -396,6 +406,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/provider-dashboard'
     | '/blog/$slug'
+    | '/booking-status/$id'
     | '/dhaka/$area'
     | '/p/$id'
     | '/provider/$slug'
@@ -433,6 +444,7 @@ export interface FileRouteTypes {
     | '/_authenticated/profile'
     | '/_authenticated/provider-dashboard'
     | '/blog/$slug'
+    | '/booking-status/$id'
     | '/dhaka/$area'
     | '/p/$id'
     | '/provider/$slug'
@@ -463,6 +475,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   TrustSafetyRoute: typeof TrustSafetyRoute
   BlogSlugRoute: typeof BlogSlugRoute
+  BookingStatusIdRoute: typeof BookingStatusIdRoute
   DhakaAreaRoute: typeof DhakaAreaRoute
   PIdRoute: typeof PIdRoute
   ProviderSlugRoute: typeof ProviderSlugRoute
@@ -644,6 +657,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DhakaAreaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/booking-status/$id': {
+      id: '/booking-status/$id'
+      path: '/booking-status/$id'
+      fullPath: '/booking-status/$id'
+      preLoaderRoute: typeof BookingStatusIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/blog/$slug': {
       id: '/blog/$slug'
       path: '/blog/$slug'
@@ -769,6 +789,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   TrustSafetyRoute: TrustSafetyRoute,
   BlogSlugRoute: BlogSlugRoute,
+  BookingStatusIdRoute: BookingStatusIdRoute,
   DhakaAreaRoute: DhakaAreaRoute,
   PIdRoute: PIdRoute,
   ProviderSlugRoute: ProviderSlugRoute,

@@ -1,14 +1,19 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
-import { ArrowRight, Calendar, Clock, Loader2, MapPin, Upload, User, Wallet } from "lucide-react";
+import { ArrowRight, Calendar, CheckCircle2, Clock, Loader2, MapPin, Upload, User, Wallet } from "lucide-react";
 import { toast } from "sonner";
+import { z } from "zod";
 import { SiteShell } from "@/components/site-shell";
 import { PageHeader } from "@/components/page-header";
 import { categories } from "@/data/categories";
-import { areas } from "@/data/areas";
+import { areas, findArea } from "@/data/areas";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/auth-provider";
 import { buildSeo, OG } from "@/lib/seo";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
+} from "@/components/ui/dialog";
+import { BookingStatusTimeline } from "@/components/booking-status-timeline";
 
 export const Route = createFileRoute("/book")({
   head: () =>
@@ -38,10 +43,41 @@ const BUDGET_RANGES = [
   "Above ৳20,000",
 ] as const;
 
+const bookingSchema = z.object({
+  full_name: z.string().trim().min(2, "Name must be at least 2 characters").max(100),
+  phone: z
+    .string()
+    .trim()
+    .min(7, "Enter a valid phone number")
+    .max(20, "Phone is too long")
+    .regex(/^[+\d\s\-()]+$/, "Phone can only contain digits, spaces, +, -, ( and )"),
+  email: z.union([z.literal(""), z.string().trim().email("Invalid email").max(255)]),
+  category: z.string().min(1, "Please choose a category"),
+  service: z.string().max(120).optional().or(z.literal("")),
+  area: z.string().min(1, "Please pick your area"),
+  address: z.string().max(200).optional().or(z.literal("")),
+  preferred_date: z.string().min(1, "Please choose a date"),
+  preferred_time_slot: z.enum(TIME_SLOTS),
+  budget_range: z.enum(BUDGET_RANGES),
+  notes: z.string().max(1000, "Notes must be under 1000 characters").optional().or(z.literal("")),
+});
+
+type ConfirmedBooking = {
+  id: string;
+  full_name: string;
+  phone: string;
+  category: string;
+  service: string | null;
+  area: string;
+  preferred_date: string;
+  preferred_time_slot: string;
+  budget_range: string | null;
+};
+
 function BookPage() {
   const { user } = useAuth();
-  const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
+  const [confirmed, setConfirmed] = useState<ConfirmedBooking | null>(null);
   const [form, setForm] = useState({
     full_name: "",
     phone: "",
@@ -62,33 +98,38 @@ function BookPage() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!form.full_name || !form.phone || !form.category || !form.area || !form.preferred_date) {
-      toast.error("Please fill in all required fields.");
+    const parsed = bookingSchema.safeParse(form);
+    if (!parsed.success) {
+      toast.error(parsed.error.issues[0]?.message ?? "Please check the form.");
       return;
     }
     setSubmitting(true);
-    const { error } = await supabase.from("bookings").insert({
-      user_id: user?.id ?? null,
-      full_name: form.full_name,
-      phone: form.phone,
-      email: form.email || null,
-      category: form.category,
-      service: form.service || null,
-      area: form.area,
-      address: form.address || null,
-      preferred_date: form.preferred_date,
-      preferred_time_slot: form.preferred_time_slot,
-      budget_range: form.budget_range || null,
-      notes: form.notes || null,
-    });
+    const { data, error } = await supabase
+      .from("bookings")
+      .insert({
+        user_id: user?.id ?? null,
+        full_name: parsed.data.full_name,
+        phone: parsed.data.phone,
+        email: parsed.data.email || null,
+        category: parsed.data.category,
+        service: parsed.data.service || null,
+        area: parsed.data.area,
+        address: parsed.data.address || null,
+        preferred_date: parsed.data.preferred_date,
+        preferred_time_slot: parsed.data.preferred_time_slot,
+        budget_range: parsed.data.budget_range || null,
+        notes: parsed.data.notes || null,
+      })
+      .select("id, full_name, phone, category, service, area, preferred_date, preferred_time_slot, budget_range")
+      .single();
     setSubmitting(false);
 
-    if (error) {
-      toast.error(error.message);
+    if (error || !data) {
+      toast.error(error?.message ?? "Couldn't submit booking. Please try again.");
       return;
     }
-    toast.success("Booking submitted! We'll call you within an hour.");
-    navigate({ to: "/" });
+    toast.success("Booking submitted!");
+    setConfirmed(data as ConfirmedBooking);
   }
 
   return (
@@ -110,13 +151,13 @@ function BookPage() {
 
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
               <Field label="Full name *">
-                <input className="input" placeholder="Your name" required value={form.full_name} onChange={(e) => update("full_name", e.target.value)} />
+                <input className="input" placeholder="Your name" required maxLength={100} value={form.full_name} onChange={(e) => update("full_name", e.target.value)} />
               </Field>
               <Field label="Phone *">
-                <input className="input" type="tel" placeholder="+880 1700 000000" required value={form.phone} onChange={(e) => update("phone", e.target.value)} />
+                <input className="input" type="tel" placeholder="+880 1700 000000" required maxLength={20} value={form.phone} onChange={(e) => update("phone", e.target.value)} />
               </Field>
               <Field label="Email">
-                <input className="input" type="email" placeholder="optional" value={form.email} onChange={(e) => update("email", e.target.value)} />
+                <input className="input" type="email" placeholder="optional" maxLength={255} value={form.email} onChange={(e) => update("email", e.target.value)} />
               </Field>
 
               <Field label="Service category *">
@@ -127,7 +168,7 @@ function BookPage() {
               </Field>
 
               <Field label="Specific service">
-                <input className="input" placeholder="e.g. AC General Service" value={form.service} onChange={(e) => update("service", e.target.value)} />
+                <input className="input" placeholder="e.g. AC General Service" maxLength={120} value={form.service} onChange={(e) => update("service", e.target.value)} />
               </Field>
 
               <Field label="Area in Dhaka *">
@@ -138,7 +179,7 @@ function BookPage() {
               </Field>
 
               <Field label="Address / landmark">
-                <input className="input" placeholder="House, road, apartment" value={form.address} onChange={(e) => update("address", e.target.value)} />
+                <input className="input" placeholder="House, road, apartment" maxLength={200} value={form.address} onChange={(e) => update("address", e.target.value)} />
               </Field>
               <Field label="Preferred date *">
                 <input className="input" type="date" required value={form.preferred_date} onChange={(e) => update("preferred_date", e.target.value)} />
@@ -157,7 +198,7 @@ function BookPage() {
 
             <div className="mt-4">
               <Field label="Notes / problem description">
-                <textarea rows={4} className="input" placeholder="Briefly describe the work needed" value={form.notes} onChange={(e) => update("notes", e.target.value)} />
+                <textarea rows={4} className="input" placeholder="Briefly describe the work needed" maxLength={1000} value={form.notes} onChange={(e) => update("notes", e.target.value)} />
               </Field>
             </div>
 
@@ -211,7 +252,88 @@ function BookPage() {
           </aside>
         </div>
       </section>
+
+      <ConfirmationModal booking={confirmed} onClose={() => setConfirmed(null)} />
     </SiteShell>
+  );
+}
+
+function ConfirmationModal({ booking, onClose }: { booking: ConfirmedBooking | null; onClose: () => void }) {
+  const open = booking !== null;
+  const shortId = booking ? booking.id.slice(0, 8).toUpperCase() : "";
+  const areaName = booking ? findArea(booking.area)?.name ?? booking.area : "";
+
+  return (
+    <Dialog open={open} onOpenChange={(o) => { if (!o) onClose(); }}>
+      <DialogContent className="max-w-xl">
+        <DialogHeader>
+          <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-success/15 text-success">
+            <CheckCircle2 className="h-6 w-6" />
+          </div>
+          <DialogTitle className="text-center text-xl">Booking submitted!</DialogTitle>
+          <DialogDescription className="text-center">
+            We&rsquo;ll call you within an hour to confirm. Save your reference below to track status anytime.
+          </DialogDescription>
+        </DialogHeader>
+
+        {booking && (
+          <div className="mt-2 space-y-4">
+            <div className="rounded-xl border border-border bg-muted/30 p-4 text-center">
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">Reference</p>
+              <p className="mt-1 font-mono text-2xl font-bold text-foreground">#{shortId}</p>
+            </div>
+
+            <div className="grid gap-2 rounded-xl border border-border bg-card p-4 text-sm">
+              <SummaryRow label="Customer" value={booking.full_name} />
+              <SummaryRow label="Phone" value={booking.phone} />
+              <SummaryRow label="Category" value={booking.category} />
+              {booking.service && <SummaryRow label="Service" value={booking.service} />}
+              <SummaryRow label="Area" value={areaName} />
+              <SummaryRow
+                label="When"
+                value={`${booking.preferred_date} · ${booking.preferred_time_slot}`}
+              />
+              {booking.budget_range && <SummaryRow label="Budget" value={booking.budget_range} />}
+            </div>
+
+            <div className="rounded-xl border border-border bg-card p-4">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Status
+              </p>
+              <BookingStatusTimeline stage="submitted" />
+            </div>
+          </div>
+        )}
+
+        <DialogFooter className="mt-2 sm:flex-col sm:gap-2">
+          {booking && (
+            <Link
+              to="/booking-status/$id"
+              params={{ id: booking.id }}
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-soft"
+            >
+              Track this booking <ArrowRight className="h-4 w-4" />
+            </Link>
+          )}
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex w-full items-center justify-center rounded-xl border border-border px-4 py-2.5 text-sm font-semibold text-foreground hover:bg-muted"
+          >
+            Book another service
+          </button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function SummaryRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-start justify-between gap-3">
+      <span className="text-xs uppercase tracking-wide text-muted-foreground">{label}</span>
+      <span className="text-right text-sm font-medium text-foreground">{value}</span>
+    </div>
   );
 }
 
