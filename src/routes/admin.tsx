@@ -397,6 +397,9 @@ function AdminPage() {
         <StatCard icon={Check} label="Completed" value={stats.completedBookings} />
       </section>
 
+      {/* Account & password (change default password) */}
+      <AdminAccountSettings />
+
       {/* Provider applications */}
       <section className="mt-10 rounded-3xl border border-border bg-card p-6 shadow-soft">
         <div className="flex flex-wrap items-center justify-between gap-3">
