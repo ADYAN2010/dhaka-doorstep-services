@@ -32,6 +32,7 @@ import { Route as AreasIndexRouteImport } from './routes/areas.index'
 import { Route as ProviderSlugRouteImport } from './routes/provider.$slug'
 import { Route as DhakaAreaRouteImport } from './routes/dhaka.$area'
 import { Route as AuthenticatedProviderDashboardRouteImport } from './routes/_authenticated.provider-dashboard'
+import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated.profile'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated.dashboard'
 import { Route as ServicesCategoryIndexRouteImport } from './routes/services.$category.index'
 import { Route as ServicesCategoryServiceRouteImport } from './routes/services.$category.$service'
@@ -151,6 +152,11 @@ const AuthenticatedProviderDashboardRoute =
     path: '/provider-dashboard',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -184,6 +190,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/trust-safety': typeof TrustSafetyRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/profile': typeof AuthenticatedProfileRoute
   '/provider-dashboard': typeof AuthenticatedProviderDashboardRoute
   '/dhaka/$area': typeof DhakaAreaRoute
   '/provider/$slug': typeof ProviderSlugRoute
@@ -211,6 +218,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/trust-safety': typeof TrustSafetyRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/profile': typeof AuthenticatedProfileRoute
   '/provider-dashboard': typeof AuthenticatedProviderDashboardRoute
   '/dhaka/$area': typeof DhakaAreaRoute
   '/provider/$slug': typeof ProviderSlugRoute
@@ -240,6 +248,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/trust-safety': typeof TrustSafetyRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/provider-dashboard': typeof AuthenticatedProviderDashboardRoute
   '/dhaka/$area': typeof DhakaAreaRoute
   '/provider/$slug': typeof ProviderSlugRoute
@@ -269,6 +278,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/trust-safety'
     | '/dashboard'
+    | '/profile'
     | '/provider-dashboard'
     | '/dhaka/$area'
     | '/provider/$slug'
@@ -296,6 +306,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/trust-safety'
     | '/dashboard'
+    | '/profile'
     | '/provider-dashboard'
     | '/dhaka/$area'
     | '/provider/$slug'
@@ -324,6 +335,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/trust-safety'
     | '/_authenticated/dashboard'
+    | '/_authenticated/profile'
     | '/_authenticated/provider-dashboard'
     | '/dhaka/$area'
     | '/provider/$slug'
@@ -525,6 +537,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProviderDashboardRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/profile': {
+      id: '/_authenticated/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthenticatedProfileRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -551,11 +570,13 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedProviderDashboardRoute: typeof AuthenticatedProviderDashboardRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedProviderDashboardRoute: AuthenticatedProviderDashboardRoute,
 }
 

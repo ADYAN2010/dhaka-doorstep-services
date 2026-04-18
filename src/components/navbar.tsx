@@ -109,6 +109,13 @@ export function Navbar() {
                         <UserIcon className="h-4 w-4" /> My bookings
                       </Link>
                     )}
+                    <Link
+                      to="/profile"
+                      onClick={() => setMenuOpen(false)}
+                      className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-muted"
+                    >
+                      <UserIcon className="h-4 w-4" /> Profile
+                    </Link>
                     {isAdmin && (
                       <Link
                         to="/admin"
