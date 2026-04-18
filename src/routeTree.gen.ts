@@ -30,11 +30,13 @@ import { Route as ProvidersIndexRouteImport } from './routes/providers.index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as AreasIndexRouteImport } from './routes/areas.index'
 import { Route as ProviderSlugRouteImport } from './routes/provider.$slug'
+import { Route as PIdRouteImport } from './routes/p.$id'
 import { Route as DhakaAreaRouteImport } from './routes/dhaka.$area'
 import { Route as AuthenticatedProviderDashboardRouteImport } from './routes/_authenticated.provider-dashboard'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated.profile'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated.dashboard'
 import { Route as AuthenticatedCoverageRouteImport } from './routes/_authenticated.coverage'
+import { Route as AuthenticatedAvailabilityRouteImport } from './routes/_authenticated.availability'
 import { Route as ServicesCategoryIndexRouteImport } from './routes/services.$category.index'
 import { Route as ServicesCategoryServiceRouteImport } from './routes/services.$category.$service'
 
@@ -142,6 +144,11 @@ const ProviderSlugRoute = ProviderSlugRouteImport.update({
   path: '/provider/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PIdRoute = PIdRouteImport.update({
+  id: '/p/$id',
+  path: '/p/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DhakaAreaRoute = DhakaAreaRouteImport.update({
   id: '/dhaka/$area',
   path: '/dhaka/$area',
@@ -168,6 +175,12 @@ const AuthenticatedCoverageRoute = AuthenticatedCoverageRouteImport.update({
   path: '/coverage',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedAvailabilityRoute =
+  AuthenticatedAvailabilityRouteImport.update({
+    id: '/availability',
+    path: '/availability',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const ServicesCategoryIndexRoute = ServicesCategoryIndexRouteImport.update({
   id: '/services/$category/',
   path: '/services/$category/',
@@ -195,11 +208,13 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
   '/trust-safety': typeof TrustSafetyRoute
+  '/availability': typeof AuthenticatedAvailabilityRoute
   '/coverage': typeof AuthenticatedCoverageRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/provider-dashboard': typeof AuthenticatedProviderDashboardRoute
   '/dhaka/$area': typeof DhakaAreaRoute
+  '/p/$id': typeof PIdRoute
   '/provider/$slug': typeof ProviderSlugRoute
   '/areas/': typeof AreasIndexRoute
   '/blog/': typeof BlogIndexRoute
@@ -224,11 +239,13 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
   '/trust-safety': typeof TrustSafetyRoute
+  '/availability': typeof AuthenticatedAvailabilityRoute
   '/coverage': typeof AuthenticatedCoverageRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/provider-dashboard': typeof AuthenticatedProviderDashboardRoute
   '/dhaka/$area': typeof DhakaAreaRoute
+  '/p/$id': typeof PIdRoute
   '/provider/$slug': typeof ProviderSlugRoute
   '/areas': typeof AreasIndexRoute
   '/blog': typeof BlogIndexRoute
@@ -255,11 +272,13 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
   '/trust-safety': typeof TrustSafetyRoute
+  '/_authenticated/availability': typeof AuthenticatedAvailabilityRoute
   '/_authenticated/coverage': typeof AuthenticatedCoverageRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/provider-dashboard': typeof AuthenticatedProviderDashboardRoute
   '/dhaka/$area': typeof DhakaAreaRoute
+  '/p/$id': typeof PIdRoute
   '/provider/$slug': typeof ProviderSlugRoute
   '/areas/': typeof AreasIndexRoute
   '/blog/': typeof BlogIndexRoute
@@ -286,11 +305,13 @@ export interface FileRouteTypes {
     | '/signup'
     | '/terms'
     | '/trust-safety'
+    | '/availability'
     | '/coverage'
     | '/dashboard'
     | '/profile'
     | '/provider-dashboard'
     | '/dhaka/$area'
+    | '/p/$id'
     | '/provider/$slug'
     | '/areas/'
     | '/blog/'
@@ -315,11 +336,13 @@ export interface FileRouteTypes {
     | '/signup'
     | '/terms'
     | '/trust-safety'
+    | '/availability'
     | '/coverage'
     | '/dashboard'
     | '/profile'
     | '/provider-dashboard'
     | '/dhaka/$area'
+    | '/p/$id'
     | '/provider/$slug'
     | '/areas'
     | '/blog'
@@ -345,11 +368,13 @@ export interface FileRouteTypes {
     | '/signup'
     | '/terms'
     | '/trust-safety'
+    | '/_authenticated/availability'
     | '/_authenticated/coverage'
     | '/_authenticated/dashboard'
     | '/_authenticated/profile'
     | '/_authenticated/provider-dashboard'
     | '/dhaka/$area'
+    | '/p/$id'
     | '/provider/$slug'
     | '/areas/'
     | '/blog/'
@@ -377,6 +402,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   TrustSafetyRoute: typeof TrustSafetyRoute
   DhakaAreaRoute: typeof DhakaAreaRoute
+  PIdRoute: typeof PIdRoute
   ProviderSlugRoute: typeof ProviderSlugRoute
   AreasIndexRoute: typeof AreasIndexRoute
   BlogIndexRoute: typeof BlogIndexRoute
@@ -535,6 +561,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProviderSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/p/$id': {
+      id: '/p/$id'
+      path: '/p/$id'
+      fullPath: '/p/$id'
+      preLoaderRoute: typeof PIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dhaka/$area': {
       id: '/dhaka/$area'
       path: '/dhaka/$area'
@@ -570,6 +603,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCoverageRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/availability': {
+      id: '/_authenticated/availability'
+      path: '/availability'
+      fullPath: '/availability'
+      preLoaderRoute: typeof AuthenticatedAvailabilityRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/services/$category/': {
       id: '/services/$category/'
       path: '/services/$category'
@@ -588,6 +628,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteChildren {
+  AuthenticatedAvailabilityRoute: typeof AuthenticatedAvailabilityRoute
   AuthenticatedCoverageRoute: typeof AuthenticatedCoverageRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
@@ -595,6 +636,7 @@ interface AuthenticatedRouteChildren {
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedAvailabilityRoute: AuthenticatedAvailabilityRoute,
   AuthenticatedCoverageRoute: AuthenticatedCoverageRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
@@ -623,6 +665,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   TrustSafetyRoute: TrustSafetyRoute,
   DhakaAreaRoute: DhakaAreaRoute,
+  PIdRoute: PIdRoute,
   ProviderSlugRoute: ProviderSlugRoute,
   AreasIndexRoute: AreasIndexRoute,
   BlogIndexRoute: BlogIndexRoute,

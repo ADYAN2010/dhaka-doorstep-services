@@ -205,11 +205,18 @@ function ProviderDashboard() {
           <div className="flex items-center gap-2">
             <ProviderStatusBadge status={status} />
             {isApproved && (
-              <Button asChild variant="outline" size="sm">
-                <Link to="/coverage">
-                  <Settings2 className="mr-1 h-3.5 w-3.5" /> Coverage
-                </Link>
-              </Button>
+              <>
+                <Button asChild variant="outline" size="sm">
+                  <Link to="/coverage">
+                    <Settings2 className="mr-1 h-3.5 w-3.5" /> Coverage
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" size="sm">
+                  <Link to="/availability">
+                    <Clock className="mr-1 h-3.5 w-3.5" /> Hours
+                  </Link>
+                </Button>
+              </>
             )}
           </div>
         </div>
