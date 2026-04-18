@@ -35,7 +35,7 @@ export const Route = createFileRoute("/provider/$slug")({
 
 function ProviderProfile() {
   const { provider } = Route.useLoaderData();
-  const areaNames = provider.areas.map((s) => ALL_AREAS.find((a) => a.slug === s)?.name).filter(Boolean);
+  const areaNames = provider.areas.map((s: string) => ALL_AREAS.find((a) => a.slug === s)?.name).filter(Boolean) as string[];
 
   return (
     <SiteShell>

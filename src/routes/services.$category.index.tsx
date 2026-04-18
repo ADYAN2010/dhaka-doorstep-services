@@ -61,11 +61,11 @@ function CategoryPage() {
         </div>
       </section>
 
-      {category.subcategories.map((sub) => (
+      {category.subcategories.map((sub: import("@/data/categories").Subcategory) => (
         <section key={sub.slug} className="container-page py-12">
           <h2 className="text-2xl font-bold tracking-tight text-foreground">{sub.name}</h2>
           <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {sub.services.map((s) => (
+            {sub.services.map((s: import("@/data/categories").Service) => (
               <Link
                 key={s.slug}
                 to="/services/$category/$service"
