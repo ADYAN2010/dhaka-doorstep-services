@@ -73,6 +73,8 @@ function CustomerDashboard() {
   const { user } = useAuth();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [pendingCancelId, setPendingCancelId] = useState<string | null>(null);
+  const [cancelling, setCancelling] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -95,6 +97,27 @@ function CustomerDashboard() {
       cancelled = true;
     };
   }, [user]);
+
+  async function confirmCancel() {
+    if (!pendingCancelId) return;
+    const id = pendingCancelId;
+    const prev = bookings;
+    // Optimistic update
+    setBookings((bs) => bs.map((b) => (b.id === id ? { ...b, status: "cancelled" } : b)));
+    setCancelling(true);
+    const { error } = await supabase
+      .from("bookings")
+      .update({ status: "cancelled" })
+      .eq("id", id);
+    setCancelling(false);
+    setPendingCancelId(null);
+    if (error) {
+      setBookings(prev);
+      toast.error("Could not cancel booking", { description: error.message });
+      return;
+    }
+    toast.success("Booking cancelled");
+  }
 
   const stats = useMemo(() => {
     const total = bookings.length;
