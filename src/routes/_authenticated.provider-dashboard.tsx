@@ -108,6 +108,7 @@ function ProviderDashboard() {
       { data: minedData },
       { count: catCount },
       { count: areaCount },
+      { data: availData },
     ] = await Promise.all([
       supabase
         .from("profiles")
@@ -137,11 +138,23 @@ function ProviderDashboard() {
         .from("provider_areas")
         .select("*", { count: "exact", head: true })
         .eq("user_id", user.id),
+      supabase
+        .from("provider_availability")
+        .select("weekday, is_active, start_time, end_time")
+        .eq("user_id", user.id),
     ]);
     setProfile((prof as Profile | null) ?? null);
     setOpenLeads((openData ?? []) as LeadRow[]);
     setMyJobs((minedData ?? []) as LeadRow[]);
     setCoverage({ categories: catCount ?? 0, areas: areaCount ?? 0 });
+    const av = (availData ?? []) as Array<{
+      weekday: number;
+      is_active: boolean;
+      start_time: string;
+      end_time: string;
+    }>;
+    setAvailability(av);
+    setHasAvailability(av.length > 0);
     setLoading(false);
   }, [user, isProvider]);
 
