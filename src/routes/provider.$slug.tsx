@@ -5,7 +5,7 @@ import {
   Languages, MapPin, MessageSquare, Phone, Star, Users,
 } from "lucide-react";
 import { SiteShell } from "@/components/site-shell";
-import { findProvider } from "@/data/providers";
+import { findProvider, type Provider } from "@/data/providers";
 import { areas as ALL_AREAS } from "@/data/areas";
 import { buildSeo, OG } from "@/lib/seo";
 import { Button } from "@/components/ui/button";
@@ -63,7 +63,7 @@ const REVIEWS = [
 ];
 
 function ProviderProfile() {
-  const { provider } = Route.useLoaderData();
+  const { provider } = Route.useLoaderData() as { provider: Provider };
   const areaNames = provider.areas.map((s: string) => ALL_AREAS.find((a) => a.slug === s)?.name).filter(Boolean) as string[];
   const breakdown = provider.ratingBreakdown ?? [];
   const totalReviews = breakdown.reduce((sum, b) => sum + b.count, 0) || provider.reviews;
