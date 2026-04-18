@@ -351,6 +351,32 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      admin_approve_application: {
+        Args: { _application_id: string }
+        Returns: {
+          about: string | null
+          applicant_type: string
+          availability: string | null
+          category: string
+          coverage_area: string
+          created_at: string
+          email: string
+          experience: string
+          full_name: string
+          id: string
+          phone: string
+          status: Database["public"]["Enums"]["application_status"]
+          team_size: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "provider_applications"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       claim_first_admin: { Args: never; Returns: boolean }
       has_role: {
         Args: {

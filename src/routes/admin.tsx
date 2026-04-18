@@ -1,10 +1,15 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Shield, Check, X, UserPlus, UserMinus, Loader2 } from "lucide-react";
+import {
+  Shield, Check, X, UserPlus, UserMinus, Loader2,
+  Users, Briefcase, ClipboardList, CalendarCheck, MapPin, Tag,
+} from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/auth-provider";
 import { Button } from "@/components/ui/button";
+import { categories } from "@/data/categories";
+import { areas } from "@/data/areas";
 import {
   Table,
   TableBody,
@@ -174,6 +179,14 @@ function AdminPage() {
 
   async function updateApplicationStatus(id: string, status: ApplicationStatus) {
     setBusyRowId(id);
+    if (status === "approved") {
+      const { error } = await supabase.rpc("admin_approve_application", { _application_id: id });
+      setBusyRowId(null);
+      if (error) return toast.error(error.message);
+      toast.success("Approved & seeded coverage");
+      void refresh();
+      return;
+    }
     const { error } = await supabase
       .from("provider_applications")
       .update({ status })
@@ -273,6 +286,24 @@ function AdminPage() {
     );
   }, [roleRows]);
 
+  const stats = useMemo(() => {
+    const totalUsers = new Set(roleRows.map((r) => r.user_id)).size;
+    const totalProviders = providers.filter((p) => p.provider_status === "approved").length;
+    const pendingProviders = providers.filter((p) => p.provider_status === "pending").length;
+    const newApplications = applications.filter((a) => a.status === "new").length;
+    const openLeads = bookings.filter((b) => b.status === "new").length;
+    const completedBookings = bookings.filter((b) => b.status === "completed").length;
+    return {
+      totalUsers,
+      totalProviders,
+      pendingProviders,
+      newApplications,
+      openLeads,
+      totalBookings: bookings.length,
+      completedBookings,
+    };
+  }, [roleRows, providers, applications, bookings]);
+
   // ---------- Render ----------
   if (authLoading) {
     return (
@@ -353,6 +384,16 @@ function AdminPage() {
           Refresh
         </Button>
       </header>
+
+      {/* Stats overview */}
+      <section className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
+        <StatCard icon={Users} label="Users" value={stats.totalUsers} />
+        <StatCard icon={Briefcase} label="Approved providers" value={stats.totalProviders} />
+        <StatCard icon={Shield} label="Pending providers" value={stats.pendingProviders} accent={stats.pendingProviders > 0} />
+        <StatCard icon={ClipboardList} label="New applications" value={stats.newApplications} accent={stats.newApplications > 0} />
+        <StatCard icon={CalendarCheck} label="Open leads" value={stats.openLeads} accent={stats.openLeads > 0} />
+        <StatCard icon={Check} label="Completed" value={stats.completedBookings} />
+      </section>
 
       {/* Provider applications */}
       <section className="mt-10 rounded-3xl border border-border bg-card p-6 shadow-soft">
@@ -626,6 +667,81 @@ function AdminPage() {
           </Table>
         </div>
       </section>
+
+      {/* Categories & Areas (read-only catalog) */}
+      <section className="mt-10 grid gap-6 lg:grid-cols-2">
+        <div className="rounded-3xl border border-border bg-card p-6 shadow-soft">
+          <div className="flex items-center gap-2">
+            <Tag className="h-4 w-4 text-primary" />
+            <h2 className="text-xl font-semibold">Service categories</h2>
+          </div>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {categories.length} categories. Edit in <code className="rounded bg-muted px-1 py-0.5 text-xs">src/data/categories.ts</code>.
+          </p>
+          <ul className="mt-4 flex flex-wrap gap-2">
+            {categories.map((c) => (
+              <li
+                key={c.slug}
+                className="rounded-full border border-border bg-background px-3 py-1 text-xs font-medium"
+              >
+                {c.name}
+                <span className="ml-1 text-muted-foreground">
+                  ({c.subcategories?.reduce((n, s) => n + s.services.length, 0) ?? 0})
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="rounded-3xl border border-border bg-card p-6 shadow-soft">
+          <div className="flex items-center gap-2">
+            <MapPin className="h-4 w-4 text-primary" />
+            <h2 className="text-xl font-semibold">Coverage areas</h2>
+          </div>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {areas.length} areas. Edit in <code className="rounded bg-muted px-1 py-0.5 text-xs">src/data/areas.ts</code>.
+          </p>
+          <ul className="mt-4 flex flex-wrap gap-2">
+            {areas.map((a) => (
+              <li
+                key={a.slug}
+                className="rounded-full border border-border bg-background px-3 py-1 text-xs font-medium"
+              >
+                {a.name}
+                <span className="ml-1 text-muted-foreground">· {a.zone}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function StatCard({
+  icon: Icon,
+  label,
+  value,
+  accent = false,
+}: {
+  icon: typeof Shield;
+  label: string;
+  value: number;
+  accent?: boolean;
+}) {
+  return (
+    <div
+      className={`rounded-2xl border p-4 shadow-soft ${
+        accent
+          ? "border-primary/30 bg-primary/5"
+          : "border-border bg-card"
+      }`}
+    >
+      <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+        <Icon className="h-3.5 w-3.5" />
+        {label}
+      </div>
+      <div className="mt-2 text-2xl font-bold">{value}</div>
     </div>
   );
 }
