@@ -102,11 +102,7 @@ function ProvidersPage() {
       />
 
       <section className="container-page py-12">
-        {realProviders === null ? (
-          <div className="flex items-center justify-center py-10">
-            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-          </div>
-        ) : realProviders.length > 0 ? (
+        {realProviders === null ? null : realProviders.length > 0 ? (
           <div className="mb-12">
             <div className="mb-4 flex items-end justify-between">
               <div>
