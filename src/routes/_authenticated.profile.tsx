@@ -44,17 +44,42 @@ const schema = z.object({
 });
 
 function ProfilePage() {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+  const deleteAccount = useServerFn(deleteOwnAccount);
   const fileRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [confirmText, setConfirmText] = useState("");
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [area, setArea] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+
+  async function onDeleteAccount() {
+    if (confirmText.trim().toUpperCase() !== "DELETE") return;
+    setDeleting(true);
+    try {
+      const res = await deleteAccount();
+      if (!res.success) {
+        setDeleting(false);
+        toast.error("Could not delete your account", { description: res.error });
+        return;
+      }
+      toast.success("Your account has been deleted.");
+      await signOut();
+      navigate({ to: "/" });
+    } catch (e) {
+      setDeleting(false);
+      toast.error("Could not delete your account", {
+        description: e instanceof Error ? e.message : "Unknown error",
+      });
+    }
+  }
 
   useEffect(() => {
     if (!user) return;
