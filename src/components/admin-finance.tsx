@@ -1,14 +1,14 @@
 /**
- * Stubbed during the MySQL migration. The original Supabase-backed finance
- * dashboard will be rewritten against the Express backend.
+ * Placeholder for the consolidated finance admin view. Use the dedicated
+ * Finance page in the admin console for payments, payouts, and invoices.
  */
 import { MigrationPlaceholder } from "@/components/migration-placeholder";
 
 export function AdminFinance() {
   return (
     <MigrationPlaceholder
-      title="Finance — being migrated"
-      description="Payments, commissions, payouts, and invoices are moving to the new MySQL backend. It will be back shortly."
+      title="Finance"
+      description="Use the Finance page in the admin console to manage payments, commissions, payouts, and invoices."
       backTo="/admin/console"
       backLabel="Back to admin console"
     />

@@ -1,7 +1,6 @@
 /**
- * Stubbed during the MySQL migration. The realtime chat thread
- * (Supabase Realtime over `messages` / `message_threads`) will be
- * rebuilt on the Express backend with a new transport later.
+ * Placeholder chat thread. Realtime messaging UI will be wired up in a
+ * follow-up — Supabase Realtime is already enabled on `messages`.
  */
 import { MigrationPlaceholder } from "@/components/migration-placeholder";
 
@@ -13,8 +12,8 @@ type Props = {
 export function ChatThread(_props: Props) {
   return (
     <MigrationPlaceholder
-      title="Chat — being migrated"
-      description="In-booking messaging is moving to the new backend. It will be back shortly."
+      title="Chat coming soon"
+      description="In-booking messaging will be available shortly."
     />
   );
 }

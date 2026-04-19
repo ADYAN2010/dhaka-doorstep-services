@@ -1,11 +1,7 @@
 /**
- * Users / profiles / roles service — stubbed during the MySQL migration.
- *
- * The MySQL backend exposes `/api/customers` and `/api/customer-auth/me`
- * for the data this module previously read from Supabase `profiles` and
- * `user_roles`. Those flows are now consumed directly by the auth provider
- * and the relevant admin pages, so the legacy `usersService` shape is
- * provided here only as a typed no-op for any remaining callers.
+ * Users / profiles / roles service shim. Active routes read profile and
+ * role data directly from Supabase via the auth provider and admin pages.
+ * Kept here only as a typed no-op for any remaining legacy callers.
  */
 import type { Customer, ID, User } from "@/domain/types";
 

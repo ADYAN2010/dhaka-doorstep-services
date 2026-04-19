@@ -1,11 +1,7 @@
 /**
- * Bookings service — stubbed during the MySQL migration.
- *
- * The Supabase-backed implementation has been removed. Public booking
- * creation now lives at the Express endpoint (`POST /api/bookings`) and is
- * called directly via `@/lib/api-client`. This module is kept so the
- * `@/services` barrel still exports `bookingsService`; methods throw an
- * informative error if anything still tries to use them.
+ * Bookings service shim. Active routes call Supabase directly via
+ * `supabase.from("bookings")`; this module is kept only so the
+ * `@/services` barrel still exports `bookingsService` for legacy callers.
  */
 import type { Booking, ID } from "@/domain/types";
 
@@ -25,9 +21,9 @@ export type CreateBookingInput = {
   providerId?: ID | null;
 };
 
-function notMigrated(method: string): never {
+function notImplemented(method: string): never {
   throw new Error(
-    `bookingsService.${method} is being migrated to the new backend.`,
+    `bookingsService.${method} is not available on this shim. Use supabase.from("bookings") directly.`,
   );
 }
 
@@ -39,9 +35,9 @@ export const bookingsService = {
     return null;
   },
   create: async (_input: CreateBookingInput): Promise<Booking> => {
-    return notMigrated("create");
+    return notImplemented("create");
   },
   cancel: async (_id: ID): Promise<Booking> => {
-    return notMigrated("cancel");
+    return notImplemented("cancel");
   },
 };

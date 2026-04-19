@@ -1,6 +1,5 @@
 /**
- * Legacy admin account settings — being migrated.
- * Admin password change now lives in /admin/backend (MySQL JWT flow).
+ * Admin account settings entry point — links to the dedicated admin console.
  */
 import { Link } from "@tanstack/react-router";
 import { ShieldAlert } from "lucide-react";
@@ -13,11 +12,10 @@ export function AdminAccountSettings() {
         <div>
           <h3 className="font-semibold text-card-foreground">Admin account settings</h3>
           <p className="mt-1 text-sm text-muted-foreground">
-            Admin auth has moved to the new MySQL backend. Sign in to the new admin console
-            to change your password and manage admin users.
+            Manage your password and admin users from the admin console.
           </p>
           <Link
-            to="/admin/backend"
+            to="/admin/console"
             className="mt-3 inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
           >
             Open admin console

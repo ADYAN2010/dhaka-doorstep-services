@@ -1,10 +1,7 @@
 /**
- * Payments / invoices / payouts / commission ledger — stubbed during the
- * MySQL migration. The old Supabase implementation has been removed; the
- * new Express backend will expose these endpoints in a follow-up pass.
- *
- * All read methods return empty arrays so the UI stays well-behaved; all
- * write methods throw a descriptive error.
+ * Payments / invoices / payouts / commission ledger shims. Active routes
+ * read these tables directly from Supabase; these services are kept as
+ * typed no-ops for any remaining legacy callers.
  */
 import type {
   CommissionLedgerEntry,
@@ -17,8 +14,8 @@ import type {
   Payout,
 } from "@/domain/types";
 
-function notMigrated(name: string): never {
-  throw new Error(`${name} is being migrated to the new backend.`);
+function notImplemented(name: string): never {
+  throw new Error(`${name} is not available on this shim.`);
 }
 
 export const paymentsService = {
@@ -31,7 +28,7 @@ export const paymentsService = {
     gatewayRef?: string;
     status?: PaymentStatus;
     notes?: string;
-  }): Promise<Payment> => notMigrated("paymentsService.record"),
+  }): Promise<Payment> => notImplemented("paymentsService.record"),
 };
 
 export const invoicesService = {

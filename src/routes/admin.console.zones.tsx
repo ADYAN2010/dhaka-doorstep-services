@@ -4,8 +4,8 @@ import { MigrationPlaceholder } from "@/components/migration-placeholder";
 export const Route = createFileRoute("/admin/console/zones")({
   component: () => (
     <MigrationPlaceholder
-      title="Zones — being migrated"
-      description="Zone management is moving to the new MySQL backend. It will be back shortly."
+      title="Zones"
+      description="Zone management is coming soon."
       backTo="/admin/console"
       backLabel="Back to admin console"
     />

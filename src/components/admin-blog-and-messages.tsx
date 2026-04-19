@@ -1,14 +1,15 @@
 /**
- * Stubbed during the MySQL migration. Blog posts and contact messages now
- * have Express endpoints; this admin UI will be rewritten on top of them.
+ * Placeholder for the consolidated blog + inbound messages admin view.
+ * The standalone Blog and Messages pages in the admin console are the
+ * primary surface for this functionality today.
  */
 import { MigrationPlaceholder } from "@/components/migration-placeholder";
 
 export function AdminBlogAndMessages() {
   return (
     <MigrationPlaceholder
-      title="Blog & messages — being migrated"
-      description="Article publishing and inbound message management are moving to the new MySQL backend. It will be back shortly."
+      title="Blog & messages"
+      description="Use the Blog and Messages pages in the admin console to manage articles and inbound messages."
       backTo="/admin/console"
       backLabel="Back to admin console"
     />

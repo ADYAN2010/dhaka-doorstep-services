@@ -1,7 +1,6 @@
 /**
- * Stubbed during the MySQL migration. The payout details drawer used
- * Supabase queries against `payouts` / `payout_items`; it will be
- * rebuilt against the Express finance endpoints in a follow-up.
+ * Placeholder payout details drawer. To be rebuilt against the Supabase
+ * `payouts` / `payout_items` tables in a follow-up.
  */
 type Props = {
   open?: boolean;
