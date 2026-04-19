@@ -58,6 +58,7 @@ export const ADMIN_NAV: NavGroup[] = [
     items: [
       { to: "/admin/console/services", label: "Categories", icon: Tag },
       { to: "/admin/console/subcategories", label: "Service templates", icon: Boxes },
+      { to: "/admin/console/featured", label: "Featured services", icon: Sparkles },
       { to: "/admin/console/providers", label: "Providers", icon: Briefcase },
       { to: "/admin/console/kyc", label: "KYC & verification", icon: IdCard },
       { to: "/admin/console/provider-quality", label: "Quality & contracts", icon: Award },
