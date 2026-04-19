@@ -64,11 +64,11 @@ function toDateKey(d: string | Date) {
   return new Date(d).toISOString().slice(0, 10);
 }
 
-function buildDailySeries(
+function buildDailySeries<T extends { created_at: string }>(
   start: Date,
   days: number,
-  rows: { created_at: string }[],
-  pickValue: (r: { created_at: string }) => number = () => 1,
+  rows: T[],
+  pickValue: (r: T) => number = () => 1,
 ): DailyPoint[] {
   const buckets = new Map<string, number>();
   for (let i = 0; i < days; i++) {
