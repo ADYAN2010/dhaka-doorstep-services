@@ -19,6 +19,7 @@ const router = require("express").Router();
 router.use("/", require("./health.routes"));
 router.use("/auth", require("./auth.routes"));
 router.use("/admin", require("./admin.routes"));
+router.use("/admin-users", require("./admin-users.routes"));
 router.use("/locations", require("./locations.routes"));
 router.use("/services", require("./services.routes"));
 router.use("/customers", require("./customers.routes"));
