@@ -7,7 +7,7 @@ import {
   CheckCircle2,
   ClipboardList,
   Clock,
-  CreditCard,
+  GitCompare,
   Heart,
   HelpCircle,
   Home,
@@ -47,6 +47,18 @@ import {
 } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 import { findArea } from "@/data/areas";
+import {
+  BookingStatusTrackerCard,
+  CompareProvidersPanel,
+  FavoriteServicesPanel,
+  PaymentHistoryView,
+  RebookButton,
+  RecentlyViewedPanel,
+  RecommendedServicesPanel,
+  SmartReviewDialog,
+  SupportRequestPanel,
+  type CustomerSupportTicket,
+} from "@/components/customer-ux";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   component: CustomerDashboard,
@@ -84,19 +96,24 @@ type PaymentRow = { id: string; booking_id: string; amount: number; currency: st
 
 type SectionKey =
   | "overview" | "bookings" | "active" | "completed" | "saved"
+  | "compare" | "favorites" | "recent" | "recommended"
   | "reviews" | "payments" | "support" | "profile" | "addresses";
 
-const SECTIONS: { key: SectionKey; label: string; icon: ComponentType<{ className?: string }>; group: "Activity" | "Account" }[] = [
-  { key: "overview",  label: "Overview",          icon: LayoutDashboard, group: "Activity" },
-  { key: "bookings",  label: "My bookings",       icon: ClipboardList,   group: "Activity" },
-  { key: "active",    label: "Active services",   icon: Clock,           group: "Activity" },
-  { key: "completed", label: "Completed services",icon: CheckCircle2,    group: "Activity" },
-  { key: "saved",     label: "Saved providers",   icon: Heart,           group: "Activity" },
-  { key: "reviews",   label: "My reviews",        icon: Star,            group: "Activity" },
-  { key: "payments",  label: "Payment history",   icon: Receipt,         group: "Account"  },
-  { key: "support",   label: "Support tickets",   icon: LifeBuoy,        group: "Account"  },
-  { key: "profile",   label: "Profile settings",  icon: Settings,        group: "Account"  },
-  { key: "addresses", label: "Saved addresses",   icon: MapPin,          group: "Account"  },
+const SECTIONS: { key: SectionKey; label: string; icon: ComponentType<{ className?: string }>; group: "Activity" | "Discover" | "Account" }[] = [
+  { key: "overview",    label: "Overview",            icon: LayoutDashboard, group: "Activity" },
+  { key: "bookings",    label: "My bookings",         icon: ClipboardList,   group: "Activity" },
+  { key: "active",      label: "Active services",     icon: Clock,           group: "Activity" },
+  { key: "completed",   label: "Completed services",  icon: CheckCircle2,    group: "Activity" },
+  { key: "saved",       label: "Saved providers",     icon: Heart,           group: "Activity" },
+  { key: "compare",     label: "Compare providers",   icon: GitCompare,      group: "Discover" },
+  { key: "favorites",   label: "Favourite services",  icon: Heart,           group: "Discover" },
+  { key: "recommended", label: "Recommended for you", icon: Sparkles,        group: "Discover" },
+  { key: "recent",      label: "Recently viewed",     icon: Clock,           group: "Discover" },
+  { key: "reviews",     label: "My reviews",          icon: Star,            group: "Activity" },
+  { key: "payments",    label: "Payment history",     icon: Receipt,         group: "Account"  },
+  { key: "support",     label: "Support",             icon: LifeBuoy,        group: "Account"  },
+  { key: "profile",     label: "Profile settings",    icon: Settings,        group: "Account"  },
+  { key: "addresses",   label: "Saved addresses",     icon: MapPin,          group: "Account"  },
 ];
 
 const STATUS_STYLES: Record<BookingStatus, string> = {
@@ -383,7 +400,41 @@ function CustomerDashboard() {
             )}
 
             {section === "support" && (
-              <SupportSection tickets={MOCK_TICKETS} />
+              <Panel title="Support" icon={LifeBuoy} blurb="Open a ticket and our team will respond within 4 hours.">
+                <SupportRequestPanel
+                  bookings={bookings}
+                  initialTickets={MOCK_TICKETS as unknown as CustomerSupportTicket[]}
+                />
+              </Panel>
+            )}
+
+            {section === "compare" && (
+              <Panel title="Compare providers" icon={GitCompare} blurb="Pick up to 3 saved providers to compare side by side.">
+                <CompareProvidersPanel
+                  providers={savedRows.map((r) => {
+                    const p = savedProfiles[r.provider_id];
+                    return { id: r.provider_id, full_name: p?.full_name ?? "Provider", area: p?.area ?? null, avatar_url: p?.avatar_url ?? null };
+                  })}
+                />
+              </Panel>
+            )}
+
+            {section === "favorites" && (
+              <Panel title="Favourite services" icon={Heart} blurb="Your shortlist for one-tap rebooking.">
+                <FavoriteServicesPanel />
+              </Panel>
+            )}
+
+            {section === "recommended" && (
+              <Panel title="Recommended for you" icon={Sparkles} blurb="Based on your past bookings and what's popular in your area.">
+                <RecommendedServicesPanel bookings={bookings} />
+              </Panel>
+            )}
+
+            {section === "recent" && (
+              <Panel title="Recently viewed" icon={Clock} blurb="Pick up where you left off.">
+                <RecentlyViewedPanel />
+              </Panel>
             )}
 
             {section === "profile" && (
