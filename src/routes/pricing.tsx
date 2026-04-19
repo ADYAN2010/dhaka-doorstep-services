@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 import { ArrowRight, Tag } from "lucide-react";
 import { SiteShell } from "@/components/site-shell";
 import { PageHeader } from "@/components/page-header";
@@ -18,12 +19,18 @@ export const Route = createFileRoute("/pricing")({
 });
 
 function PricingPage() {
+  const { t } = useTranslation();
   return (
     <SiteShell>
       <PageHeader
-        eyebrow="Pricing"
-        title={<>Transparent prices, <span className="text-gradient-primary">always</span></>}
-        description="Every category has a starting price. Final pricing is confirmed after inspection — no hidden charges, no payment until the work is done."
+        eyebrow={t("pricingPage.eyebrow")}
+        title={
+          <>
+            {t("pricingPage.titleA")}
+            <span className="text-gradient-primary">{t("pricingPage.titleB")}</span>
+          </>
+        }
+        description={t("pricingPage.description")}
       />
       <section className="container-page py-12">
         <div className="grid gap-4 md:grid-cols-2">
@@ -43,7 +50,7 @@ function PricingPage() {
                   <p className="mt-1 text-xs text-muted-foreground">{c.tagline}</p>
                 </div>
                 <div className="text-right">
-                  <p className="inline-flex items-center gap-1 text-xs text-muted-foreground"><Tag className="h-3.5 w-3.5 text-primary" /> from</p>
+                  <p className="inline-flex items-center gap-1 text-xs text-muted-foreground"><Tag className="h-3.5 w-3.5 text-primary" /> {t("pricingPage.from")}</p>
                   <p className="text-lg font-bold text-foreground">৳{cheapest.startingPrice.toLocaleString()}</p>
                   <p className="text-xs text-muted-foreground">{cheapest.unit}</p>
                 </div>
@@ -53,7 +60,7 @@ function PricingPage() {
         </div>
         <div className="mt-12 text-center">
           <Link to="/book" className="inline-flex items-center gap-2 rounded-full bg-gradient-primary px-7 py-3 text-sm font-semibold text-primary-foreground shadow-soft">
-            Get an exact quote <ArrowRight className="h-4 w-4" />
+            {t("pricingPage.ctaQuote")} <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
       </section>

@@ -1,8 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 import { SiteShell } from "@/components/site-shell";
 import { PageHeader } from "@/components/page-header";
 import { ChevronDown } from "lucide-react";
 import { buildSeo, jsonLdScript, OG } from "@/lib/seo";
+import i18n from "@/i18n/config";
+
+const FAQ_KEYS = ["q1", "q2", "q3", "q4", "q5", "q6", "q7", "q8"] as const;
+const ANS_KEYS = ["a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8"] as const;
+
+/** Build the FAQ array using the active language so JSON-LD matches the rendered locale. */
+function buildFaqs() {
+  return FAQ_KEYS.map((qk, i) => ({
+    q: i18n.t(`faqPage.${qk}`, { ns: "common" }) as string,
+    a: i18n.t(`faqPage.${ANS_KEYS[i]}`, { ns: "common" }) as string,
+  }));
+}
 
 export const Route = createFileRoute("/faq")({
   head: () => {
@@ -19,7 +32,7 @@ export const Route = createFileRoute("/faq")({
         jsonLdScript({
           "@context": "https://schema.org",
           "@type": "FAQPage",
-          mainEntity: FAQS.map((f) => ({
+          mainEntity: buildFaqs().map((f) => ({
             "@type": "Question",
             name: f.q,
             acceptedAnswer: { "@type": "Answer", text: f.a },
@@ -31,28 +44,27 @@ export const Route = createFileRoute("/faq")({
   component: FaqPage,
 });
 
-const FAQS = [
-  { q: "How do I book a service?", a: "Search or browse a category, click 'Book a Service', fill in your details and preferred time. We confirm by phone within an hour." },
-  { q: "When do I pay?", a: "You only pay after the work is done and you're satisfied. Cash, mobile wallet (bKash/Nagad), and card are all supported." },
-  { q: "Are providers verified?", a: "Yes. Every provider passes ID + background checks before joining. Their ratings come only from real, completed bookings." },
-  { q: "What if I'm not happy with the work?", a: "Our service guarantee covers re-do or refund. Contact our support team within 48 hours of the job and we'll make it right." },
-  { q: "Which areas are covered?", a: "We currently serve 11 major areas across Dhaka — Dhanmondi, Gulshan, Banani, Uttara, Mirpur, Mohammadpur, Bashundhara, Badda, Farmgate, Motijheel and Old Dhaka. Expanding nationwide soon." },
-  { q: "Can I book for someone else (parent, friend)?", a: "Absolutely. Just provide their address and contact number in the booking notes — we'll coordinate with them directly." },
-  { q: "How does pricing work?", a: "Each service has a transparent starting price shown on the service page. Final pricing is confirmed after on-site inspection. No hidden charges." },
-  { q: "Do you offer same-day service?", a: "Most categories have same-day availability. Call us directly for urgent bookings." },
-];
-
 function FaqPage() {
+  const { t } = useTranslation();
+  const faqs = FAQ_KEYS.map((qk, i) => ({
+    q: t(`faqPage.${qk}`),
+    a: t(`faqPage.${ANS_KEYS[i]}`),
+  }));
   return (
     <SiteShell>
       <PageHeader
-        eyebrow="Help"
-        title={<>Frequently asked <span className="text-gradient-primary">questions</span></>}
-        description="Everything you need to know about booking, pricing, providers, and our guarantee."
+        eyebrow={t("faq.eyebrow")}
+        title={
+          <>
+            {t("faq.titlePart1")}
+            <span className="text-gradient-primary">{t("faq.titleHighlight")}</span>
+          </>
+        }
+        description={t("faq.description")}
       />
       <section className="container-page py-12">
         <div className="mx-auto max-w-3xl space-y-3">
-          {FAQS.map((f) => (
+          {faqs.map((f) => (
             <details key={f.q} className="group rounded-2xl border border-border bg-card p-5">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-base font-semibold text-card-foreground">
                 {f.q}
