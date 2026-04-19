@@ -1,98 +1,105 @@
+/**
+ * Admin → Providers directory
+ * Calls GET /api/providers?all=1 (admin variant) so all statuses are returned.
+ */
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Briefcase, Loader2, Search, MapPin, Star } from "lucide-react";
+import { Briefcase, Loader2, Search, MapPin, Star, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
-import { listProviders } from "@/utils/admin.functions";
-import type { ProviderRow } from "@/server/types";
+import { ApiError } from "@/lib/api-client";
+import { providersAdminApi, type AdminProvider } from "@/lib/admin-api";
 import { AdminPageHeader } from "@/components/admin/page-header";
 import { EmptyState } from "@/components/admin/empty-state";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from "@/components/ui/table";
 
 export const Route = createFileRoute("/admin/console/providers")({
   component: ProvidersPage,
 });
 
-const FILTERS = ["all", "approved", "pending", "rejected", "suspended"] as const;
-type Filter = (typeof FILTERS)[number];
+const SORTS = [
+  { value: "rating_desc", label: "Top rated" },
+  { value: "reviews_desc", label: "Most reviewed" },
+  { value: "jobs_desc", label: "Most jobs" },
+  { value: "newest", label: "Newest" },
+] as const;
 
 function ProvidersPage() {
   const navigate = useNavigate();
-  const [rows, setRows] = useState<ProviderRow[]>([]);
+  const [rows, setRows] = useState<AdminProvider[]>([]);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<Filter>("all");
   const [q, setQ] = useState("");
-
-  function load() {
-    setLoading(true);
-    listProviders({ data: { limit: 200, status: filter === "all" ? undefined : filter } })
-      .then((data) => {
-        setRows(data ?? []);
-        setLoading(false);
-      })
-      .catch((e: Error) => {
-        if (e.message.includes("Unauthorized")) return navigate({ to: "/admin/backend/login" });
-        toast.error(e.message);
-        setLoading(false);
-      });
-  }
+  const [sort, setSort] = useState<(typeof SORTS)[number]["value"]>("rating_desc");
+  const [tick, setTick] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    listProviders({ data: { limit: 200, status: filter === "all" ? undefined : filter } })
-      .then((data) => { if (!cancelled) { setRows(data ?? []); setLoading(false); } })
-      .catch((e: Error) => {
+    providersAdminApi
+      .list({ all: true, q: q || undefined, sort, pageSize: 100 })
+      .then((res) => {
         if (cancelled) return;
-        if (e.message.includes("Unauthorized")) return navigate({ to: "/admin/backend/login" });
-        toast.error(e.message);
-        setLoading(false);
-      });
+        setRows(res.data ?? []);
+        setTotal(res.total ?? 0);
+      })
+      .catch((e) => {
+        if (cancelled) return;
+        if (e instanceof ApiError && e.status === 401) {
+          return navigate({ to: "/admin/backend/login" });
+        }
+        toast.error(e instanceof Error ? e.message : "Failed to load providers");
+      })
+      .finally(() => !cancelled && setLoading(false));
     return () => { cancelled = true; };
-  }, [navigate, filter]);
+  }, [navigate, q, sort, tick]);
 
-  const filtered = useMemo(() => {
-    if (!q) return rows;
-    const t = q.toLowerCase();
-    return rows.filter((p) => [p.full_name, p.phone, p.email, p.primary_area, p.primary_category].some((v) => v?.toLowerCase().includes(t)));
-  }, [rows, q]);
-
-  const counts = useMemo(() => ({
-    total: rows.length,
-    approved: rows.filter((r) => r.status === "approved").length,
-    pending: rows.filter((r) => r.status === "pending").length,
-  }), [rows]);
+  const counts = useMemo(
+    () => ({
+      total,
+      verified: rows.filter((r) => r.is_verified).length,
+      topRated: rows.filter((r) => r.is_top_rated).length,
+    }),
+    [rows, total],
+  );
 
   return (
     <div>
       <AdminPageHeader
         eyebrow="Providers"
         title="Providers directory"
-        description="Every provider on the platform with their status, coverage, and ratings."
-        actions={<Button variant="outline" onClick={load} disabled={loading}>{loading && <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />}Refresh</Button>}
+        description="All providers (any status) with their coverage and ratings, live from /api/providers?all=1."
+        actions={
+          <Button variant="outline" onClick={() => setTick((t) => t + 1)} disabled={loading}>
+            <RefreshCw className={`mr-1.5 h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
+            Refresh
+          </Button>
+        }
       />
 
       <div className="mb-4 grid gap-3 sm:grid-cols-3">
         <Stat label="Total providers" value={counts.total} />
-        <Stat label="Approved" value={counts.approved} />
-        <Stat label="Pending review" value={counts.pending} accent={counts.pending > 0} />
+        <Stat label="Verified" value={counts.verified} />
+        <Stat label="Top rated" value={counts.topRated} accent={counts.topRated > 0} />
       </div>
 
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <div className="flex flex-wrap gap-2">
-          {FILTERS.map((f) => (
+          {SORTS.map((s) => (
             <button
-              key={f}
+              key={s.value}
               type="button"
-              onClick={() => setFilter(f)}
-              className={`rounded-full border px-3 py-1.5 text-xs font-medium capitalize transition-colors ${
-                filter === f
+              onClick={() => setSort(s.value)}
+              className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                sort === s.value
                   ? "border-primary bg-primary text-primary-foreground"
                   : "border-border bg-card text-muted-foreground hover:bg-muted"
               }`}
             >
-              {f}
+              {s.label}
             </button>
           ))}
         </div>
@@ -103,8 +110,10 @@ function ProvidersPage() {
       </div>
 
       {loading ? (
-        <div className="grid place-items-center py-16"><Loader2 className="h-5 w-5 animate-spin text-primary" /></div>
-      ) : filtered.length === 0 ? (
+        <div className="grid place-items-center py-16">
+          <Loader2 className="h-5 w-5 animate-spin text-primary" />
+        </div>
+      ) : rows.length === 0 ? (
         <EmptyState icon={Briefcase} title={q ? "No matches" : "No providers"} />
       ) : (
         <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-soft">
@@ -113,45 +122,60 @@ function ProvidersPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Name</TableHead>
-                  <TableHead>Contact</TableHead>
+                  <TableHead>Type</TableHead>
                   <TableHead>Coverage</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead>Verified</TableHead>
                   <TableHead className="text-right">Rating</TableHead>
                   <TableHead>Joined</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filtered.map((p) => (
+                {rows.map((p) => (
                   <TableRow key={p.id}>
                     <TableCell>
                       <div className="font-medium">{p.full_name}</div>
-                      <div className="font-mono text-[10px] text-muted-foreground">{p.id.slice(0, 8)}…</div>
+                      {p.business_name && (
+                        <div className="text-xs text-muted-foreground">{p.business_name}</div>
+                      )}
+                      <div className="font-mono text-[10px] text-muted-foreground">
+                        {p.id.slice(0, 8)}…
+                      </div>
                     </TableCell>
-                    <TableCell className="text-xs text-muted-foreground">
-                      <div>{p.email ?? "—"}</div>
-                      <div>{p.phone ?? "—"}</div>
+                    <TableCell className="text-xs capitalize text-muted-foreground">
+                      {p.provider_type}
                     </TableCell>
                     <TableCell>
                       <div className="text-sm capitalize">{p.primary_category ?? "—"}</div>
                       {p.primary_area && (
                         <div className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                          <MapPin className="h-3 w-3" />{p.primary_area}
+                          <MapPin className="h-3 w-3" />
+                          {p.primary_area}
                         </div>
                       )}
                     </TableCell>
                     <TableCell>
-                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${statusClass(p.status)}`}>
-                        {p.status}
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${
+                          p.is_verified
+                            ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
+                            : "bg-muted text-muted-foreground"
+                        }`}
+                      >
+                        {p.is_verified ? "Verified" : "—"}
                       </span>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="inline-flex items-center gap-1 text-sm font-medium">
                         <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
                         {Number(p.rating).toFixed(1)}
-                        <span className="ml-1 text-xs text-muted-foreground">({p.review_count})</span>
+                        <span className="ml-1 text-xs text-muted-foreground">
+                          ({p.review_count})
+                        </span>
                       </div>
                     </TableCell>
-                    <TableCell className="text-xs text-muted-foreground">{new Date(p.created_at).toLocaleDateString()}</TableCell>
+                    <TableCell className="text-xs text-muted-foreground">
+                      {new Date(p.created_at).toLocaleDateString()}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -163,18 +187,13 @@ function ProvidersPage() {
   );
 }
 
-function statusClass(s: ProviderRow["status"]) {
-  switch (s) {
-    case "approved":  return "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300";
-    case "pending":   return "bg-amber-500/15 text-amber-700 dark:text-amber-300";
-    case "rejected":  return "bg-rose-500/15 text-rose-700 dark:text-rose-300";
-    case "suspended": return "bg-muted text-muted-foreground";
-  }
-}
-
 function Stat({ label, value, accent }: { label: string; value: number; accent?: boolean }) {
   return (
-    <div className={`rounded-xl border p-4 shadow-soft ${accent ? "border-primary/30 bg-primary/5" : "border-border bg-card"}`}>
+    <div
+      className={`rounded-xl border p-4 shadow-soft ${
+        accent ? "border-primary/30 bg-primary/5" : "border-border bg-card"
+      }`}
+    >
       <div className="text-xs text-muted-foreground">{label}</div>
       <div className="mt-1 text-2xl font-bold">{value.toLocaleString()}</div>
     </div>
