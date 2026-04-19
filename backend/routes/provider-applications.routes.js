@@ -5,5 +5,6 @@ const c = require("../controllers/provider-applications.controller");
 // Anyone can submit an application from /become-provider.
 router.post("/", c.create);
 router.get("/", requireAuth, c.list);
+router.patch("/:id", requireAuth, c.update);
 
 module.exports = router;
