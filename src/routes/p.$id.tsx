@@ -20,6 +20,7 @@ import {
 import { SiteShell } from "@/components/site-shell";
 import { SavedHeartButton } from "@/components/saved-heart-button";
 import { StarRating } from "@/components/star-rating";
+import { LeaveReviewForm } from "@/components/leave-review-form";
 import {
   providersApi,
   type ApiProviderDetail,
@@ -263,6 +264,10 @@ function ProviderDetailPage() {
           )}
 
           <Card title={`Reviews (${totalReviews})`}>
+            <div className="mb-6 rounded-xl border border-border bg-muted/30 p-4">
+              <h3 className="mb-3 text-sm font-semibold">Leave a review</h3>
+              <LeaveReviewForm providerId={p.id} returnTo={`/p/${p.id}`} />
+            </div>
             {totalReviews === 0 ? (
               <p className="text-sm text-muted-foreground">No reviews yet — be the first.</p>
             ) : (
