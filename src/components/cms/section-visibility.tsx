@@ -4,6 +4,7 @@ import { useAppearance, type AppearanceSettings } from "@/components/appearance-
 
 const SECTIONS: { key: keyof AppearanceSettings["sections"]; label: string; description: string }[] = [
   { key: "popularCategories", label: "Popular categories", description: "Grid of top service categories" },
+  { key: "featuredServices", label: "Featured services", description: "Most-booked services pulled live from the catalog" },
   { key: "howItWorks", label: "How it works", description: "Three-step explainer" },
   { key: "whyUs", label: "Why choose us", description: "Trust signals and benefits" },
   { key: "featuredProviders", label: "Featured providers", description: "Pinned partner spotlight" },
