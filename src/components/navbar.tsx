@@ -83,15 +83,7 @@ export function Navbar() {
                 aria-label={`Account menu for ${displayName}`}
               >
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-primary text-xs font-bold text-primary-foreground">
-                  {(null as any)?.avatar_url ? (
-                    <img
-                      src={profile.avatar_url}
-                      alt=""
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    initials
-                  )}
+                  {initials}
                 </span>
                 <span className="hidden max-w-[120px] truncate lg:inline">{firstName}</span>
                 <ChevronDown className="h-3.5 w-3.5 opacity-60" />
@@ -112,15 +104,7 @@ export function Navbar() {
                   <div className="absolute right-0 z-50 mt-2 w-64 overflow-hidden rounded-2xl border border-border bg-popover p-1 shadow-elevated">
                     <div className="flex items-center gap-3 px-3 py-3">
                       <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-primary text-sm font-bold text-primary-foreground">
-                        {(null as any)?.avatar_url ? (
-                          <img
-                            src={profile.avatar_url}
-                            alt=""
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          initials
-                        )}
+                        {initials}
                       </span>
                       <div className="min-w-0">
                         <div className="truncate text-sm font-semibold text-foreground">
@@ -235,11 +219,7 @@ export function Navbar() {
                 <>
                   <div className="flex items-center gap-3 rounded-lg bg-muted px-3 py-2 text-sm">
                     <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-primary text-xs font-bold text-primary-foreground">
-                      {(null as any)?.avatar_url ? (
-                        <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
-                      ) : (
-                        initials
-                      )}
+                      {initials}
                     </span>
                     <div className="min-w-0">
                       <div className="truncate font-medium text-foreground">{displayName}</div>
