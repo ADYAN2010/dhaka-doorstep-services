@@ -64,6 +64,7 @@ import { Route as AdminConsoleContentRouteImport } from './routes/admin.console.
 import { Route as AdminConsoleBookingsRouteImport } from './routes/admin.console.bookings'
 import { Route as AdminConsoleAppearanceRouteImport } from './routes/admin.console.appearance'
 import { Route as AdminConsoleAnalyticsRouteImport } from './routes/admin.console.analytics'
+import { Route as AdminConsoleSupportTicketIdRouteImport } from './routes/admin.console.support.$ticketId'
 
 const TrustSafetyRoute = TrustSafetyRouteImport.update({
   id: '/trust-safety',
@@ -341,6 +342,12 @@ const AdminConsoleAnalyticsRoute = AdminConsoleAnalyticsRouteImport.update({
   path: '/analytics',
   getParentRoute: () => AdminConsoleRoute,
 } as any)
+const AdminConsoleSupportTicketIdRoute =
+  AdminConsoleSupportTicketIdRouteImport.update({
+    id: '/$ticketId',
+    path: '/$ticketId',
+    getParentRoute: () => AdminConsoleSupportRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -392,11 +399,12 @@ export interface FileRoutesByFullPath {
   '/admin/console/security': typeof AdminConsoleSecurityRoute
   '/admin/console/services': typeof AdminConsoleServicesRoute
   '/admin/console/settings': typeof AdminConsoleSettingsRoute
-  '/admin/console/support': typeof AdminConsoleSupportRoute
+  '/admin/console/support': typeof AdminConsoleSupportRouteWithChildren
   '/admin/console/team': typeof AdminConsoleTeamRoute
   '/services/$category/$service': typeof ServicesCategoryServiceRoute
   '/admin/console/': typeof AdminConsoleIndexRoute
   '/services/$category/': typeof ServicesCategoryIndexRoute
+  '/admin/console/support/$ticketId': typeof AdminConsoleSupportTicketIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -447,11 +455,12 @@ export interface FileRoutesByTo {
   '/admin/console/security': typeof AdminConsoleSecurityRoute
   '/admin/console/services': typeof AdminConsoleServicesRoute
   '/admin/console/settings': typeof AdminConsoleSettingsRoute
-  '/admin/console/support': typeof AdminConsoleSupportRoute
+  '/admin/console/support': typeof AdminConsoleSupportRouteWithChildren
   '/admin/console/team': typeof AdminConsoleTeamRoute
   '/services/$category/$service': typeof ServicesCategoryServiceRoute
   '/admin/console': typeof AdminConsoleIndexRoute
   '/services/$category': typeof ServicesCategoryIndexRoute
+  '/admin/console/support/$ticketId': typeof AdminConsoleSupportTicketIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -505,11 +514,12 @@ export interface FileRoutesById {
   '/admin/console/security': typeof AdminConsoleSecurityRoute
   '/admin/console/services': typeof AdminConsoleServicesRoute
   '/admin/console/settings': typeof AdminConsoleSettingsRoute
-  '/admin/console/support': typeof AdminConsoleSupportRoute
+  '/admin/console/support': typeof AdminConsoleSupportRouteWithChildren
   '/admin/console/team': typeof AdminConsoleTeamRoute
   '/services/$category/$service': typeof ServicesCategoryServiceRoute
   '/admin/console/': typeof AdminConsoleIndexRoute
   '/services/$category/': typeof ServicesCategoryIndexRoute
+  '/admin/console/support/$ticketId': typeof AdminConsoleSupportTicketIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -568,6 +578,7 @@ export interface FileRouteTypes {
     | '/services/$category/$service'
     | '/admin/console/'
     | '/services/$category/'
+    | '/admin/console/support/$ticketId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -623,6 +634,7 @@ export interface FileRouteTypes {
     | '/services/$category/$service'
     | '/admin/console'
     | '/services/$category'
+    | '/admin/console/support/$ticketId'
   id:
     | '__root__'
     | '/'
@@ -680,6 +692,7 @@ export interface FileRouteTypes {
     | '/services/$category/$service'
     | '/admin/console/'
     | '/services/$category/'
+    | '/admin/console/support/$ticketId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1100,6 +1113,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminConsoleAnalyticsRouteImport
       parentRoute: typeof AdminConsoleRoute
     }
+    '/admin/console/support/$ticketId': {
+      id: '/admin/console/support/$ticketId'
+      path: '/$ticketId'
+      fullPath: '/admin/console/support/$ticketId'
+      preLoaderRoute: typeof AdminConsoleSupportTicketIdRouteImport
+      parentRoute: typeof AdminConsoleSupportRoute
+    }
   }
 }
 
@@ -1129,6 +1149,17 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,
 )
 
+interface AdminConsoleSupportRouteChildren {
+  AdminConsoleSupportTicketIdRoute: typeof AdminConsoleSupportTicketIdRoute
+}
+
+const AdminConsoleSupportRouteChildren: AdminConsoleSupportRouteChildren = {
+  AdminConsoleSupportTicketIdRoute: AdminConsoleSupportTicketIdRoute,
+}
+
+const AdminConsoleSupportRouteWithChildren =
+  AdminConsoleSupportRoute._addFileChildren(AdminConsoleSupportRouteChildren)
+
 interface AdminConsoleRouteChildren {
   AdminConsoleAnalyticsRoute: typeof AdminConsoleAnalyticsRoute
   AdminConsoleAppearanceRoute: typeof AdminConsoleAppearanceRoute
@@ -1145,7 +1176,7 @@ interface AdminConsoleRouteChildren {
   AdminConsoleSecurityRoute: typeof AdminConsoleSecurityRoute
   AdminConsoleServicesRoute: typeof AdminConsoleServicesRoute
   AdminConsoleSettingsRoute: typeof AdminConsoleSettingsRoute
-  AdminConsoleSupportRoute: typeof AdminConsoleSupportRoute
+  AdminConsoleSupportRoute: typeof AdminConsoleSupportRouteWithChildren
   AdminConsoleTeamRoute: typeof AdminConsoleTeamRoute
   AdminConsoleIndexRoute: typeof AdminConsoleIndexRoute
 }
@@ -1166,7 +1197,7 @@ const AdminConsoleRouteChildren: AdminConsoleRouteChildren = {
   AdminConsoleSecurityRoute: AdminConsoleSecurityRoute,
   AdminConsoleServicesRoute: AdminConsoleServicesRoute,
   AdminConsoleSettingsRoute: AdminConsoleSettingsRoute,
-  AdminConsoleSupportRoute: AdminConsoleSupportRoute,
+  AdminConsoleSupportRoute: AdminConsoleSupportRouteWithChildren,
   AdminConsoleTeamRoute: AdminConsoleTeamRoute,
   AdminConsoleIndexRoute: AdminConsoleIndexRoute,
 }
