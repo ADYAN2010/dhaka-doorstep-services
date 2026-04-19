@@ -69,6 +69,7 @@ import { Route as AdminConsoleMessagesRouteImport } from './routes/admin.console
 import { Route as AdminConsoleMarketingRouteImport } from './routes/admin.console.marketing'
 import { Route as AdminConsoleLocationsRouteImport } from './routes/admin.console.locations'
 import { Route as AdminConsoleFinanceRouteImport } from './routes/admin.console.finance'
+import { Route as AdminConsoleFeaturedRouteImport } from './routes/admin.console.featured'
 import { Route as AdminConsoleFaqsRouteImport } from './routes/admin.console.faqs'
 import { Route as AdminConsoleCustomersRouteImport } from './routes/admin.console.customers'
 import { Route as AdminConsoleContentRouteImport } from './routes/admin.console.content'
@@ -383,6 +384,11 @@ const AdminConsoleFinanceRoute = AdminConsoleFinanceRouteImport.update({
   path: '/finance',
   getParentRoute: () => AdminConsoleRoute,
 } as any)
+const AdminConsoleFeaturedRoute = AdminConsoleFeaturedRouteImport.update({
+  id: '/featured',
+  path: '/featured',
+  getParentRoute: () => AdminConsoleRoute,
+} as any)
 const AdminConsoleFaqsRoute = AdminConsoleFaqsRouteImport.update({
   id: '/faqs',
   path: '/faqs',
@@ -482,6 +488,7 @@ export interface FileRoutesByFullPath {
   '/admin/console/content': typeof AdminConsoleContentRoute
   '/admin/console/customers': typeof AdminConsoleCustomersRoute
   '/admin/console/faqs': typeof AdminConsoleFaqsRoute
+  '/admin/console/featured': typeof AdminConsoleFeaturedRoute
   '/admin/console/finance': typeof AdminConsoleFinanceRoute
   '/admin/console/locations': typeof AdminConsoleLocationsRoute
   '/admin/console/marketing': typeof AdminConsoleMarketingRoute
@@ -552,6 +559,7 @@ export interface FileRoutesByTo {
   '/admin/console/content': typeof AdminConsoleContentRoute
   '/admin/console/customers': typeof AdminConsoleCustomersRoute
   '/admin/console/faqs': typeof AdminConsoleFaqsRoute
+  '/admin/console/featured': typeof AdminConsoleFeaturedRoute
   '/admin/console/finance': typeof AdminConsoleFinanceRoute
   '/admin/console/locations': typeof AdminConsoleLocationsRoute
   '/admin/console/marketing': typeof AdminConsoleMarketingRoute
@@ -625,6 +633,7 @@ export interface FileRoutesById {
   '/admin/console/content': typeof AdminConsoleContentRoute
   '/admin/console/customers': typeof AdminConsoleCustomersRoute
   '/admin/console/faqs': typeof AdminConsoleFaqsRoute
+  '/admin/console/featured': typeof AdminConsoleFeaturedRoute
   '/admin/console/finance': typeof AdminConsoleFinanceRoute
   '/admin/console/locations': typeof AdminConsoleLocationsRoute
   '/admin/console/marketing': typeof AdminConsoleMarketingRoute
@@ -698,6 +707,7 @@ export interface FileRouteTypes {
     | '/admin/console/content'
     | '/admin/console/customers'
     | '/admin/console/faqs'
+    | '/admin/console/featured'
     | '/admin/console/finance'
     | '/admin/console/locations'
     | '/admin/console/marketing'
@@ -768,6 +778,7 @@ export interface FileRouteTypes {
     | '/admin/console/content'
     | '/admin/console/customers'
     | '/admin/console/faqs'
+    | '/admin/console/featured'
     | '/admin/console/finance'
     | '/admin/console/locations'
     | '/admin/console/marketing'
@@ -840,6 +851,7 @@ export interface FileRouteTypes {
     | '/admin/console/content'
     | '/admin/console/customers'
     | '/admin/console/faqs'
+    | '/admin/console/featured'
     | '/admin/console/finance'
     | '/admin/console/locations'
     | '/admin/console/marketing'
@@ -1321,6 +1333,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminConsoleFinanceRouteImport
       parentRoute: typeof AdminConsoleRoute
     }
+    '/admin/console/featured': {
+      id: '/admin/console/featured'
+      path: '/featured'
+      fullPath: '/admin/console/featured'
+      preLoaderRoute: typeof AdminConsoleFeaturedRouteImport
+      parentRoute: typeof AdminConsoleRoute
+    }
     '/admin/console/faqs': {
       id: '/admin/console/faqs'
       path: '/faqs'
@@ -1441,6 +1460,7 @@ interface AdminConsoleRouteChildren {
   AdminConsoleContentRoute: typeof AdminConsoleContentRoute
   AdminConsoleCustomersRoute: typeof AdminConsoleCustomersRoute
   AdminConsoleFaqsRoute: typeof AdminConsoleFaqsRoute
+  AdminConsoleFeaturedRoute: typeof AdminConsoleFeaturedRoute
   AdminConsoleFinanceRoute: typeof AdminConsoleFinanceRoute
   AdminConsoleLocationsRoute: typeof AdminConsoleLocationsRoute
   AdminConsoleMarketingRoute: typeof AdminConsoleMarketingRoute
@@ -1474,6 +1494,7 @@ const AdminConsoleRouteChildren: AdminConsoleRouteChildren = {
   AdminConsoleContentRoute: AdminConsoleContentRoute,
   AdminConsoleCustomersRoute: AdminConsoleCustomersRoute,
   AdminConsoleFaqsRoute: AdminConsoleFaqsRoute,
+  AdminConsoleFeaturedRoute: AdminConsoleFeaturedRoute,
   AdminConsoleFinanceRoute: AdminConsoleFinanceRoute,
   AdminConsoleLocationsRoute: AdminConsoleLocationsRoute,
   AdminConsoleMarketingRoute: AdminConsoleMarketingRoute,
