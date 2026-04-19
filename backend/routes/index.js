@@ -20,5 +20,7 @@ router.use("/bookings", require("./bookings.routes"));
 router.use("/contact-messages", require("./contact-messages.routes"));
 router.use("/provider-applications", require("./provider-applications.routes"));
 router.use("/blog", require("./blog.routes"));
+router.use("/reviews", require("./reviews.routes"));
+router.use("/saved-providers", require("./saved-providers.routes"));
 
 module.exports = router;
