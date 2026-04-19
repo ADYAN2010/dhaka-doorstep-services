@@ -28,7 +28,7 @@ import { SiteShell } from "@/components/site-shell";
 import { PageHeader } from "@/components/page-header";
 import { categories } from "@/data/categories";
 import { areas } from "@/data/areas";
-import { supabase } from "@/integrations/supabase/client";
+import { api, ApiError } from "@/lib/api-client";
 import { useAuth } from "@/components/auth-provider";
 import { buildSeo, OG } from "@/lib/seo";
 import { cn } from "@/lib/utils";
@@ -151,31 +151,31 @@ function BecomeProviderPage() {
       parsed.data.about || null,
     ].filter(Boolean).join("\n\n");
 
-    const { data, error } = await supabase
-      .from("provider_applications")
-      .insert({
-        user_id: user?.id ?? null,
-        full_name: parsed.data.full_name,
-        phone: parsed.data.phone,
-        email: parsed.data.email,
-        applicant_type: parsed.data.applicant_type,
-        category: parsed.data.category,
-        experience: parsed.data.experience,
-        coverage_area: parsed.data.coverage_area,
-        team_size: parsed.data.team_size,
-        availability: parsed.data.availability,
-        about: aboutCombined || null,
-      })
-      .select("id")
-      .single();
-    setSubmitting(false);
-
-    if (error || !data) {
-      toast.error(error?.message ?? "Couldn't submit application. Please try again.");
-      return;
+    try {
+      const res = await api<{ data: { id: string } }>("/api/provider-applications", {
+        method: "POST",
+        skipAuth: true,
+        body: {
+          customer_id: user?.id ?? null,
+          full_name: parsed.data.full_name,
+          phone: parsed.data.phone,
+          email: parsed.data.email,
+          applicant_type: parsed.data.applicant_type,
+          category: parsed.data.category,
+          experience: parsed.data.experience,
+          coverage_area: parsed.data.coverage_area,
+          team_size: parsed.data.team_size,
+          availability: parsed.data.availability,
+          about: aboutCombined || null,
+        },
+      });
+      setSubmitted({ ref: res.data.id.slice(0, 8).toUpperCase() });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : "Couldn't submit application. Please try again.");
+    } finally {
+      setSubmitting(false);
     }
-    setSubmitted({ ref: (data.id as string).slice(0, 8).toUpperCase() });
-    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   if (submitted) {
