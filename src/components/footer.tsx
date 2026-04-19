@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Logo } from "./logo";
+import { PaymentsWall } from "./logo-wall";
 import { Facebook, Instagram, Linkedin, Mail, Phone } from "lucide-react";
 
 const COL_SERVICES = [
@@ -65,7 +66,11 @@ export function Footer() {
           <FooterCol title="Trust & Help" items={COL_TRUST} />
         </div>
 
-        <div className="mt-12 flex flex-col items-start justify-between gap-4 border-t border-border pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center">
+        <div className="mt-10 flex justify-center border-t border-border pt-8">
+          <PaymentsWall />
+        </div>
+
+        <div className="mt-8 flex flex-col items-start justify-between gap-4 border-t border-border pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center">
           <p>© {new Date().getFullYear()} Shebabd. All rights reserved. Made in Dhaka 🇧🇩</p>
           <p>Launching first in Dhaka. Coming soon: Chattogram, Sylhet, Rajshahi, Khulna.</p>
         </div>
