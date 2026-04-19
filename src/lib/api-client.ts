@@ -14,6 +14,11 @@ const BASE_URL =
   (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/$/, "") ||
   "http://localhost:4000";
 
+/** Public read-only accessor for the configured API base URL. */
+export function getApiBaseUrl(): string {
+  return BASE_URL;
+}
+
 const TOKEN_KEY = "shobsheba.admin_token";
 
 function readToken(): string | null {
@@ -78,12 +83,25 @@ export async function api<T = unknown>(path: string, opts: Options = {}): Promis
     if (token) headers.Authorization = `Bearer ${token}`;
   }
 
-  const res = await fetch(url.toString(), {
-    method: opts.method ?? "GET",
-    headers,
-    body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
-    signal: opts.signal,
-  });
+  let res: Response;
+  try {
+    res = await fetch(url.toString(), {
+      method: opts.method ?? "GET",
+      headers,
+      body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
+      signal: opts.signal,
+    });
+  } catch (e) {
+    // fetch() rejects only on network failure / CORS / aborted — surface as a
+    // typed ApiError so callers can show "Backend not reachable at <url>".
+    if ((e as Error)?.name === "AbortError") throw e;
+    throw new ApiError(
+      0,
+      "network_error",
+      `Backend not reachable at ${BASE_URL}`,
+      { cause: (e as Error)?.message },
+    );
+  }
 
   if (res.status === 204) return undefined as T;
 
