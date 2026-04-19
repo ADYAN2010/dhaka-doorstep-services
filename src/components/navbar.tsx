@@ -1,19 +1,22 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { MapPin, Menu, X, ChevronDown, LogOut, LayoutDashboard, User as UserIcon, Shield, MessageCircle } from "lucide-react";
 import { Logo } from "./logo";
 import { ThemeToggle } from "./theme-toggle";
+import { LanguageSwitcher } from "./language-switcher";
 import { useAuth } from "./auth-provider";
 
 const NAV = [
-  { to: "/services", label: "Services" },
-  { to: "/providers", label: "Providers" },
-  { to: "/areas", label: "Areas" },
-  { to: "/how-it-works", label: "How it works" },
-  { to: "/about", label: "About" },
+  { to: "/services", labelKey: "nav.services" },
+  { to: "/providers", labelKey: "nav.providers" },
+  { to: "/areas", labelKey: "nav.areas" },
+  { to: "/how-it-works", labelKey: "nav.howItWorks" },
+  { to: "/about", labelKey: "nav.about" },
 ] as const;
 
 export function Navbar() {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const { user, roles, signOut, loading } = useAuth();
@@ -30,7 +33,7 @@ export function Navbar() {
   }
 
   const fullName = (user?.user_metadata?.full_name as string | undefined)?.trim();
-  const displayName = fullName || user?.email || "Account";
+  const displayName = fullName || user?.email || t("auth.account");
   const firstName = displayName.split(" ")[0];
   const initials =
     displayName
@@ -58,7 +61,7 @@ export function Navbar() {
               className="rounded-full px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               activeProps={{ className: "rounded-full px-3 py-2 text-sm font-medium bg-muted text-foreground" }}
             >
-              {item.label}
+              {t(item.labelKey)}
             </Link>
           ))}
         </nav>
@@ -69,9 +72,11 @@ export function Navbar() {
             className="hidden items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-muted lg:inline-flex"
           >
             <MapPin className="h-3.5 w-3.5 text-primary" />
-            Dhaka
+            {t("city.dhaka")}
             <ChevronDown className="h-3.5 w-3.5 opacity-60" />
           </button>
+
+          <LanguageSwitcher className="hidden sm:inline-flex" />
 
           <ThemeToggle />
 
