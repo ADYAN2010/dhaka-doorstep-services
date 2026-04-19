@@ -4,7 +4,11 @@ import {
   LayoutDashboard, Activity, Users, Briefcase, CalendarCheck, Tag, MapPin,
   Wallet, Star, Inbox, Megaphone, FileText, BarChart3, ShieldCheck,
   Palette, Settings, Lock, ChevronLeft, ChevronRight, Search, Bell,
-  Plus, LogOut, User as UserIcon, Menu, X, ExternalLink, Sparkles,
+  Plus, LogOut, User as UserIcon, Menu, ExternalLink, Sparkles,
+  Globe, Layers, Bell as BellIcon, Boxes, IdCard, Award, UserCog,
+  Workflow, Receipt, Ticket, Plug, Webhook, KeyRound, FileLock2,
+  History, MessageSquareText, Map, Building2, Image, Sliders, BadgeCheck,
+  Megaphone as MegaphoneIcon, Mail, Network, ShieldAlert,
 } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
