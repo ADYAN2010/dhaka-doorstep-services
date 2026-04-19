@@ -1,23 +1,31 @@
 /**
- * Mount all feature routers here. Add new modules in one place.
- *   /api/health      -> health
- *   /api/test-db     -> health
- *   /api/services    -> services CRUD
- *   /api/customers   -> customers CRUD
- *   /api/providers   -> providers CRUD
- *   /api/categories  -> categories CRUD
- *   /api/cities      -> cities CRUD
- *   /api/bookings    -> bookings CRUD
+ * Mount all feature routers here.
+ *
+ *   /api/health             → liveness
+ *   /api/test-db            → db ping
+ *   /api/auth/*             → login, me, bootstrap
+ *   /api/admin/*            → dashboard-stats, system-status (auth required)
+ *   /api/locations/*        → public dropdown helpers
+ *   /api/services           → CRUD (writes auth-protected)
+ *   /api/customers          → CRUD
+ *   /api/providers          → CRUD
+ *   /api/categories         → CRUD
+ *   /api/cities             → CRUD
+ *   /api/areas              → CRUD
+ *   /api/bookings           → CRUD
  */
 const router = require("express").Router();
 
 router.use("/", require("./health.routes"));
 router.use("/auth", require("./auth.routes"));
+router.use("/admin", require("./admin.routes"));
+router.use("/locations", require("./locations.routes"));
 router.use("/services", require("./services.routes"));
 router.use("/customers", require("./customers.routes"));
 router.use("/providers", require("./providers.routes"));
 router.use("/categories", require("./categories.routes"));
 router.use("/cities", require("./cities.routes"));
+router.use("/areas", require("./areas.routes"));
 router.use("/bookings", require("./bookings.routes"));
 
 module.exports = router;

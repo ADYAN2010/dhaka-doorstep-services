@@ -1,19 +1,37 @@
 /**
- * Shobsheba backend — Express + MySQL.
- * Start with:   npm --prefix backend run dev
+ * Shobsheba backend — Express + MySQL — production-hardened.
+ *
+ * Boots cleanly even if DB env vars are missing so you can deploy first
+ * and configure credentials after. /api/admin/system-status will report
+ * the DB as not-configured until you set DB_* vars.
  */
 require("dotenv").config({ path: require("path").join(__dirname, ".env") });
 
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
+const helmet = require("helmet");
+const compression = require("compression");
+const rateLimit = require("express-rate-limit");
 
 const apiRoutes = require("./routes");
 const { notFound, errorHandler } = require("./middleware/error-handler");
-const { closePool } = require("./config/db");
+const { closePool, isConfigured } = require("./config/db");
 
 const app = express();
 const PORT = parseInt(process.env.PORT, 10) || 4000;
+const isProd = process.env.NODE_ENV === "production";
+
+// Trust the first proxy (Hostinger / Nginx in front of Node)
+app.set("trust proxy", 1);
+
+// ---- Security headers ----
+app.use(
+  helmet({
+    contentSecurityPolicy: false, // API only — let frontend set its own CSP
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  }),
+);
 
 // ---- CORS ----
 const origins = (process.env.CORS_ORIGIN || "*")
@@ -28,14 +46,47 @@ app.use(
   }),
 );
 
-// ---- Core middleware ----
+// ---- Body + logging + compression ----
 app.use(express.json({ limit: "1mb" }));
-app.use(express.urlencoded({ extended: true }));
-app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
+app.use(express.urlencoded({ extended: true, limit: "1mb" }));
+app.use(compression());
+app.use(morgan(isProd ? "combined" : "dev"));
+
+// ---- Rate limits ----
+// Global gentle limit
+app.use(
+  "/api",
+  rateLimit({
+    windowMs: 60_000,
+    max: 240, // 4 req/sec sustained per IP
+    standardHeaders: true,
+    legacyHeaders: false,
+  }),
+);
+// Stricter limit on auth — block credential-stuffing
+app.use(
+  "/api/auth/login",
+  rateLimit({
+    windowMs: 15 * 60_000,
+    max: 20,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: { code: "rate_limited", message: "Too many login attempts. Try again later." } },
+  }),
+);
+app.use(
+  "/api/auth/bootstrap",
+  rateLimit({ windowMs: 60 * 60_000, max: 5, standardHeaders: true, legacyHeaders: false }),
+);
 
 // ---- Routes ----
 app.get("/", (req, res) => {
-  res.json({ name: "shobsheba-backend", status: "running", docs: "/api/health" });
+  res.json({
+    name: "shobsheba-backend",
+    status: "running",
+    db_configured: isConfigured(),
+    docs: "/api/health",
+  });
 });
 app.use("/api", apiRoutes);
 
@@ -44,10 +95,11 @@ app.use(notFound);
 app.use(errorHandler);
 
 const server = app.listen(PORT, () => {
-  console.log(`✅ Backend listening on http://localhost:${PORT}`);
+  console.log(`✅ Backend listening on http://localhost:${PORT}  (${isProd ? "production" : "development"})`);
+  console.log(`   DB configured: ${isConfigured() ? "yes" : "NO — set DB_* env vars to enable database routes"}`);
   console.log(`   Health:   GET  /api/health`);
   console.log(`   DB ping:  GET  /api/test-db`);
-  console.log(`   Sample:   GET  /api/services`);
+  console.log(`   Status:   GET  /api/admin/system-status  (auth)`);
 });
 
 // ---- Graceful shutdown ----
@@ -60,3 +112,7 @@ async function shutdown(signal) {
 }
 process.on("SIGINT", () => shutdown("SIGINT"));
 process.on("SIGTERM", () => shutdown("SIGTERM"));
+
+// Don't crash on unexpected errors in production — log instead.
+process.on("unhandledRejection", (err) => console.error("[unhandledRejection]", err));
+process.on("uncaughtException", (err) => console.error("[uncaughtException]", err));
