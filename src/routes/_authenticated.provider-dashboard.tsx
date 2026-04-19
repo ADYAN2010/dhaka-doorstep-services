@@ -312,7 +312,7 @@ function ProviderDashboard() {
   const isApproved = status === "approved";
   const noCoverage = isApproved && (coverageCats.size === 0 || coverageAreas.size === 0);
   const noHours = isApproved && availability.length === 0;
-  const fullName = profile?.full_name ?? (user?.user_metadata?.full_name as string | undefined) ?? "Provider";
+  const fullName = profile?.full_name ?? user?.full_name ?? "Provider";
   const firstName = fullName.split(" ")[0];
 
   const currentSection = SECTIONS.find((s) => s.key === section)!;
@@ -391,8 +391,8 @@ function ProviderDashboard() {
                 fullName={fullName}
                 hasCoverage={!noCoverage}
                 hasHours={!noHours}
-                hasAvatar={!!user?.user_metadata?.avatar_url}
-                hasBio={!!(user?.user_metadata?.bio as string | undefined)?.length}
+                hasAvatar={false}
+                hasBio={false}
                 hasPhone={!!profile?.area}
                 jobs={myJobs.map((j) => ({
                   id: j.id, status: j.status, preferred_date: j.preferred_date,

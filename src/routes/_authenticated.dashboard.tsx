@@ -288,7 +288,7 @@ function CustomerDashboard() {
   const activeBookings    = useMemo(() => bookings.filter((b) => ["new", "confirmed", "assigned"].includes(b.status)), [bookings]);
   const completedBookings = useMemo(() => bookings.filter((b) => b.status === "completed"), [bookings]);
 
-  const fullName = (user?.user_metadata?.full_name as string | undefined) ?? "there";
+  const fullName = user?.full_name ?? "there";
   const firstName = fullName.split(" ")[0];
   const currentSection = SECTIONS.find((s) => s.key === section)!;
 
