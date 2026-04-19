@@ -1,11 +1,9 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { MapPin, Menu, X, ChevronDown, LogOut, LayoutDashboard, User as UserIcon, Shield, MessageCircle } from "lucide-react";
 import { Logo } from "./logo";
 import { ThemeToggle } from "./theme-toggle";
 import { useAuth } from "./auth-provider";
-import { useUnreadMessages } from "@/hooks/use-unread-messages";
-import { supabase } from "@/integrations/supabase/client";
 
 const NAV = [
   { to: "/services", label: "Services" },
@@ -23,42 +21,7 @@ export function Navbar() {
   const isProvider = roles.includes("provider");
   const dashboardTo = isProvider ? "/provider-dashboard" : "/dashboard";
   const navigate = useNavigate();
-  const unread = useUnreadMessages();
-  const [profile, setProfile] = useState<{ full_name: string | null; avatar_url: string | null } | null>(null);
-
-  useEffect(() => {
-    if (!user) {
-      setProfile(null);
-      return;
-    }
-    let cancelled = false;
-    (async () => {
-      const { data } = await supabase
-        .from("profiles")
-        .select("full_name, avatar_url")
-        .eq("id", user.id)
-        .maybeSingle();
-      if (!cancelled) setProfile(data ?? null);
-    })();
-
-    // Refresh when the profiles row for this user changes (e.g., after avatar upload).
-    const channel = supabase
-      .channel(`navbar-profile-${user.id}`)
-      .on(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "profiles", filter: `id=eq.${user.id}` },
-        (payload) => {
-          const next = payload.new as { full_name: string | null; avatar_url: string | null };
-          setProfile({ full_name: next.full_name, avatar_url: next.avatar_url });
-        },
-      )
-      .subscribe();
-
-    return () => {
-      cancelled = true;
-      supabase.removeChannel(channel);
-    };
-  }, [user]);
+  const unread = 0;
 
   async function handleSignOut() {
     await signOut();
@@ -66,11 +29,7 @@ export function Navbar() {
     navigate({ to: "/" });
   }
 
-  const displayName =
-    profile?.full_name?.trim() ||
-    (user?.user_metadata?.full_name as string | undefined) ||
-    user?.email ||
-    "Account";
+  const displayName = user?.full_name?.trim() || user?.email || "Account";
   const firstName = displayName.split(" ")[0];
   const initials =
     displayName
@@ -124,7 +83,7 @@ export function Navbar() {
                 aria-label={`Account menu for ${displayName}`}
               >
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-primary text-xs font-bold text-primary-foreground">
-                  {profile?.avatar_url ? (
+                  {(null as any)?.avatar_url ? (
                     <img
                       src={profile.avatar_url}
                       alt=""
@@ -153,7 +112,7 @@ export function Navbar() {
                   <div className="absolute right-0 z-50 mt-2 w-64 overflow-hidden rounded-2xl border border-border bg-popover p-1 shadow-elevated">
                     <div className="flex items-center gap-3 px-3 py-3">
                       <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-primary text-sm font-bold text-primary-foreground">
-                        {profile?.avatar_url ? (
+                        {(null as any)?.avatar_url ? (
                           <img
                             src={profile.avatar_url}
                             alt=""
@@ -276,7 +235,7 @@ export function Navbar() {
                 <>
                   <div className="flex items-center gap-3 rounded-lg bg-muted px-3 py-2 text-sm">
                     <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-primary text-xs font-bold text-primary-foreground">
-                      {profile?.avatar_url ? (
+                      {(null as any)?.avatar_url ? (
                         <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
                       ) : (
                         initials

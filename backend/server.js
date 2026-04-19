@@ -102,6 +102,11 @@ app.get("/", (req, res) => {
     docs: "/api/health",
   });
 });
+
+// Static file serving for uploaded files (avatars, attachments, etc.)
+const { UPLOADS_DIR } = require("./routes/uploads.routes");
+app.use("/uploads", express.static(UPLOADS_DIR, { maxAge: "7d", index: false }));
+
 app.use("/api", apiRoutes);
 
 // ---- 404 + error handlers (must be last) ----

@@ -3,8 +3,8 @@ import { useState, useEffect, type FormEvent } from "react";
 import { z } from "zod";
 import { Loader2, User, Briefcase } from "lucide-react";
 import { SiteShell } from "@/components/site-shell";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/auth-provider";
+import { ApiError } from "@/lib/api-client";
 import { areas } from "@/data/areas";
 import { buildSeo } from "@/lib/seo";
 
@@ -29,13 +29,13 @@ const schema = z.object({
     .regex(/^[+0-9\s-]+$/, "Use digits, spaces, + or -"),
   area: z.string().min(1, "Please pick your area"),
   email: z.string().trim().email("Enter a valid email").max(255),
-  password: z.string().min(6, "Password must be at least 6 characters").max(72),
+  password: z.string().min(8, "Password must be at least 8 characters").max(72),
   role: z.enum(["customer", "provider"]),
 });
 
 function SignupPage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, signUp } = useAuth();
   const [role, setRole] = useState<"customer" | "provider">("customer");
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
@@ -43,7 +43,6 @@ function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [info, setInfo] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -53,39 +52,34 @@ function SignupPage() {
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
-    setInfo(null);
     const parsed = schema.safeParse({ fullName, phone, area, email, password, role });
     if (!parsed.success) {
       setError(parsed.error.issues[0]?.message ?? "Invalid input");
       return;
     }
     setBusy(true);
-    const { data, error } = await supabase.auth.signUp({
-      email: parsed.data.email,
-      password: parsed.data.password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/`,
-        data: {
-          full_name: parsed.data.fullName,
-          phone: parsed.data.phone,
-          area: parsed.data.area,
-          role: parsed.data.role,
-        },
-      },
-    });
-    setBusy(false);
-    if (error) {
-      setError(
-        error.message.includes("already registered") || error.message.includes("already been")
-          ? "An account with this email already exists. Try logging in."
-          : error.message,
-      );
-      return;
-    }
-    if (data.session) {
-      navigate({ to: "/" });
-    } else {
-      setInfo("Check your inbox to confirm your email, then log in.");
+    try {
+      await signUp({
+        email: parsed.data.email,
+        password: parsed.data.password,
+        full_name: parsed.data.fullName,
+        phone: parsed.data.phone,
+        area: parsed.data.area,
+      });
+      // Provider applications are submitted via /become-provider after signup.
+      navigate({ to: parsed.data.role === "provider" ? "/become-provider" : "/" });
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setError(
+          err.status === 409
+            ? "An account with this email already exists. Try logging in."
+            : err.message,
+        );
+      } else {
+        setError("Couldn't create your account. Please try again.");
+      }
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -181,22 +175,17 @@ function SignupPage() {
               <input
                 type="password"
                 required
-                minLength={6}
+                minLength={8}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-                placeholder="At least 6 characters"
+                placeholder="At least 8 characters"
               />
             </div>
 
             {error && (
               <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
                 {error}
-              </div>
-            )}
-            {info && (
-              <div className="rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-sm text-foreground">
-                {info}
               </div>
             )}
 
