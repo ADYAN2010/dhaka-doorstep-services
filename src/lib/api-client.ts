@@ -14,6 +14,11 @@ const BASE_URL =
   (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/$/, "") ||
   "http://localhost:4000";
 
+/** Public read-only accessor for the configured API base URL. */
+export function getApiBaseUrl(): string {
+  return BASE_URL;
+}
+
 const TOKEN_KEY = "shobsheba.admin_token";
 
 function readToken(): string | null {
