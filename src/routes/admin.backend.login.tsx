@@ -8,7 +8,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { Loader2, Database, AlertTriangle } from "lucide-react";
 import { z } from "zod";
 import { useBackendAuth } from "@/components/backend-auth-provider";
-import { ApiError } from "@/lib/api-client";
+import { ApiError, getApiBaseUrl } from "@/lib/api-client";
 
 const searchSchema = z.object({
   redirect: z.string().optional(),
