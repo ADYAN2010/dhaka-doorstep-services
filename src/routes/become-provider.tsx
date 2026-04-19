@@ -36,6 +36,7 @@ export const Route = createFileRoute("/become-provider")({
 });
 
 function BecomeProviderPage() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -52,6 +53,12 @@ function BecomeProviderPage() {
     about: "",
   });
 
+  const PERKS = [
+    { icon: TrendingUp, title: t("becomeProviderPage.perk1Title"), body: t("becomeProviderPage.perk1Body") },
+    { icon: ShieldCheck, title: t("becomeProviderPage.perk2Title"), body: t("becomeProviderPage.perk2Body") },
+    { icon: Sparkles, title: t("becomeProviderPage.perk3Title"), body: t("becomeProviderPage.perk3Body") },
+  ];
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (
@@ -62,7 +69,7 @@ function BecomeProviderPage() {
       !form.coverage_area ||
       !form.experience.trim()
     ) {
-      toast.error("Please fill in all required fields.");
+      toast.error(t("becomeProviderPage.missing"));
       return;
     }
     setSubmitting(true);
@@ -81,11 +88,11 @@ function BecomeProviderPage() {
     });
     setSubmitting(false);
     if (error) {
-      toast.error("Couldn't submit application", { description: error.message });
+      toast.error(t("becomeProviderPage.failed"), { description: error.message });
       return;
     }
     setSubmitted(true);
-    toast.success("Application received! We'll review and email you soon.");
+    toast.success(t("becomeProviderPage.success"));
   }
 
   if (submitted) {
@@ -95,13 +102,12 @@ function BecomeProviderPage() {
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-success/15">
             <CheckCircle2 className="h-8 w-8 text-success" />
           </div>
-          <h1 className="mt-6 text-3xl font-bold tracking-tight">Application received</h1>
+          <h1 className="mt-6 text-3xl font-bold tracking-tight">{t("becomeProviderPage.doneTitle")}</h1>
           <p className="mt-3 max-w-md text-sm text-muted-foreground">
-            Thanks for applying to join Shebabd. Our team will review your application and reach
-            out within 2–3 business days.
+            {t("becomeProviderPage.doneDesc")}
           </p>
           <Link to="/" className="mt-8">
-            <Button variant="outline">Back to home</Button>
+            <Button variant="outline">{t("becomeProviderPage.backHome")}</Button>
           </Link>
         </section>
       </SiteShell>
@@ -111,9 +117,9 @@ function BecomeProviderPage() {
   return (
     <SiteShell>
       <PageHeader
-        eyebrow="For pros"
-        title="Earn more, on your schedule."
-        description="Join Bangladesh's fastest-growing service marketplace. Apply in 2 minutes — we'll review and onboard you in days."
+        eyebrow={t("becomeProviderPage.eyebrow")}
+        title={t("becomeProviderPage.title")}
+        description={t("becomeProviderPage.description")}
       />
 
       <section className="container-page grid gap-10 py-10 lg:grid-cols-[1.5fr_1fr]">
@@ -121,10 +127,10 @@ function BecomeProviderPage() {
           onSubmit={handleSubmit}
           className="rounded-2xl border border-border bg-card p-6 md:p-8"
         >
-          <h2 className="text-xl font-semibold">Tell us about your business</h2>
+          <h2 className="text-xl font-semibold">{t("becomeProviderPage.formTitle")}</h2>
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="full_name">Full name *</Label>
+              <Label htmlFor="full_name">{t("becomeProviderPage.fullName")} *</Label>
               <Input
                 id="full_name"
                 value={form.full_name}
@@ -133,7 +139,7 @@ function BecomeProviderPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="phone">Phone *</Label>
+              <Label htmlFor="phone">{t("becomeProviderPage.phone")} *</Label>
               <Input
                 id="phone"
                 value={form.phone}
@@ -142,7 +148,7 @@ function BecomeProviderPage() {
               />
             </div>
             <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="email">Email *</Label>
+              <Label htmlFor="email">{t("becomeProviderPage.email")} *</Label>
               <Input
                 id="email"
                 type="email"
@@ -152,7 +158,7 @@ function BecomeProviderPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label>I'm applying as *</Label>
+              <Label>{t("becomeProviderPage.applicantType")} *</Label>
               <Select
                 value={form.applicant_type}
                 onValueChange={(v) =>
@@ -163,27 +169,27 @@ function BecomeProviderPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="individual">Individual</SelectItem>
-                  <SelectItem value="agency">Agency / team</SelectItem>
+                  <SelectItem value="individual">{t("becomeProviderPage.individual")}</SelectItem>
+                  <SelectItem value="agency">{t("becomeProviderPage.agency")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Team size</Label>
+              <Label>{t("becomeProviderPage.teamSize")}</Label>
               <Input
                 value={form.team_size}
                 onChange={(e) => setForm((f) => ({ ...f, team_size: e.target.value }))}
-                placeholder="e.g. 1, 2-5, 6-15"
+                placeholder={t("becomeProviderPage.teamSizePh")}
               />
             </div>
             <div className="space-y-2">
-              <Label>Service category *</Label>
+              <Label>{t("becomeProviderPage.category")} *</Label>
               <Select
                 value={form.category}
                 onValueChange={(v) => setForm((f) => ({ ...f, category: v }))}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select a category" />
+                  <SelectValue placeholder={t("becomeProviderPage.categoryPh")} />
                 </SelectTrigger>
                 <SelectContent>
                   {ALL_CATEGORIES.map((c) => (
@@ -195,13 +201,13 @@ function BecomeProviderPage() {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Primary coverage area *</Label>
+              <Label>{t("becomeProviderPage.coverage")} *</Label>
               <Select
                 value={form.coverage_area}
                 onValueChange={(v) => setForm((f) => ({ ...f, coverage_area: v }))}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select an area" />
+                  <SelectValue placeholder={t("becomeProviderPage.coveragePh")} />
                 </SelectTrigger>
                 <SelectContent>
                   {ALL_AREAS.map((a) => (
@@ -213,42 +219,42 @@ function BecomeProviderPage() {
               </Select>
             </div>
             <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="experience">Experience *</Label>
+              <Label htmlFor="experience">{t("becomeProviderPage.experience")} *</Label>
               <Input
                 id="experience"
                 value={form.experience}
                 onChange={(e) => setForm((f) => ({ ...f, experience: e.target.value }))}
-                placeholder="e.g. 4 years independent"
+                placeholder={t("becomeProviderPage.experiencePh")}
                 required
               />
             </div>
             <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="availability">Availability</Label>
+              <Label htmlFor="availability">{t("becomeProviderPage.availability")}</Label>
               <Input
                 id="availability"
                 value={form.availability}
                 onChange={(e) => setForm((f) => ({ ...f, availability: e.target.value }))}
-                placeholder="e.g. Sat-Thu, 9 AM–7 PM"
+                placeholder={t("becomeProviderPage.availabilityPh")}
               />
             </div>
             <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="about">About your work</Label>
+              <Label htmlFor="about">{t("becomeProviderPage.about")}</Label>
               <Textarea
                 id="about"
                 rows={5}
                 value={form.about}
                 onChange={(e) => setForm((f) => ({ ...f, about: e.target.value }))}
-                placeholder="Briefly describe your services, specialties, and what makes you stand out."
+                placeholder={t("becomeProviderPage.aboutPh")}
               />
             </div>
           </div>
           <Button type="submit" disabled={submitting} className="mt-6">
             {submitting ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Submitting…
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> {t("becomeProviderPage.submitting")}
               </>
             ) : (
-              "Submit application"
+              t("becomeProviderPage.submit")
             )}
           </Button>
         </form>
