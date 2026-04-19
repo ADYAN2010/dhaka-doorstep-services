@@ -76,7 +76,12 @@ function SubcategoriesPage() {
   }
 
   async function toggleFlag(s: Subcategory, key: "is_featured" | "is_trending" | "is_seasonal" | "is_active") {
-    await supabase.from("service_subcategories").update({ [key]: !s[key] }).eq("id", s.id);
+    const patch =
+      key === "is_featured" ? { is_featured: !s.is_featured }
+      : key === "is_trending" ? { is_trending: !s.is_trending }
+      : key === "is_seasonal" ? { is_seasonal: !s.is_seasonal }
+      : { is_active: !s.is_active };
+    await supabase.from("service_subcategories").update(patch).eq("id", s.id);
     void load();
   }
   async function remove(s: Subcategory) {
