@@ -345,8 +345,77 @@ export type Review = {
 // Support tickets (admin support module — UI-only today)
 // ──────────────────────────────────────────────────────────────────────────────
 
-export type TicketStatus = "open" | "pending" | "resolved" | "closed";
+export type TicketStatus =
+  | "open"
+  | "pending"
+  | "in_progress"
+  | "escalated"
+  | "resolved"
+  | "closed";
 export type TicketPriority = "low" | "normal" | "high" | "urgent";
+export type TicketCategory =
+  | "booking"
+  | "payment"
+  | "refund"
+  | "provider_quality"
+  | "account"
+  | "safety"
+  | "other";
+export type TicketRequesterRole = "customer" | "provider";
+export type EscalationLevel = "none" | "tier1" | "tier2" | "leadership";
+export type RefundRecommendation = "none" | "partial" | "full";
+
+export type SupportAttachment = {
+  id: ID;
+  name: string;
+  /** Mime type, e.g. "image/png", "application/pdf". */
+  mimeType: string;
+  /** Bytes — used for size badges. */
+  size: number;
+  url: string;
+  uploadedAt: ISODateString;
+};
+
+export type InternalNote = {
+  id: ID;
+  authorId: ID;
+  authorName: string;
+  body: string;
+  createdAt: ISODateString;
+};
+
+export type TicketTimelineEventKind =
+  | "created"
+  | "assigned"
+  | "status_change"
+  | "priority_change"
+  | "escalated"
+  | "note"
+  | "message_in"
+  | "message_out"
+  | "refund_proposed"
+  | "refund_approved"
+  | "refund_rejected"
+  | "resolved"
+  | "reopened";
+
+export type TicketTimelineEvent = {
+  id: ID;
+  kind: TicketTimelineEventKind;
+  /** "Admin", "System", customer name, or provider name. */
+  actor: string;
+  body: string;
+  createdAt: ISODateString;
+};
+
+export type TicketResolution = {
+  summary: string;
+  outcome: "fixed" | "refunded" | "compensated" | "no_action" | "escalated";
+  resolvedById: ID;
+  resolvedByName: string;
+  resolvedAt: ISODateString;
+  satisfactionRating?: 1 | 2 | 3 | 4 | 5;
+};
 
 export type SupportTicket = {
   id: ID;
@@ -356,14 +425,61 @@ export type SupportTicket = {
   body: string;
   status: TicketStatus;
   priority: TicketPriority;
+  category: TicketCategory;
+
+  /** Identity of the person who opened the ticket. */
+  requesterRole: TicketRequesterRole;
   customerName: string;
   customerEmail: string;
-  /** Optional related booking. */
+  customerPhone?: string | null;
+  customerLifetimeBookings?: number;
+  customerLifetimeSpend?: number;
+
+  /** Optional related booking + provider. */
   bookingId: ID | null;
+  bookingReference?: string | null;
+  providerId?: ID | null;
+  providerName?: string | null;
+
   /** Admin user assigned to the ticket. */
   assigneeId: ID | null;
+  assigneeName?: string | null;
+
+  /** SLA — first response + resolution targets, ISO strings. */
+  firstResponseDueAt: ISODateString;
+  resolutionDueAt: ISODateString;
+  firstRespondedAt: ISODateString | null;
+
+  escalationLevel: EscalationLevel;
+  refundRecommendation: RefundRecommendation;
+  refundAmount?: number;
+  currency?: CurrencyCode;
+
+  attachments: SupportAttachment[];
+  internalNotes: InternalNote[];
+  timeline: TicketTimelineEvent[];
+  resolution: TicketResolution | null;
+
   createdAt: ISODateString;
   updatedAt: ISODateString;
+};
+
+export type TicketAnalytics = {
+  total: number;
+  open: number;
+  inProgress: number;
+  escalated: number;
+  resolvedToday: number;
+  /** Percentage of tickets that breached first-response SLA. */
+  slaBreachRate: number;
+  /** Average first response time in minutes. */
+  avgFirstResponseMins: number;
+  /** Average resolution time in hours. */
+  avgResolutionHours: number;
+  /** Customer satisfaction (1–5) average across resolved tickets with ratings. */
+  csat: number;
+  byPriority: Record<TicketPriority, number>;
+  byCategory: Record<TicketCategory, number>;
 };
 
 // ──────────────────────────────────────────────────────────────────────────────
