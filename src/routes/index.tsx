@@ -299,24 +299,40 @@ function Testimonials() {
         />
         <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {testimonials.map((t, i) => (
-            <Reveal key={t.name} delay={i * 80}>
-              <div className="rounded-2xl border border-border bg-card p-6 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-elevated">
-                <div className="flex items-center gap-1 text-warning">
-                  {Array.from({ length: t.rating }).map((_, k) => (
-                    <Star key={k} className="h-4 w-4 fill-warning" />
-                  ))}
-                </div>
-                <p className="mt-3 text-sm leading-relaxed text-card-foreground">&ldquo;{t.quote}&rdquo;</p>
-                <div className="mt-5 flex items-center gap-3">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-primary text-xs font-bold text-primary-foreground">
-                    {t.initials}
-                  </span>
-                  <div>
-                    <p className="text-sm font-semibold text-card-foreground">{t.name}</p>
-                    <p className="text-xs text-muted-foreground">{t.area} · {t.service}</p>
+            <Reveal key={t.name} delay={i * 70}>
+              <figure className="flex h-full flex-col rounded-2xl border border-border bg-card p-6 shadow-soft transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-elevated">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-0.5 text-warning">
+                    {Array.from({ length: t.rating }).map((_, k) => (
+                      <Star key={k} className="h-4 w-4 fill-warning" />
+                    ))}
                   </div>
+                  {t.verifiedBooking && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
+                      <BadgeCheck className="h-3 w-3" /> Verified booking
+                    </span>
+                  )}
                 </div>
-              </div>
+                <blockquote className="mt-3 flex-1 text-sm leading-relaxed text-card-foreground">
+                  &ldquo;{t.quote}&rdquo;
+                </blockquote>
+                <figcaption className="mt-5 flex items-center gap-3 border-t border-border pt-4">
+                  <span className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-primary text-xs font-bold text-primary-foreground">
+                    {t.avatar ? (
+                      <img src={t.avatar} alt="" className="h-full w-full object-cover" loading="lazy" />
+                    ) : (
+                      t.initials
+                    )}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-card-foreground">{t.name}</p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      <MapPin className="mr-0.5 inline h-3 w-3 -translate-y-px text-primary" />
+                      {t.area} · {t.service}
+                    </p>
+                  </div>
+                </figcaption>
+              </figure>
             </Reveal>
           ))}
         </div>
@@ -355,20 +371,19 @@ function ProviderCTA() {
               </Link>
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-4 text-center">
-            {[
-              { v: "10k+", l: "Bookings handled" },
-              { v: "1,200+", l: "Active providers" },
-              { v: "4.9★", l: "Avg. rating" },
-              { v: "11", l: "Areas covered" },
-              { v: "< 1 hr", l: "Avg. match time" },
-              { v: "100%", l: "Service guarantee" },
-            ].map((s) => (
-              <div key={s.l} className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur">
-                <p className="text-2xl font-bold">{s.v}</p>
-                <p className="mt-1 text-xs text-white/70">{s.l}</p>
-              </div>
-            ))}
+          <div className="space-y-3">
+            <TrustStrip variant="onDark" />
+            <div className="grid grid-cols-2 gap-3 text-center sm:grid-cols-2">
+              {[
+                { v: "< 1 hr", l: "Avg. match time" },
+                { v: "100%", l: "Service guarantee" },
+              ].map((s) => (
+                <div key={s.l} className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur">
+                  <p className="text-2xl font-bold">{s.v}</p>
+                  <p className="mt-1 text-xs text-white/70">{s.l}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
