@@ -61,6 +61,7 @@ import { Route as AdminMysqlBookingsRouteImport } from './routes/admin.mysql.boo
 import { Route as AdminConsoleZonesRouteImport } from './routes/admin.console.zones'
 import { Route as AdminConsoleWebsiteRouteImport } from './routes/admin.console.website'
 import { Route as AdminConsoleTeamRouteImport } from './routes/admin.console.team'
+import { Route as AdminConsoleSystemStatusRouteImport } from './routes/admin.console.system-status'
 import { Route as AdminConsoleSupportRouteImport } from './routes/admin.console.support'
 import { Route as AdminConsoleSubcategoriesRouteImport } from './routes/admin.console.subcategories'
 import { Route as AdminConsoleSettingsRouteImport } from './routes/admin.console.settings'
@@ -348,6 +349,12 @@ const AdminConsoleTeamRoute = AdminConsoleTeamRouteImport.update({
   path: '/team',
   getParentRoute: () => AdminConsoleRoute,
 } as any)
+const AdminConsoleSystemStatusRoute =
+  AdminConsoleSystemStatusRouteImport.update({
+    id: '/system-status',
+    path: '/system-status',
+    getParentRoute: () => AdminConsoleRoute,
+  } as any)
 const AdminConsoleSupportRoute = AdminConsoleSupportRouteImport.update({
   id: '/support',
   path: '/support',
@@ -538,6 +545,7 @@ export interface FileRoutesByFullPath {
   '/admin/console/settings': typeof AdminConsoleSettingsRoute
   '/admin/console/subcategories': typeof AdminConsoleSubcategoriesRoute
   '/admin/console/support': typeof AdminConsoleSupportRouteWithChildren
+  '/admin/console/system-status': typeof AdminConsoleSystemStatusRoute
   '/admin/console/team': typeof AdminConsoleTeamRoute
   '/admin/console/website': typeof AdminConsoleWebsiteRoute
   '/admin/console/zones': typeof AdminConsoleZonesRoute
@@ -613,6 +621,7 @@ export interface FileRoutesByTo {
   '/admin/console/settings': typeof AdminConsoleSettingsRoute
   '/admin/console/subcategories': typeof AdminConsoleSubcategoriesRoute
   '/admin/console/support': typeof AdminConsoleSupportRouteWithChildren
+  '/admin/console/system-status': typeof AdminConsoleSystemStatusRoute
   '/admin/console/team': typeof AdminConsoleTeamRoute
   '/admin/console/website': typeof AdminConsoleWebsiteRoute
   '/admin/console/zones': typeof AdminConsoleZonesRoute
@@ -693,6 +702,7 @@ export interface FileRoutesById {
   '/admin/console/settings': typeof AdminConsoleSettingsRoute
   '/admin/console/subcategories': typeof AdminConsoleSubcategoriesRoute
   '/admin/console/support': typeof AdminConsoleSupportRouteWithChildren
+  '/admin/console/system-status': typeof AdminConsoleSystemStatusRoute
   '/admin/console/team': typeof AdminConsoleTeamRoute
   '/admin/console/website': typeof AdminConsoleWebsiteRoute
   '/admin/console/zones': typeof AdminConsoleZonesRoute
@@ -773,6 +783,7 @@ export interface FileRouteTypes {
     | '/admin/console/settings'
     | '/admin/console/subcategories'
     | '/admin/console/support'
+    | '/admin/console/system-status'
     | '/admin/console/team'
     | '/admin/console/website'
     | '/admin/console/zones'
@@ -848,6 +859,7 @@ export interface FileRouteTypes {
     | '/admin/console/settings'
     | '/admin/console/subcategories'
     | '/admin/console/support'
+    | '/admin/console/system-status'
     | '/admin/console/team'
     | '/admin/console/website'
     | '/admin/console/zones'
@@ -927,6 +939,7 @@ export interface FileRouteTypes {
     | '/admin/console/settings'
     | '/admin/console/subcategories'
     | '/admin/console/support'
+    | '/admin/console/system-status'
     | '/admin/console/team'
     | '/admin/console/website'
     | '/admin/console/zones'
@@ -1341,6 +1354,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminConsoleTeamRouteImport
       parentRoute: typeof AdminConsoleRoute
     }
+    '/admin/console/system-status': {
+      id: '/admin/console/system-status'
+      path: '/system-status'
+      fullPath: '/admin/console/system-status'
+      preLoaderRoute: typeof AdminConsoleSystemStatusRouteImport
+      parentRoute: typeof AdminConsoleRoute
+    }
     '/admin/console/support': {
       id: '/admin/console/support'
       path: '/support'
@@ -1594,6 +1614,7 @@ interface AdminConsoleRouteChildren {
   AdminConsoleSettingsRoute: typeof AdminConsoleSettingsRoute
   AdminConsoleSubcategoriesRoute: typeof AdminConsoleSubcategoriesRoute
   AdminConsoleSupportRoute: typeof AdminConsoleSupportRouteWithChildren
+  AdminConsoleSystemStatusRoute: typeof AdminConsoleSystemStatusRoute
   AdminConsoleTeamRoute: typeof AdminConsoleTeamRoute
   AdminConsoleWebsiteRoute: typeof AdminConsoleWebsiteRoute
   AdminConsoleZonesRoute: typeof AdminConsoleZonesRoute
@@ -1624,6 +1645,7 @@ const AdminConsoleRouteChildren: AdminConsoleRouteChildren = {
   AdminConsoleSettingsRoute: AdminConsoleSettingsRoute,
   AdminConsoleSubcategoriesRoute: AdminConsoleSubcategoriesRoute,
   AdminConsoleSupportRoute: AdminConsoleSupportRouteWithChildren,
+  AdminConsoleSystemStatusRoute: AdminConsoleSystemStatusRoute,
   AdminConsoleTeamRoute: AdminConsoleTeamRoute,
   AdminConsoleWebsiteRoute: AdminConsoleWebsiteRoute,
   AdminConsoleZonesRoute: AdminConsoleZonesRoute,
