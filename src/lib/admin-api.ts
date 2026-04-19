@@ -222,6 +222,11 @@ export const contactMessagesApi = {
       "/api/contact-messages",
       { query: { limit: params.limit ?? 100 } },
     ),
+  setHandled: (id: string, handled: boolean) =>
+    api<{ data: AdminContactMessage }>(
+      `/api/contact-messages/${encodeURIComponent(id)}`,
+      { method: "PATCH", body: { handled } },
+    ),
 };
 
 // ---------- Provider applications ----------
