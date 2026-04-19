@@ -1,19 +1,22 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { MapPin, Menu, X, ChevronDown, LogOut, LayoutDashboard, User as UserIcon, Shield, MessageCircle } from "lucide-react";
 import { Logo } from "./logo";
 import { ThemeToggle } from "./theme-toggle";
+import { LanguageSwitcher } from "./language-switcher";
 import { useAuth } from "./auth-provider";
 
 const NAV = [
-  { to: "/services", label: "Services" },
-  { to: "/providers", label: "Providers" },
-  { to: "/areas", label: "Areas" },
-  { to: "/how-it-works", label: "How it works" },
-  { to: "/about", label: "About" },
+  { to: "/services", labelKey: "nav.services" },
+  { to: "/providers", labelKey: "nav.providers" },
+  { to: "/areas", labelKey: "nav.areas" },
+  { to: "/how-it-works", labelKey: "nav.howItWorks" },
+  { to: "/about", labelKey: "nav.about" },
 ] as const;
 
 export function Navbar() {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const { user, roles, signOut, loading } = useAuth();
@@ -30,7 +33,7 @@ export function Navbar() {
   }
 
   const fullName = (user?.user_metadata?.full_name as string | undefined)?.trim();
-  const displayName = fullName || user?.email || "Account";
+  const displayName = fullName || user?.email || t("auth.account");
   const firstName = displayName.split(" ")[0];
   const initials =
     displayName
@@ -58,7 +61,7 @@ export function Navbar() {
               className="rounded-full px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               activeProps={{ className: "rounded-full px-3 py-2 text-sm font-medium bg-muted text-foreground" }}
             >
-              {item.label}
+              {t(item.labelKey)}
             </Link>
           ))}
         </nav>
@@ -69,9 +72,11 @@ export function Navbar() {
             className="hidden items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-muted lg:inline-flex"
           >
             <MapPin className="h-3.5 w-3.5 text-primary" />
-            Dhaka
+            {t("city.dhaka")}
             <ChevronDown className="h-3.5 w-3.5 opacity-60" />
           </button>
+
+          <LanguageSwitcher className="hidden sm:inline-flex" />
 
           <ThemeToggle />
 
@@ -122,7 +127,7 @@ export function Navbar() {
                       onClick={() => setMenuOpen(false)}
                       className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-muted"
                     >
-                      <LayoutDashboard className="h-4 w-4" /> Dashboard
+                      <LayoutDashboard className="h-4 w-4" /> {t("auth.dashboard")}
                     </Link>
                     <Link
                       to="/messages"
@@ -130,7 +135,7 @@ export function Navbar() {
                       className="flex items-center justify-between gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-muted"
                     >
                       <span className="flex items-center gap-2">
-                        <MessageCircle className="h-4 w-4" /> Messages
+                        <MessageCircle className="h-4 w-4" /> {t("auth.messages")}
                       </span>
                       {unread > 0 && (
                         <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground">
@@ -144,7 +149,7 @@ export function Navbar() {
                         onClick={() => setMenuOpen(false)}
                         className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-muted"
                       >
-                        <UserIcon className="h-4 w-4" /> My bookings
+                        <UserIcon className="h-4 w-4" /> {t("auth.myBookings")}
                       </Link>
                     )}
                     <Link
@@ -152,7 +157,7 @@ export function Navbar() {
                       onClick={() => setMenuOpen(false)}
                       className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-muted"
                     >
-                      <UserIcon className="h-4 w-4" /> Profile
+                      <UserIcon className="h-4 w-4" /> {t("auth.profile")}
                     </Link>
                     {isAdmin && (
                       <Link
@@ -160,7 +165,7 @@ export function Navbar() {
                         onClick={() => setMenuOpen(false)}
                         className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-muted"
                       >
-                        <Shield className="h-4 w-4" /> Admin
+                        <Shield className="h-4 w-4" /> {t("auth.admin")}
                       </Link>
                     )}
                     <button
@@ -168,7 +173,7 @@ export function Navbar() {
                       onClick={handleSignOut}
                       className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-foreground hover:bg-muted"
                     >
-                      <LogOut className="h-4 w-4" /> Log out
+                      <LogOut className="h-4 w-4" /> {t("auth.logout")}
                     </button>
                   </div>
                 </>
@@ -180,20 +185,20 @@ export function Navbar() {
                 to="/login"
                 className="hidden rounded-full px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted md:inline-flex"
               >
-                Log in
+                {t("auth.login")}
               </Link>
               <Link
                 to="/signup"
                 className="hidden rounded-full bg-gradient-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-soft transition-transform hover:scale-[1.02] md:inline-flex"
               >
-                Sign up
+                {t("auth.signupShort")}
               </Link>
             </>
           ) : null}
 
           <button
             type="button"
-            aria-label="Open menu"
+            aria-label={t("language.switchTo")}
             className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border md:hidden"
             onClick={() => setOpen((v) => !v)}
           >
@@ -212,9 +217,12 @@ export function Navbar() {
                 onClick={() => setOpen(false)}
                 className="rounded-lg px-3 py-2 text-base font-medium text-foreground hover:bg-muted"
               >
-                {item.label}
+                {t(item.labelKey)}
               </Link>
             ))}
+            <div className="mt-2 flex justify-center sm:hidden">
+              <LanguageSwitcher />
+            </div>
             <div className="mt-2 flex flex-col gap-2">
               {user ? (
                 <>
@@ -232,7 +240,7 @@ export function Navbar() {
                     onClick={() => { setOpen(false); handleSignOut(); }}
                     className="rounded-full border border-border px-4 py-2 text-center text-sm font-medium"
                   >
-                    Log out
+                    {t("auth.logout")}
                   </button>
                 </>
               ) : (
@@ -242,14 +250,14 @@ export function Navbar() {
                     onClick={() => setOpen(false)}
                     className="rounded-full border border-border px-4 py-2 text-center text-sm font-medium"
                   >
-                    Log in
+                    {t("auth.login")}
                   </Link>
                   <Link
                     to="/signup"
                     onClick={() => setOpen(false)}
                     className="rounded-full bg-gradient-primary px-4 py-2 text-center text-sm font-semibold text-primary-foreground"
                   >
-                    Sign up
+                    {t("auth.signupShort")}
                   </Link>
                 </>
               )}

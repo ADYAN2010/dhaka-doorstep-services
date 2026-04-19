@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 import {
   ArrowRight, BadgeCheck, Clock, Headphones, MapPin, Search,
   ShieldCheck, Sparkles, Star, Wallet, Zap, Users,
@@ -60,6 +61,7 @@ function HomePage() {
 }
 
 function Hero() {
+  const { t } = useTranslation();
   return (
     <section className="relative isolate overflow-hidden bg-gradient-hero text-white">
       <img
@@ -72,7 +74,6 @@ function Hero() {
       />
       <div className="absolute inset-0 -z-10 bg-gradient-to-t from-midnight via-midnight/70 to-transparent" />
 
-      {/* Floating illustration — large screens only, decorative */}
       <img
         src={heroIllustration}
         alt=""
@@ -87,16 +88,15 @@ function Hero() {
         <div className="mx-auto max-w-3xl text-center">
           <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-3 py-1 text-xs font-medium backdrop-blur">
             <span className="inline-flex h-1.5 w-1.5 rounded-full bg-primary" />
-            Now serving Dhaka · Coming soon: all 64 districts
+            {t("home.hero.badge")}
           </span>
 
           <h1 className="mt-5 text-4xl font-bold leading-tight tracking-tight md:text-6xl">
-            All Services, One Trusted{" "}
-            <span className="text-gradient-primary">Platform for Bangladesh</span>
+            {t("home.hero.title")}{" "}
+            <span className="text-gradient-primary">{t("home.hero.titleHighlight")}</span>
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-base text-white/75 md:text-lg">
-            Book verified professionals in Dhaka for home, personal, business and technical services
-            — fast, simple, and reliable.
+            {t("home.hero.subtitle")}
           </p>
 
           <div className="mt-8">
@@ -108,21 +108,21 @@ function Hero() {
               to="/book"
               className="inline-flex items-center gap-2 rounded-full bg-gradient-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-glow transition-transform hover:scale-[1.02]"
             >
-              Book a Service <ArrowRight className="h-4 w-4" />
+              {t("actions.bookService")} <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
               to="/become-provider"
               className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/5 px-6 py-3 text-sm font-semibold text-white backdrop-blur hover:bg-white/10"
             >
-              Become a Provider
+              {t("nav.becomeProvider")}
             </Link>
           </div>
 
           <div className="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs text-white/70">
-            <span className="inline-flex items-center gap-1.5"><BadgeCheck className="h-4 w-4 text-primary" /> Verified providers</span>
-            <span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-4 w-4 text-primary" /> Background checked</span>
-            <span className="inline-flex items-center gap-1.5"><Wallet className="h-4 w-4 text-primary" /> Transparent pricing</span>
-            <span className="inline-flex items-center gap-1.5"><Headphones className="h-4 w-4 text-primary" /> Local support team</span>
+            <span className="inline-flex items-center gap-1.5"><BadgeCheck className="h-4 w-4 text-primary" /> {t("home.hero.trustVerified")}</span>
+            <span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-4 w-4 text-primary" /> {t("home.hero.trustBackground")}</span>
+            <span className="inline-flex items-center gap-1.5"><Wallet className="h-4 w-4 text-primary" /> {t("home.hero.trustPricing")}</span>
+            <span className="inline-flex items-center gap-1.5"><Headphones className="h-4 w-4 text-primary" /> {t("home.hero.trustSupport")}</span>
           </div>
         </div>
       </div>

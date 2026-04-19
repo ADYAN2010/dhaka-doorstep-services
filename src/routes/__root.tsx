@@ -4,6 +4,8 @@ import appCss from "../styles.css?url";
 import { AppearanceProvider } from "../components/appearance-provider";
 import { ThemeProvider } from "../components/theme-provider";
 import { AuthProvider } from "../components/auth-provider";
+import { I18nProvider } from "../components/i18n-provider";
+import "../i18n/config";
 
 function NotFoundComponent() {
   return (
@@ -59,7 +61,7 @@ export const Route = createRootRoute({
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="bn">
       <head>
         <HeadContent />
       </head>
@@ -76,7 +78,9 @@ function RootComponent() {
     <AppearanceProvider>
       <ThemeProvider>
         <AuthProvider>
-          <Outlet />
+          <I18nProvider>
+            <Outlet />
+          </I18nProvider>
         </AuthProvider>
       </ThemeProvider>
     </AppearanceProvider>
