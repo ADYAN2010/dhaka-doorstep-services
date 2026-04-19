@@ -1,15 +1,11 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, notFound, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ArrowRight, CalendarDays, Loader2, MapPin, Phone, Search } from "lucide-react";
 import { SiteShell } from "@/components/site-shell";
 import { PageHeader } from "@/components/page-header";
-import { supabase } from "@/integrations/supabase/client";
+import { api, ApiError } from "@/lib/api-client";
 import { findArea } from "@/data/areas";
-import {
-  BookingStatusTimeline,
-  statusMeta,
-  type BookingStage,
-} from "@/components/booking-status-timeline";
+import { BookingStatusTimeline, statusMeta, type BookingStage } from "@/components/booking-status-timeline";
 import { buildSeo } from "@/lib/seo";
 
 export const Route = createFileRoute("/booking-status/$id")({
@@ -24,12 +20,8 @@ export const Route = createFileRoute("/booking-status/$id")({
     <SiteShell>
       <div className="container-page py-24 text-center">
         <h1 className="text-3xl font-bold">Booking not found</h1>
-        <p className="mt-2 text-muted-foreground">
-          The link may be incorrect or the booking has been removed.
-        </p>
-        <Link to="/book" className="mt-6 inline-block text-primary underline">
-          Submit a new booking
-        </Link>
+        <p className="mt-2 text-muted-foreground">The link may be incorrect or the booking has been removed.</p>
+        <Link to="/book" className="mt-6 inline-block text-primary underline">Submit a new booking</Link>
       </div>
     </SiteShell>
   ),
@@ -38,9 +30,7 @@ export const Route = createFileRoute("/booking-status/$id")({
       <div className="container-page py-24 text-center">
         <h1 className="text-3xl font-bold">Couldn&rsquo;t load booking</h1>
         <p className="mt-2 text-muted-foreground">{error.message}</p>
-        <Link to="/book" className="mt-6 inline-block text-primary underline">
-          Back to booking
-        </Link>
+        <Link to="/book" className="mt-6 inline-block text-primary underline">Back to booking</Link>
       </div>
     </SiteShell>
   ),
@@ -63,7 +53,6 @@ type Booking = {
   created_at: string;
 };
 
-// Map DB status -> UI stage
 function toStage(s: Booking["status"]): BookingStage {
   switch (s) {
     case "new":       return "submitted";
@@ -84,16 +73,16 @@ function BookingStatusPage() {
     let cancelled = false;
     (async () => {
       setLoading(true);
-      const { data, error } = await supabase
-        .from("bookings")
-        .select("id, full_name, phone, category, service, area, address, preferred_date, preferred_time_slot, budget_range, notes, status, created_at")
-        .eq("id", id)
-        .maybeSingle();
-      if (cancelled) return;
-      if (error) setError(error.message);
-      else if (!data) setError("not_found");
-      else setBooking(data as Booking);
-      setLoading(false);
+      try {
+        const res = await api<{ data: Booking }>(`/api/bookings/${encodeURIComponent(id)}`, { skipAuth: true });
+        if (!cancelled) setBooking(res.data);
+      } catch (err) {
+        if (cancelled) return;
+        if (err instanceof ApiError && err.status === 404) setError("not_found");
+        else setError(err instanceof Error ? err.message : "Failed to load");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
     })();
     return () => { cancelled = true; };
   }, [id]);
@@ -107,14 +96,8 @@ function BookingStatusPage() {
       </SiteShell>
     );
   }
-
-  if (error === "not_found" || !booking) {
-    throw notFound();
-  }
-
-  if (error) {
-    throw new Error(error);
-  }
+  if (error === "not_found" || !booking) throw notFound();
+  if (error) throw new Error(error);
 
   const stage = toStage(booking.status);
   const meta = statusMeta(stage);
@@ -126,12 +109,7 @@ function BookingStatusPage() {
     <SiteShell>
       <PageHeader
         eyebrow={`Tracking · #${shortId}`}
-        title={
-          <>
-            Your booking is{" "}
-            <span className="text-gradient-primary">{meta.label.toLowerCase()}</span>
-          </>
-        }
+        title={<>Your booking is <span className="text-gradient-primary">{meta.label.toLowerCase()}</span></>}
         description={`Submitted ${created}. We'll keep this page in sync as your job progresses.`}
       />
 
@@ -140,21 +118,12 @@ function BookingStatusPage() {
           <div className="rounded-2xl border border-border bg-card p-6 shadow-soft md:p-8">
             <div className="mb-6 flex items-center justify-between">
               <h2 className="text-lg font-semibold text-foreground">Live status</h2>
-              <span className={`rounded-full px-3 py-1 text-xs font-semibold ${meta.tone}`}>
-                {meta.label}
-              </span>
+              <span className={`rounded-full px-3 py-1 text-xs font-semibold ${meta.tone}`}>{meta.label}</span>
             </div>
             <BookingStatusTimeline stage={stage} />
-
             <div className="mt-8 grid gap-3 rounded-xl border border-dashed border-border bg-background p-4 text-xs text-muted-foreground sm:grid-cols-2">
-              <p className="flex items-center gap-2">
-                <Phone className="h-3.5 w-3.5 text-primary" />
-                We&rsquo;ll call <span className="font-medium text-foreground">{booking.phone}</span> on each update.
-              </p>
-              <p className="flex items-center gap-2">
-                <Search className="h-3.5 w-3.5 text-primary" />
-                Bookmark this page to check status anytime.
-              </p>
+              <p className="flex items-center gap-2"><Phone className="h-3.5 w-3.5 text-primary" />We&rsquo;ll call <span className="font-medium text-foreground">{booking.phone}</span> on each update.</p>
+              <p className="flex items-center gap-2"><Search className="h-3.5 w-3.5 text-primary" />Bookmark this page to check status anytime.</p>
             </div>
           </div>
 
@@ -168,55 +137,22 @@ function BookingStatusPage() {
                 {booking.service && <Row label="Service" value={booking.service} />}
                 <Row label="Area" value={areaName} />
                 {booking.address && <Row label="Address" value={booking.address} />}
-                <Row
-                  label="When"
-                  value={`${booking.preferred_date} · ${booking.preferred_time_slot}`}
-                />
+                <Row label="When" value={`${booking.preferred_date} · ${booking.preferred_time_slot}`} />
                 {booking.budget_range && <Row label="Budget" value={booking.budget_range} />}
               </dl>
-
               {booking.notes && (
                 <div className="mt-4 rounded-xl border border-border bg-background p-3 text-xs text-muted-foreground">
-                  <p className="mb-1 font-semibold text-foreground">Notes</p>
-                  {booking.notes}
+                  <p className="mb-1 font-semibold text-foreground">Notes</p>{booking.notes}
                 </div>
               )}
-
               <div className="mt-5 space-y-2">
-                <Link
-                  to="/dashboard"
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-soft"
-                >
-                  Open my dashboard <ArrowRight className="h-4 w-4" />
-                </Link>
-                <Link
-                  to="/book"
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-border px-4 py-2.5 text-sm font-semibold text-foreground hover:bg-muted"
-                >
-                  <CalendarDays className="h-4 w-4" /> Book another service
+                <Link to="/book" className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-border px-4 py-2.5 text-sm font-semibold text-foreground hover:bg-muted">
+                  <CalendarDays className="h-4 w-4" /> Book another service <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
             </div>
-
-            <div className="mt-4 rounded-2xl border border-border bg-gradient-card p-5 text-xs text-muted-foreground">
-              Need help?{" "}
-              <a href="tel:+8801700000000" className="font-semibold text-primary">
-                Call +880 1700 000000
-              </a>{" "}
-              or{" "}
-              <Link to="/contact" className="font-semibold text-primary underline">
-                message support
-              </Link>
-              . Reference your booking ID{" "}
-              <span className="rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-foreground">
-                #{shortId}
-              </span>
-              .
-            </div>
-
             <div className="mt-4 flex items-start gap-2 rounded-xl border border-border bg-card p-4 text-xs text-muted-foreground">
-              <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
-              We&rsquo;re currently serving Dhaka — same-day visits available across all neighborhoods.
+              <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />Currently serving Dhaka — same-day visits available.
             </div>
           </aside>
         </div>
@@ -229,9 +165,7 @@ function Row({ label, value, mono = false }: { label: string; value: string; mon
   return (
     <div className="flex items-start justify-between gap-3 border-b border-border/60 pb-2 last:border-0">
       <dt className="text-xs uppercase tracking-wide text-muted-foreground">{label}</dt>
-      <dd className={`text-right text-sm font-medium text-foreground ${mono ? "font-mono" : ""}`}>
-        {value}
-      </dd>
+      <dd className={`text-right text-sm font-medium text-foreground ${mono ? "font-mono" : ""}`}>{value}</dd>
     </div>
   );
 }
