@@ -49,7 +49,12 @@ import { Route as ServicesCategoryIndexRouteImport } from './routes/services.$ca
 import { Route as AdminMysqlIndexRouteImport } from './routes/admin.mysql.index'
 import { Route as AdminConsoleIndexRouteImport } from './routes/admin.console.index'
 import { Route as ServicesCategoryServiceRouteImport } from './routes/services.$category.$service'
+import { Route as AdminMysqlServicesRouteImport } from './routes/admin.mysql.services'
+import { Route as AdminMysqlProvidersRouteImport } from './routes/admin.mysql.providers'
 import { Route as AdminMysqlLoginRouteImport } from './routes/admin.mysql.login'
+import { Route as AdminMysqlLocationsRouteImport } from './routes/admin.mysql.locations'
+import { Route as AdminMysqlCustomersRouteImport } from './routes/admin.mysql.customers'
+import { Route as AdminMysqlBookingsRouteImport } from './routes/admin.mysql.bookings'
 import { Route as AdminConsoleZonesRouteImport } from './routes/admin.console.zones'
 import { Route as AdminConsoleWebsiteRouteImport } from './routes/admin.console.website'
 import { Route as AdminConsoleTeamRouteImport } from './routes/admin.console.team'
@@ -279,9 +284,34 @@ const ServicesCategoryServiceRoute = ServicesCategoryServiceRouteImport.update({
   path: '/services/$category/$service',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminMysqlServicesRoute = AdminMysqlServicesRouteImport.update({
+  id: '/services',
+  path: '/services',
+  getParentRoute: () => AdminMysqlRoute,
+} as any)
+const AdminMysqlProvidersRoute = AdminMysqlProvidersRouteImport.update({
+  id: '/providers',
+  path: '/providers',
+  getParentRoute: () => AdminMysqlRoute,
+} as any)
 const AdminMysqlLoginRoute = AdminMysqlLoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => AdminMysqlRoute,
+} as any)
+const AdminMysqlLocationsRoute = AdminMysqlLocationsRouteImport.update({
+  id: '/locations',
+  path: '/locations',
+  getParentRoute: () => AdminMysqlRoute,
+} as any)
+const AdminMysqlCustomersRoute = AdminMysqlCustomersRouteImport.update({
+  id: '/customers',
+  path: '/customers',
+  getParentRoute: () => AdminMysqlRoute,
+} as any)
+const AdminMysqlBookingsRoute = AdminMysqlBookingsRouteImport.update({
+  id: '/bookings',
+  path: '/bookings',
   getParentRoute: () => AdminMysqlRoute,
 } as any)
 const AdminConsoleZonesRoute = AdminConsoleZonesRouteImport.update({
@@ -484,7 +514,12 @@ export interface FileRoutesByFullPath {
   '/admin/console/team': typeof AdminConsoleTeamRoute
   '/admin/console/website': typeof AdminConsoleWebsiteRoute
   '/admin/console/zones': typeof AdminConsoleZonesRoute
+  '/admin/mysql/bookings': typeof AdminMysqlBookingsRoute
+  '/admin/mysql/customers': typeof AdminMysqlCustomersRoute
+  '/admin/mysql/locations': typeof AdminMysqlLocationsRoute
   '/admin/mysql/login': typeof AdminMysqlLoginRoute
+  '/admin/mysql/providers': typeof AdminMysqlProvidersRoute
+  '/admin/mysql/services': typeof AdminMysqlServicesRoute
   '/services/$category/$service': typeof ServicesCategoryServiceRoute
   '/admin/console/': typeof AdminConsoleIndexRoute
   '/admin/mysql/': typeof AdminMysqlIndexRoute
@@ -551,7 +586,12 @@ export interface FileRoutesByTo {
   '/admin/console/team': typeof AdminConsoleTeamRoute
   '/admin/console/website': typeof AdminConsoleWebsiteRoute
   '/admin/console/zones': typeof AdminConsoleZonesRoute
+  '/admin/mysql/bookings': typeof AdminMysqlBookingsRoute
+  '/admin/mysql/customers': typeof AdminMysqlCustomersRoute
+  '/admin/mysql/locations': typeof AdminMysqlLocationsRoute
   '/admin/mysql/login': typeof AdminMysqlLoginRoute
+  '/admin/mysql/providers': typeof AdminMysqlProvidersRoute
+  '/admin/mysql/services': typeof AdminMysqlServicesRoute
   '/services/$category/$service': typeof ServicesCategoryServiceRoute
   '/admin/console': typeof AdminConsoleIndexRoute
   '/admin/mysql': typeof AdminMysqlIndexRoute
@@ -622,7 +662,12 @@ export interface FileRoutesById {
   '/admin/console/team': typeof AdminConsoleTeamRoute
   '/admin/console/website': typeof AdminConsoleWebsiteRoute
   '/admin/console/zones': typeof AdminConsoleZonesRoute
+  '/admin/mysql/bookings': typeof AdminMysqlBookingsRoute
+  '/admin/mysql/customers': typeof AdminMysqlCustomersRoute
+  '/admin/mysql/locations': typeof AdminMysqlLocationsRoute
   '/admin/mysql/login': typeof AdminMysqlLoginRoute
+  '/admin/mysql/providers': typeof AdminMysqlProvidersRoute
+  '/admin/mysql/services': typeof AdminMysqlServicesRoute
   '/services/$category/$service': typeof ServicesCategoryServiceRoute
   '/admin/console/': typeof AdminConsoleIndexRoute
   '/admin/mysql/': typeof AdminMysqlIndexRoute
@@ -693,7 +738,12 @@ export interface FileRouteTypes {
     | '/admin/console/team'
     | '/admin/console/website'
     | '/admin/console/zones'
+    | '/admin/mysql/bookings'
+    | '/admin/mysql/customers'
+    | '/admin/mysql/locations'
     | '/admin/mysql/login'
+    | '/admin/mysql/providers'
+    | '/admin/mysql/services'
     | '/services/$category/$service'
     | '/admin/console/'
     | '/admin/mysql/'
@@ -760,7 +810,12 @@ export interface FileRouteTypes {
     | '/admin/console/team'
     | '/admin/console/website'
     | '/admin/console/zones'
+    | '/admin/mysql/bookings'
+    | '/admin/mysql/customers'
+    | '/admin/mysql/locations'
     | '/admin/mysql/login'
+    | '/admin/mysql/providers'
+    | '/admin/mysql/services'
     | '/services/$category/$service'
     | '/admin/console'
     | '/admin/mysql'
@@ -830,7 +885,12 @@ export interface FileRouteTypes {
     | '/admin/console/team'
     | '/admin/console/website'
     | '/admin/console/zones'
+    | '/admin/mysql/bookings'
+    | '/admin/mysql/customers'
+    | '/admin/mysql/locations'
     | '/admin/mysql/login'
+    | '/admin/mysql/providers'
+    | '/admin/mysql/services'
     | '/services/$category/$service'
     | '/admin/console/'
     | '/admin/mysql/'
@@ -1151,11 +1211,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ServicesCategoryServiceRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/mysql/services': {
+      id: '/admin/mysql/services'
+      path: '/services'
+      fullPath: '/admin/mysql/services'
+      preLoaderRoute: typeof AdminMysqlServicesRouteImport
+      parentRoute: typeof AdminMysqlRoute
+    }
+    '/admin/mysql/providers': {
+      id: '/admin/mysql/providers'
+      path: '/providers'
+      fullPath: '/admin/mysql/providers'
+      preLoaderRoute: typeof AdminMysqlProvidersRouteImport
+      parentRoute: typeof AdminMysqlRoute
+    }
     '/admin/mysql/login': {
       id: '/admin/mysql/login'
       path: '/login'
       fullPath: '/admin/mysql/login'
       preLoaderRoute: typeof AdminMysqlLoginRouteImport
+      parentRoute: typeof AdminMysqlRoute
+    }
+    '/admin/mysql/locations': {
+      id: '/admin/mysql/locations'
+      path: '/locations'
+      fullPath: '/admin/mysql/locations'
+      preLoaderRoute: typeof AdminMysqlLocationsRouteImport
+      parentRoute: typeof AdminMysqlRoute
+    }
+    '/admin/mysql/customers': {
+      id: '/admin/mysql/customers'
+      path: '/customers'
+      fullPath: '/admin/mysql/customers'
+      preLoaderRoute: typeof AdminMysqlCustomersRouteImport
+      parentRoute: typeof AdminMysqlRoute
+    }
+    '/admin/mysql/bookings': {
+      id: '/admin/mysql/bookings'
+      path: '/bookings'
+      fullPath: '/admin/mysql/bookings'
+      preLoaderRoute: typeof AdminMysqlBookingsRouteImport
       parentRoute: typeof AdminMysqlRoute
     }
     '/admin/console/zones': {
@@ -1452,12 +1547,22 @@ const AdminConsoleRouteWithChildren = AdminConsoleRoute._addFileChildren(
 )
 
 interface AdminMysqlRouteChildren {
+  AdminMysqlBookingsRoute: typeof AdminMysqlBookingsRoute
+  AdminMysqlCustomersRoute: typeof AdminMysqlCustomersRoute
+  AdminMysqlLocationsRoute: typeof AdminMysqlLocationsRoute
   AdminMysqlLoginRoute: typeof AdminMysqlLoginRoute
+  AdminMysqlProvidersRoute: typeof AdminMysqlProvidersRoute
+  AdminMysqlServicesRoute: typeof AdminMysqlServicesRoute
   AdminMysqlIndexRoute: typeof AdminMysqlIndexRoute
 }
 
 const AdminMysqlRouteChildren: AdminMysqlRouteChildren = {
+  AdminMysqlBookingsRoute: AdminMysqlBookingsRoute,
+  AdminMysqlCustomersRoute: AdminMysqlCustomersRoute,
+  AdminMysqlLocationsRoute: AdminMysqlLocationsRoute,
   AdminMysqlLoginRoute: AdminMysqlLoginRoute,
+  AdminMysqlProvidersRoute: AdminMysqlProvidersRoute,
+  AdminMysqlServicesRoute: AdminMysqlServicesRoute,
   AdminMysqlIndexRoute: AdminMysqlIndexRoute,
 }
 
