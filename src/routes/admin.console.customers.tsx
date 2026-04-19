@@ -1,8 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Users, Search, Loader2, Mail, Phone, MapPin } from "lucide-react";
+import { Users, Search, Loader2, Phone, MapPin, Mail } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { listCustomers } from "@/utils/admin.functions";
+import type { CustomerRow } from "@/server/types";
 import { AdminPageHeader } from "@/components/admin/page-header";
 import { EmptyState } from "@/components/admin/empty-state";
 import { Input } from "@/components/ui/input";
@@ -12,83 +13,55 @@ export const Route = createFileRoute("/admin/console/customers")({
   component: CustomersPage,
 });
 
-type Customer = {
-  id: string;
-  full_name: string;
-  phone: string | null;
-  area: string | null;
-  created_at: string;
-  bookings_count: number;
-};
-
 function CustomersPage() {
-  const [rows, setRows] = useState<Customer[]>([]);
+  const navigate = useNavigate();
+  const [rows, setRows] = useState<CustomerRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
 
   useEffect(() => {
     let cancelled = false;
-    async function load() {
-      setLoading(true);
-      // Get profiles that have customer role and aren't approved providers (or include them — show all role=customer)
-      const [profilesRes, rolesRes, bookingsRes] = await Promise.all([
-        supabase.from("profiles").select("id, full_name, phone, area, created_at"),
-        supabase.from("user_roles").select("user_id, role"),
-        supabase.from("bookings").select("user_id"),
-      ]);
-      if (cancelled) return;
-      if (profilesRes.error) { toast.error(profilesRes.error.message); setLoading(false); return; }
-      const customerIds = new Set(
-        (rolesRes.data ?? []).filter((r) => r.role === "customer").map((r) => r.user_id),
-      );
-      const counts = new Map<string, number>();
-      (bookingsRes.data ?? []).forEach((b) => {
-        if (b.user_id) counts.set(b.user_id, (counts.get(b.user_id) ?? 0) + 1);
+    setLoading(true);
+    listCustomers({ data: { limit: 200 } })
+      .then((data) => {
+        if (cancelled) return;
+        setRows(data ?? []);
+        setLoading(false);
+      })
+      .catch((e: Error) => {
+        if (cancelled) return;
+        if (e.message.includes("Unauthorized")) return navigate({ to: "/admin/backend/login" });
+        toast.error(e.message);
+        setLoading(false);
       });
-      const list: Customer[] = (profilesRes.data ?? [])
-        .filter((p) => customerIds.has(p.id))
-        .map((p) => ({
-          id: p.id,
-          full_name: p.full_name || "Unnamed",
-          phone: p.phone,
-          area: p.area,
-          created_at: p.created_at,
-          bookings_count: counts.get(p.id) ?? 0,
-        }))
-        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-      setRows(list);
-      setLoading(false);
-    }
-    void load();
     return () => { cancelled = true; };
-  }, []);
+  }, [navigate]);
 
   const filtered = useMemo(() => {
     if (!q) return rows;
     const t = q.toLowerCase();
-    return rows.filter((r) => [r.full_name, r.phone, r.area].some((v) => v?.toLowerCase().includes(t)));
+    return rows.filter((r) => [r.full_name, r.phone, r.area, r.email].some((v) => v?.toLowerCase().includes(t)));
   }, [rows, q]);
 
-  const totalBookings = rows.reduce((s, r) => s + r.bookings_count, 0);
-  const activeWithBookings = rows.filter((r) => r.bookings_count > 0).length;
+  const activeCount = rows.filter((r) => r.is_active).length;
 
   return (
     <div>
       <AdminPageHeader
         eyebrow="Customers"
         title="Customer accounts"
-        description="Every signed-up customer with their booking activity and contact details."
+        description="Every signed-up customer with their contact details, pulled live from MySQL."
       />
 
       <div className="mb-4 grid gap-4 sm:grid-cols-3">
         <Stat label="Total customers" value={rows.length.toLocaleString()} />
-        <Stat label="With bookings" value={activeWithBookings.toLocaleString()} />
-        <Stat label="Total bookings placed" value={totalBookings.toLocaleString()} />
+        <Stat label="Active accounts" value={activeCount.toLocaleString()} />
+        <Stat label="With phone" value={rows.filter((r) => r.phone).length.toLocaleString()} />
       </div>
 
       <div className="mb-4 relative max-w-md">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input placeholder="Search by name, phone, area…" value={q} onChange={(e) => setQ(e.target.value)} className="pl-9" />
+        <Input placeholder="Search by name, phone, email, area…" value={q} onChange={(e) => setQ(e.target.value)} className="pl-9" />
       </div>
 
       {loading ? (
@@ -104,7 +77,7 @@ function CustomersPage() {
                   <TableHead>Customer</TableHead>
                   <TableHead>Contact</TableHead>
                   <TableHead>Area</TableHead>
-                  <TableHead className="text-right">Bookings</TableHead>
+                  <TableHead className="text-right">Status</TableHead>
                   <TableHead>Joined</TableHead>
                 </TableRow>
               </TableHeader>
@@ -117,15 +90,16 @@ function CustomersPage() {
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-col gap-0.5 text-xs text-muted-foreground">
+                        {c.email && <span className="inline-flex items-center gap-1"><Mail className="h-3 w-3" />{c.email}</span>}
                         {c.phone && <span className="inline-flex items-center gap-1"><Phone className="h-3 w-3" />{c.phone}</span>}
                       </div>
                     </TableCell>
                     <TableCell>
-                      {c.area ? <span className="inline-flex items-center gap-1 text-sm"><MapPin className="h-3 w-3 text-muted-foreground" />{c.area}</span> : <span className="text-xs text-muted-foreground">—</span>}
+                      {c.area ? <span className="inline-flex items-center gap-1 text-sm capitalize"><MapPin className="h-3 w-3 text-muted-foreground" />{c.area}</span> : <span className="text-xs text-muted-foreground">—</span>}
                     </TableCell>
                     <TableCell className="text-right">
-                      <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${c.bookings_count > 0 ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
-                        {c.bookings_count}
+                      <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${c.is_active ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300" : "bg-muted text-muted-foreground"}`}>
+                        {c.is_active ? "Active" : "Inactive"}
                       </span>
                     </TableCell>
                     <TableCell className="text-xs text-muted-foreground">{new Date(c.created_at).toLocaleDateString()}</TableCell>
