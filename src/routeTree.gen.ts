@@ -37,6 +37,7 @@ import { Route as BookingStatusIdRouteImport } from './routes/booking-status.$id
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AdminMysqlRouteImport } from './routes/admin.mysql'
 import { Route as AdminConsoleRouteImport } from './routes/admin.console'
+import { Route as AdminBackendRouteImport } from './routes/admin.backend'
 import { Route as AdminApiCheckRouteImport } from './routes/admin.api-check'
 import { Route as AuthenticatedProviderDashboardRouteImport } from './routes/_authenticated.provider-dashboard'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated.profile'
@@ -49,6 +50,7 @@ import { Route as AuthenticatedAvailabilityRouteImport } from './routes/_authent
 import { Route as ServicesCategoryIndexRouteImport } from './routes/services.$category.index'
 import { Route as AdminMysqlIndexRouteImport } from './routes/admin.mysql.index'
 import { Route as AdminConsoleIndexRouteImport } from './routes/admin.console.index'
+import { Route as AdminBackendIndexRouteImport } from './routes/admin.backend.index'
 import { Route as ServicesCategoryServiceRouteImport } from './routes/services.$category.$service'
 import { Route as AdminMysqlServicesRouteImport } from './routes/admin.mysql.services'
 import { Route as AdminMysqlProvidersRouteImport } from './routes/admin.mysql.providers'
@@ -82,6 +84,7 @@ import { Route as AdminConsoleBookingsRouteImport } from './routes/admin.console
 import { Route as AdminConsoleBlogRouteImport } from './routes/admin.console.blog'
 import { Route as AdminConsoleAppearanceRouteImport } from './routes/admin.console.appearance'
 import { Route as AdminConsoleAnalyticsRouteImport } from './routes/admin.console.analytics'
+import { Route as AdminBackendLoginRouteImport } from './routes/admin.backend.login'
 import { Route as AdminConsoleSupportTicketIdRouteImport } from './routes/admin.console.support.$ticketId'
 
 const TrustSafetyRoute = TrustSafetyRouteImport.update({
@@ -223,6 +226,11 @@ const AdminConsoleRoute = AdminConsoleRouteImport.update({
   path: '/console',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminBackendRoute = AdminBackendRouteImport.update({
+  id: '/backend',
+  path: '/backend',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminApiCheckRoute = AdminApiCheckRouteImport.update({
   id: '/api-check',
   path: '/api-check',
@@ -284,6 +292,11 @@ const AdminConsoleIndexRoute = AdminConsoleIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AdminConsoleRoute,
+} as any)
+const AdminBackendIndexRoute = AdminBackendIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminBackendRoute,
 } as any)
 const ServicesCategoryServiceRoute = ServicesCategoryServiceRouteImport.update({
   id: '/services/$category/$service',
@@ -451,6 +464,11 @@ const AdminConsoleAnalyticsRoute = AdminConsoleAnalyticsRouteImport.update({
   path: '/analytics',
   getParentRoute: () => AdminConsoleRoute,
 } as any)
+const AdminBackendLoginRoute = AdminBackendLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => AdminBackendRoute,
+} as any)
 const AdminConsoleSupportTicketIdRoute =
   AdminConsoleSupportTicketIdRouteImport.update({
     id: '/$ticketId',
@@ -484,6 +502,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof AuthenticatedProfileRoute
   '/provider-dashboard': typeof AuthenticatedProviderDashboardRoute
   '/admin/api-check': typeof AdminApiCheckRoute
+  '/admin/backend': typeof AdminBackendRouteWithChildren
   '/admin/console': typeof AdminConsoleRouteWithChildren
   '/admin/mysql': typeof AdminMysqlRouteWithChildren
   '/blog/$slug': typeof BlogSlugRoute
@@ -495,6 +514,7 @@ export interface FileRoutesByFullPath {
   '/blog/': typeof BlogIndexRoute
   '/providers/': typeof ProvidersIndexRoute
   '/services/': typeof ServicesIndexRoute
+  '/admin/backend/login': typeof AdminBackendLoginRoute
   '/admin/console/analytics': typeof AdminConsoleAnalyticsRoute
   '/admin/console/appearance': typeof AdminConsoleAppearanceRoute
   '/admin/console/blog': typeof AdminConsoleBlogRoute
@@ -528,6 +548,7 @@ export interface FileRoutesByFullPath {
   '/admin/mysql/providers': typeof AdminMysqlProvidersRoute
   '/admin/mysql/services': typeof AdminMysqlServicesRoute
   '/services/$category/$service': typeof ServicesCategoryServiceRoute
+  '/admin/backend/': typeof AdminBackendIndexRoute
   '/admin/console/': typeof AdminConsoleIndexRoute
   '/admin/mysql/': typeof AdminMysqlIndexRoute
   '/services/$category/': typeof ServicesCategoryIndexRoute
@@ -568,6 +589,7 @@ export interface FileRoutesByTo {
   '/blog': typeof BlogIndexRoute
   '/providers': typeof ProvidersIndexRoute
   '/services': typeof ServicesIndexRoute
+  '/admin/backend/login': typeof AdminBackendLoginRoute
   '/admin/console/analytics': typeof AdminConsoleAnalyticsRoute
   '/admin/console/appearance': typeof AdminConsoleAppearanceRoute
   '/admin/console/blog': typeof AdminConsoleBlogRoute
@@ -601,6 +623,7 @@ export interface FileRoutesByTo {
   '/admin/mysql/providers': typeof AdminMysqlProvidersRoute
   '/admin/mysql/services': typeof AdminMysqlServicesRoute
   '/services/$category/$service': typeof ServicesCategoryServiceRoute
+  '/admin/backend': typeof AdminBackendIndexRoute
   '/admin/console': typeof AdminConsoleIndexRoute
   '/admin/mysql': typeof AdminMysqlIndexRoute
   '/services/$category': typeof ServicesCategoryIndexRoute
@@ -634,6 +657,7 @@ export interface FileRoutesById {
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/provider-dashboard': typeof AuthenticatedProviderDashboardRoute
   '/admin/api-check': typeof AdminApiCheckRoute
+  '/admin/backend': typeof AdminBackendRouteWithChildren
   '/admin/console': typeof AdminConsoleRouteWithChildren
   '/admin/mysql': typeof AdminMysqlRouteWithChildren
   '/blog/$slug': typeof BlogSlugRoute
@@ -645,6 +669,7 @@ export interface FileRoutesById {
   '/blog/': typeof BlogIndexRoute
   '/providers/': typeof ProvidersIndexRoute
   '/services/': typeof ServicesIndexRoute
+  '/admin/backend/login': typeof AdminBackendLoginRoute
   '/admin/console/analytics': typeof AdminConsoleAnalyticsRoute
   '/admin/console/appearance': typeof AdminConsoleAppearanceRoute
   '/admin/console/blog': typeof AdminConsoleBlogRoute
@@ -678,6 +703,7 @@ export interface FileRoutesById {
   '/admin/mysql/providers': typeof AdminMysqlProvidersRoute
   '/admin/mysql/services': typeof AdminMysqlServicesRoute
   '/services/$category/$service': typeof ServicesCategoryServiceRoute
+  '/admin/backend/': typeof AdminBackendIndexRoute
   '/admin/console/': typeof AdminConsoleIndexRoute
   '/admin/mysql/': typeof AdminMysqlIndexRoute
   '/services/$category/': typeof ServicesCategoryIndexRoute
@@ -711,6 +737,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/provider-dashboard'
     | '/admin/api-check'
+    | '/admin/backend'
     | '/admin/console'
     | '/admin/mysql'
     | '/blog/$slug'
@@ -722,6 +749,7 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/providers/'
     | '/services/'
+    | '/admin/backend/login'
     | '/admin/console/analytics'
     | '/admin/console/appearance'
     | '/admin/console/blog'
@@ -755,6 +783,7 @@ export interface FileRouteTypes {
     | '/admin/mysql/providers'
     | '/admin/mysql/services'
     | '/services/$category/$service'
+    | '/admin/backend/'
     | '/admin/console/'
     | '/admin/mysql/'
     | '/services/$category/'
@@ -795,6 +824,7 @@ export interface FileRouteTypes {
     | '/blog'
     | '/providers'
     | '/services'
+    | '/admin/backend/login'
     | '/admin/console/analytics'
     | '/admin/console/appearance'
     | '/admin/console/blog'
@@ -828,6 +858,7 @@ export interface FileRouteTypes {
     | '/admin/mysql/providers'
     | '/admin/mysql/services'
     | '/services/$category/$service'
+    | '/admin/backend'
     | '/admin/console'
     | '/admin/mysql'
     | '/services/$category'
@@ -860,6 +891,7 @@ export interface FileRouteTypes {
     | '/_authenticated/profile'
     | '/_authenticated/provider-dashboard'
     | '/admin/api-check'
+    | '/admin/backend'
     | '/admin/console'
     | '/admin/mysql'
     | '/blog/$slug'
@@ -871,6 +903,7 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/providers/'
     | '/services/'
+    | '/admin/backend/login'
     | '/admin/console/analytics'
     | '/admin/console/appearance'
     | '/admin/console/blog'
@@ -904,6 +937,7 @@ export interface FileRouteTypes {
     | '/admin/mysql/providers'
     | '/admin/mysql/services'
     | '/services/$category/$service'
+    | '/admin/backend/'
     | '/admin/console/'
     | '/admin/mysql/'
     | '/services/$category/'
@@ -1139,6 +1173,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminConsoleRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/backend': {
+      id: '/admin/backend'
+      path: '/backend'
+      fullPath: '/admin/backend'
+      preLoaderRoute: typeof AdminBackendRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/api-check': {
       id: '/admin/api-check'
       path: '/api-check'
@@ -1222,6 +1263,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/console/'
       preLoaderRoute: typeof AdminConsoleIndexRouteImport
       parentRoute: typeof AdminConsoleRoute
+    }
+    '/admin/backend/': {
+      id: '/admin/backend/'
+      path: '/'
+      fullPath: '/admin/backend/'
+      preLoaderRoute: typeof AdminBackendIndexRouteImport
+      parentRoute: typeof AdminBackendRoute
     }
     '/services/$category/$service': {
       id: '/services/$category/$service'
@@ -1454,6 +1502,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminConsoleAnalyticsRouteImport
       parentRoute: typeof AdminConsoleRoute
     }
+    '/admin/backend/login': {
+      id: '/admin/backend/login'
+      path: '/login'
+      fullPath: '/admin/backend/login'
+      preLoaderRoute: typeof AdminBackendLoginRouteImport
+      parentRoute: typeof AdminBackendRoute
+    }
     '/admin/console/support/$ticketId': {
       id: '/admin/console/support/$ticketId'
       path: '/$ticketId'
@@ -1488,6 +1543,20 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,
+)
+
+interface AdminBackendRouteChildren {
+  AdminBackendLoginRoute: typeof AdminBackendLoginRoute
+  AdminBackendIndexRoute: typeof AdminBackendIndexRoute
+}
+
+const AdminBackendRouteChildren: AdminBackendRouteChildren = {
+  AdminBackendLoginRoute: AdminBackendLoginRoute,
+  AdminBackendIndexRoute: AdminBackendIndexRoute,
+}
+
+const AdminBackendRouteWithChildren = AdminBackendRoute._addFileChildren(
+  AdminBackendRouteChildren,
 )
 
 interface AdminConsoleSupportRouteChildren {
@@ -1591,12 +1660,14 @@ const AdminMysqlRouteWithChildren = AdminMysqlRoute._addFileChildren(
 
 interface AdminRouteChildren {
   AdminApiCheckRoute: typeof AdminApiCheckRoute
+  AdminBackendRoute: typeof AdminBackendRouteWithChildren
   AdminConsoleRoute: typeof AdminConsoleRouteWithChildren
   AdminMysqlRoute: typeof AdminMysqlRouteWithChildren
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminApiCheckRoute: AdminApiCheckRoute,
+  AdminBackendRoute: AdminBackendRouteWithChildren,
   AdminConsoleRoute: AdminConsoleRouteWithChildren,
   AdminMysqlRoute: AdminMysqlRouteWithChildren,
 }
