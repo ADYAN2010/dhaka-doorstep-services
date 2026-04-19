@@ -130,6 +130,26 @@ function Hero() {
   );
 }
 
+function TrustBar() {
+  return (
+    <section className="container-page -mt-10 md:-mt-14">
+      <Reveal>
+        <TrustStrip />
+      </Reveal>
+    </section>
+  );
+}
+
+function PressSection() {
+  return (
+    <section className="container-page py-12 md:py-16">
+      <Reveal>
+        <PressWall />
+      </Reveal>
+    </section>
+  );
+}
+
 function PopularCategories() {
   const top = categories.slice(0, 12);
   return (
