@@ -63,6 +63,7 @@ export const ADMIN_NAV: NavGroup[] = [
       { to: "/admin/console/provider-quality", label: "Quality & contracts", icon: Award },
       { to: "/admin/console/customers", label: "Customers", icon: Users },
       { to: "/admin/console/customer-segments", label: "Segments & VIPs", icon: UserCog },
+      { to: "/admin/console/applications", label: "Provider applications", icon: IdCard },
     ],
   },
   {
@@ -94,6 +95,7 @@ export const ADMIN_NAV: NavGroup[] = [
     label: "Support",
     items: [
       { to: "/admin/console/support", label: "Support inbox", icon: Inbox },
+      { to: "/admin/console/messages", label: "Contact messages", icon: Mail },
       { to: "/admin/console/ticket-categories", label: "Ticket categories", icon: Ticket },
       { to: "/admin/console/trust-badges", label: "Trust & safety", icon: BadgeCheck },
     ],

@@ -80,14 +80,14 @@ type ModuleProbe = {
 
 const PROBES: ModuleProbe[] = [
   { key: "providers", label: "Providers directory", endpoint: "/api/providers?pageSize=1", uiWired: true },
-  { key: "categories", label: "Categories", endpoint: "/api/categories", uiWired: false },
+  { key: "categories", label: "Categories", endpoint: "/api/categories", uiWired: true },
   { key: "services", label: "Services", endpoint: "/api/services", uiWired: false },
-  { key: "cities", label: "Cities", endpoint: "/api/cities", uiWired: false },
-  { key: "areas", label: "Areas", endpoint: "/api/areas", uiWired: false },
-  { key: "bookings", label: "Bookings", endpoint: "/api/bookings", uiWired: false },
-  { key: "customers", label: "Customers", endpoint: "/api/customers", uiWired: false },
-  { key: "applications", label: "Provider applications", endpoint: "/api/provider-applications", uiWired: false },
-  { key: "contact_messages", label: "Contact messages", endpoint: "/api/contact-messages", uiWired: false },
+  { key: "cities", label: "Cities", endpoint: "/api/cities", uiWired: true },
+  { key: "areas", label: "Areas", endpoint: "/api/areas", uiWired: true },
+  { key: "bookings", label: "Bookings", endpoint: "/api/bookings", uiWired: true },
+  { key: "customers", label: "Customers", endpoint: "/api/customers", uiWired: true },
+  { key: "applications", label: "Provider applications", endpoint: "/api/provider-applications", uiWired: true },
+  { key: "contact_messages", label: "Contact messages", endpoint: "/api/contact-messages", uiWired: true },
   { key: "blog", label: "Blog posts", endpoint: "/api/blog", uiWired: false },
   { key: "reviews", label: "Reviews", endpoint: "/api/reviews/providers/__probe__", uiWired: true },
 ];

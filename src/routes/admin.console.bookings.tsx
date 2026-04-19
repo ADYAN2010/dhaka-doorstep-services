@@ -1,14 +1,22 @@
+/**
+ * Admin → Bookings
+ * Calls GET /api/bookings (admin auth required).
+ */
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { CalendarCheck, Loader2, Search, Filter, Phone, Mail, MapPin } from "lucide-react";
+import {
+  CalendarCheck, Loader2, Search, Filter, Phone, Mail, MapPin, RefreshCw,
+} from "lucide-react";
 import { toast } from "sonner";
-import { listBookings } from "@/utils/admin.functions";
-import type { BookingRow } from "@/server/types";
+import { ApiError } from "@/lib/api-client";
+import { bookingsApi, type AdminBooking, type BookingStatus } from "@/lib/admin-api";
 import { AdminPageHeader } from "@/components/admin/page-header";
 import { EmptyState } from "@/components/admin/empty-state";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from "@/components/ui/table";
 import { BookingStatusBadge } from "@/components/admin-badges";
 
 export const Route = createFileRoute("/admin/console/bookings")({
@@ -20,54 +28,51 @@ type StatusFilter = (typeof STATUSES)[number];
 
 function BookingsPage() {
   const navigate = useNavigate();
-  const [bookings, setBookings] = useState<BookingRow[]>([]);
+  const [bookings, setBookings] = useState<AdminBooking[]>([]);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<StatusFilter>("all");
-
-  function load() {
-    setLoading(true);
-    listBookings({ data: { limit: 200, status: status === "all" ? undefined : status } })
-      .then((data) => {
-        setBookings(data ?? []);
-        setLoading(false);
-      })
-      .catch((e: Error) => {
-        if (e.message.includes("Unauthorized")) return navigate({ to: "/admin/backend/login" });
-        toast.error(e.message);
-        setLoading(false);
-      });
-  }
+  const [tick, setTick] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    listBookings({ data: { limit: 200, status: status === "all" ? undefined : status } })
-      .then((data) => { if (!cancelled) { setBookings(data ?? []); setLoading(false); } })
-      .catch((e: Error) => {
+    bookingsApi
+      .list({ q: q || undefined, limit: 200 })
+      .then((res) => {
         if (cancelled) return;
-        if (e.message.includes("Unauthorized")) return navigate({ to: "/admin/backend/login" });
-        toast.error(e.message);
-        setLoading(false);
-      });
+        setBookings(res.data ?? []);
+        setTotal(res.total ?? 0);
+      })
+      .catch((e) => {
+        if (cancelled) return;
+        if (e instanceof ApiError && e.status === 401) {
+          return navigate({ to: "/admin/backend/login" });
+        }
+        toast.error(e instanceof Error ? e.message : "Failed to load bookings");
+      })
+      .finally(() => !cancelled && setLoading(false));
     return () => { cancelled = true; };
-  }, [navigate, status]);
+  }, [navigate, q, tick]);
 
   const filtered = useMemo(() => {
-    if (!q) return bookings;
-    const t = q.toLowerCase();
-    return bookings.filter((b) =>
-      [b.full_name, b.phone, b.email, b.category, b.area, b.id].some((v) => v?.toLowerCase().includes(t)),
-    );
-  }, [bookings, q]);
+    if (status === "all") return bookings;
+    return bookings.filter((b) => b.status === (status as BookingStatus));
+  }, [bookings, status]);
 
   return (
     <div>
       <AdminPageHeader
         eyebrow="Bookings"
         title="All bookings"
-        description="Manage every booking across categories and areas. Filter, search, and review requests."
-        actions={<Button variant="outline" onClick={load} disabled={loading}>{loading && <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />}Refresh</Button>}
+        description="Every booking from /api/bookings — filter by status and search by customer, phone, category, or area."
+        actions={
+          <Button variant="outline" onClick={() => setTick((t) => t + 1)} disabled={loading}>
+            <RefreshCw className={`mr-1.5 h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
+            Refresh
+          </Button>
+        }
       />
 
       <div className="mb-4 flex flex-wrap gap-2">
@@ -99,17 +104,19 @@ function BookingsPage() {
         </div>
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <Filter className="h-3.5 w-3.5" />
-          {filtered.length} of {bookings.length}
+          {filtered.length} of {total}
         </div>
       </div>
 
       {loading ? (
-        <div className="grid place-items-center py-16"><Loader2 className="h-5 w-5 animate-spin text-primary" /></div>
+        <div className="grid place-items-center py-16">
+          <Loader2 className="h-5 w-5 animate-spin text-primary" />
+        </div>
       ) : filtered.length === 0 ? (
         <EmptyState
           icon={CalendarCheck}
-          title={q ? "No matches" : "No bookings"}
-          description={!q ? "Bookings will appear here once customers submit requests." : undefined}
+          title={q || status !== "all" ? "No matches" : "No bookings"}
+          description={!q && status === "all" ? "Bookings will appear here once customers submit requests." : undefined}
         />
       ) : (
         <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-soft">
@@ -130,9 +137,20 @@ function BookingsPage() {
                     <TableCell>
                       <div className="font-medium">{b.full_name}</div>
                       <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
-                        <span className="inline-flex items-center gap-1"><Phone className="h-3 w-3" />{b.phone}</span>
-                        {b.email && <span className="inline-flex items-center gap-1"><Mail className="h-3 w-3" />{b.email}</span>}
-                        <span className="inline-flex items-center gap-1 capitalize"><MapPin className="h-3 w-3" />{b.area}</span>
+                        <span className="inline-flex items-center gap-1">
+                          <Phone className="h-3 w-3" />
+                          {b.phone}
+                        </span>
+                        {b.email && (
+                          <span className="inline-flex items-center gap-1">
+                            <Mail className="h-3 w-3" />
+                            {b.email}
+                          </span>
+                        )}
+                        <span className="inline-flex items-center gap-1 capitalize">
+                          <MapPin className="h-3 w-3" />
+                          {b.area}
+                        </span>
                       </div>
                     </TableCell>
                     <TableCell>
