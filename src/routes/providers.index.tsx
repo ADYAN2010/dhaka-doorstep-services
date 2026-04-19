@@ -137,7 +137,7 @@ function ProvidersIndexPage() {
 
   function update(next: Partial<Search>) {
     navigate({
-      search: (prev) => ({ ...prev, ...next, page: next.page ?? 1 }),
+      search: (prev: Search) => ({ ...prev, ...next, page: next.page ?? 1 }),
       replace: true,
     });
   }

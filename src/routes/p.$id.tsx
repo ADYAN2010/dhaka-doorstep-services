@@ -43,7 +43,7 @@ async function loadProvider(idOrSlug: string): Promise<ApiProviderDetail> {
 }
 
 export const Route = createFileRoute("/p/$id")({
-  loader: ({ params }) => loadProvider(params.id),
+  loader: ({ params }): Promise<ApiProviderDetail> => loadProvider(params.id),
   component: ProviderDetailPage,
   errorComponent: ({ error }) => (
     <SiteShell>
