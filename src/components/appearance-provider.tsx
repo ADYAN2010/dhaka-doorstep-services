@@ -16,6 +16,9 @@ export const BRAND_PRESETS: BrandPreset[] = [
   { id: "indigo", name: "Indigo", hue: 280, chroma: 0.16, lightLight: 0.55, lightDark: 0.7 },
   { id: "rose", name: "Rose", hue: 15, chroma: 0.18, lightLight: 0.62, lightDark: 0.74 },
   { id: "amber", name: "Amber", hue: 75, chroma: 0.15, lightLight: 0.7, lightDark: 0.8 },
+  { id: "ocean", name: "Ocean Blue", hue: 230, chroma: 0.14, lightLight: 0.6, lightDark: 0.74 },
+  { id: "violet", name: "Royal Violet", hue: 305, chroma: 0.16, lightLight: 0.58, lightDark: 0.72 },
+  { id: "sunset", name: "Sunset Coral", hue: 35, chroma: 0.17, lightLight: 0.66, lightDark: 0.78 },
 ];
 
 export type FontPreset = {
@@ -31,13 +34,97 @@ export const FONT_PRESETS: FontPreset[] = [
   { id: "manrope", name: "Manrope — Friendly", body: "Manrope", display: "Manrope", googleFamilies: "Manrope:wght@400;500;600;700;800" },
   { id: "grotesk", name: "Space Grotesk — Editorial", body: "Inter", display: "Space Grotesk", googleFamilies: "Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700" },
   { id: "playfair", name: "Playfair — Luxe", body: "Inter", display: "Playfair Display", googleFamilies: "Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800" },
+  { id: "dmsans", name: "DM Sans — Crisp", body: "DM Sans", display: "DM Sans", googleFamilies: "DM+Sans:wght@400;500;600;700" },
+  { id: "poppins", name: "Poppins — Rounded", body: "Poppins", display: "Poppins", googleFamilies: "Poppins:wght@400;500;600;700;800" },
 ];
+
+export type SeasonalPreset = {
+  id: string;
+  name: string;
+  description: string;
+  brandPreset: string;
+  themeMode: "light" | "dark" | "system";
+  fontPreset: string;
+  promoStripText: string;
+  promoStripCta: string;
+};
+
+export const SEASONAL_PRESETS: SeasonalPreset[] = [
+  {
+    id: "default",
+    name: "Default",
+    description: "Year-round emerald-teal identity",
+    brandPreset: "emerald-teal",
+    themeMode: "system",
+    fontPreset: "inter",
+    promoStripText: "🎉 Get 20% off your first booking with code WELCOME20",
+    promoStripCta: "Book now",
+  },
+  {
+    id: "eid",
+    name: "Eid Festival",
+    description: "Warm amber palette for Eid season",
+    brandPreset: "amber",
+    themeMode: "light",
+    fontPreset: "playfair",
+    promoStripText: "🌙 Eid Mubarak — 25% off all home services",
+    promoStripCta: "Celebrate now",
+  },
+  {
+    id: "monsoon",
+    name: "Monsoon",
+    description: "Cool ocean blues for the rainy season",
+    brandPreset: "ocean",
+    themeMode: "light",
+    fontPreset: "manrope",
+    promoStripText: "☔ Monsoon ready — book AC service & cleaning",
+    promoStripCta: "Get protected",
+  },
+  {
+    id: "winter",
+    name: "Winter",
+    description: "Royal violet evening tones",
+    brandPreset: "violet",
+    themeMode: "dark",
+    fontPreset: "grotesk",
+    promoStripText: "❄️ Winter cozy — 15% off geyser & heater service",
+    promoStripCta: "Stay warm",
+  },
+  {
+    id: "victory-day",
+    name: "Victory Day",
+    description: "Patriotic emerald & sunset",
+    brandPreset: "sunset",
+    themeMode: "light",
+    fontPreset: "poppins",
+    promoStripText: "🇧🇩 Celebrating Bangladesh — special offers all week",
+    promoStripCta: "Explore offers",
+  },
+];
+
+export type SocialLinks = {
+  facebook: string;
+  instagram: string;
+  linkedin: string;
+  youtube: string;
+  twitter: string;
+  whatsapp: string;
+};
 
 export type AppearanceSettings = {
   brandPreset: string;
   themeMode: "light" | "dark" | "system";
   fontPreset: string;
   radius: number; // rem
+
+  // Site identity
+  siteName: string;
+  tagline: string;
+  logoUrl: string; // data URL or external URL; empty = use default Logo
+  faviconUrl: string;
+
+  // Hero / banner image
+  heroImageUrl: string;
 
   promoStripEnabled: boolean;
   promoStripText: string;
@@ -62,7 +149,16 @@ export type AppearanceSettings = {
     finalCta: boolean;
   };
 
+  // Footer + contact
+  footerTagline: string;
+  contactEmail: string;
+  contactPhone: string;
+  contactAddress: string;
+  social: SocialLinks;
+
   reduceMotion: boolean;
+
+  activeSeasonalPreset: string; // id of seasonal preset, or "custom"
 };
 
 const DEFAULT_SETTINGS: AppearanceSettings = {
@@ -70,6 +166,13 @@ const DEFAULT_SETTINGS: AppearanceSettings = {
   themeMode: "system",
   fontPreset: "inter",
   radius: 0.875,
+
+  siteName: "ServiceHub Bangladesh",
+  tagline: "Trusted home services across Dhaka",
+  logoUrl: "",
+  faviconUrl: "",
+
+  heroImageUrl: "",
 
   promoStripEnabled: true,
   promoStripText: "🎉 Eid offer — 20% off your first booking with code WELCOME20",
@@ -94,15 +197,33 @@ const DEFAULT_SETTINGS: AppearanceSettings = {
     finalCta: true,
   },
 
+  footerTagline:
+    "Bangladesh's all-in-one service platform. Verified professionals across Dhaka.",
+  contactEmail: "hello@servicehub.bd",
+  contactPhone: "+880 1700-000000",
+  contactAddress: "House 12, Road 4, Dhanmondi, Dhaka 1205",
+  social: {
+    facebook: "https://facebook.com/",
+    instagram: "https://instagram.com/",
+    linkedin: "https://linkedin.com/",
+    youtube: "",
+    twitter: "",
+    whatsapp: "",
+  },
+
   reduceMotion: false,
+
+  activeSeasonalPreset: "default",
 };
 
-const STORAGE_KEY = "shebabd-appearance-v2";
+const STORAGE_KEY = "shebabd-appearance-v3";
 
 type AppearanceContextValue = {
   settings: AppearanceSettings;
   update: (patch: Partial<AppearanceSettings>) => void;
   updateSection: (key: keyof AppearanceSettings["sections"], value: boolean) => void;
+  updateSocial: (key: keyof SocialLinks, value: string) => void;
+  applySeasonal: (presetId: string) => void;
   reset: () => void;
   resolvedMode: "light" | "dark";
 };
@@ -122,7 +243,6 @@ function applyFont(preset: FontPreset) {
   root.style.setProperty("--font-sans-runtime", `"${preset.body}"`);
   root.style.setProperty("--font-display-runtime", `"${preset.display}"`);
 
-  // Inject Google Font link if not already present for this preset
   const id = `font-preset-${preset.id}`;
   if (document.getElementById(id)) return;
   const link = document.createElement("link");
@@ -147,6 +267,17 @@ function applyMotion(reduce: boolean) {
   document.documentElement.classList.toggle("reduce-motion", reduce);
 }
 
+function applyFavicon(url: string) {
+  if (!url) return;
+  let link = document.querySelector<HTMLLinkElement>("link[rel='icon']");
+  if (!link) {
+    link = document.createElement("link");
+    link.rel = "icon";
+    document.head.appendChild(link);
+  }
+  link.href = url;
+}
+
 function getSystemMode(): "light" | "dark" {
   if (typeof window === "undefined") return "light";
   return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
@@ -157,7 +288,6 @@ export function AppearanceProvider({ children }: { children: ReactNode }) {
   const [systemMode, setSystemMode] = useState<"light" | "dark">("light");
   const [hydrated, setHydrated] = useState(false);
 
-  // Hydrate from storage
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -167,6 +297,7 @@ export function AppearanceProvider({ children }: { children: ReactNode }) {
           ...DEFAULT_SETTINGS,
           ...parsed,
           sections: { ...DEFAULT_SETTINGS.sections, ...(parsed.sections ?? {}) },
+          social: { ...DEFAULT_SETTINGS.social, ...(parsed.social ?? {}) },
         });
       }
     } catch {
@@ -183,7 +314,6 @@ export function AppearanceProvider({ children }: { children: ReactNode }) {
   const resolvedMode: "light" | "dark" =
     settings.themeMode === "system" ? systemMode : settings.themeMode;
 
-  // Apply settings whenever they change
   useEffect(() => {
     if (!hydrated) return;
     const brand = BRAND_PRESETS.find((p) => p.id === settings.brandPreset) ?? BRAND_PRESETS[0];
@@ -193,7 +323,10 @@ export function AppearanceProvider({ children }: { children: ReactNode }) {
     applyRadius(settings.radius);
     applyMode(resolvedMode);
     applyMotion(settings.reduceMotion);
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(settings)); } catch {
+    applyFavicon(settings.faviconUrl);
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+    } catch {
       // ignore
     }
   }, [settings, resolvedMode, hydrated]);
@@ -201,9 +334,39 @@ export function AppearanceProvider({ children }: { children: ReactNode }) {
   const value = useMemo<AppearanceContextValue>(
     () => ({
       settings,
-      update: (patch) => setSettings((s) => ({ ...s, ...patch })),
+      update: (patch) =>
+        setSettings((s) => ({
+          ...s,
+          ...patch,
+          // Any manual change drops the seasonal lock unless the patch sets it explicitly.
+          activeSeasonalPreset:
+            patch.activeSeasonalPreset !== undefined ? patch.activeSeasonalPreset : "custom",
+        })),
       updateSection: (key, value) =>
-        setSettings((s) => ({ ...s, sections: { ...s.sections, [key]: value } })),
+        setSettings((s) => ({
+          ...s,
+          sections: { ...s.sections, [key]: value },
+          activeSeasonalPreset: "custom",
+        })),
+      updateSocial: (key, value) =>
+        setSettings((s) => ({
+          ...s,
+          social: { ...s.social, [key]: value },
+          activeSeasonalPreset: "custom",
+        })),
+      applySeasonal: (presetId) => {
+        const p = SEASONAL_PRESETS.find((x) => x.id === presetId);
+        if (!p) return;
+        setSettings((s) => ({
+          ...s,
+          brandPreset: p.brandPreset,
+          themeMode: p.themeMode,
+          fontPreset: p.fontPreset,
+          promoStripText: p.promoStripText,
+          promoStripCta: p.promoStripCta,
+          activeSeasonalPreset: p.id,
+        }));
+      },
       reset: () => setSettings(DEFAULT_SETTINGS),
       resolvedMode,
     }),
