@@ -6,6 +6,8 @@ import {
 import heroBg from "@/assets/hero-bg.jpg";
 import heroIllustration from "@/assets/hero-illustration.png";
 import { SiteShell } from "@/components/site-shell";
+import { SiteBanner } from "@/components/site-banner";
+import { useAppearance } from "@/components/appearance-provider";
 import { HeroSearch } from "@/components/hero-search";
 import { CategoryCard } from "@/components/category-card";
 import { ProviderCard } from "@/components/provider-card";
@@ -35,17 +37,20 @@ export const Route = createFileRoute("/")({
 });
 
 function HomePage() {
+  const { settings } = useAppearance();
+  const s = settings.sections;
   return (
     <SiteShell>
       <Hero />
-      <PopularCategories />
-      <HowItWorks />
-      <WhyUs />
-      <FeaturedProviders />
-      <AreasGrid />
-      <Testimonials />
-      <ProviderCTA />
-      <FinalCTA />
+      <SiteBanner />
+      {s.popularCategories && <PopularCategories />}
+      {s.howItWorks && <HowItWorks />}
+      {s.whyUs && <WhyUs />}
+      {s.featuredProviders && <FeaturedProviders />}
+      {s.areas && <AreasGrid />}
+      {s.testimonials && <Testimonials />}
+      {s.providerCta && <ProviderCTA />}
+      {s.finalCta && <FinalCTA />}
     </SiteShell>
   );
 }
