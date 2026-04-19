@@ -74,6 +74,7 @@ import { Route as AdminConsolePagesRouteImport } from './routes/admin.console.pa
 import { Route as AdminConsoleOverviewRouteImport } from './routes/admin.console.overview'
 import { Route as AdminConsoleOperationsRouteImport } from './routes/admin.console.operations'
 import { Route as AdminConsoleNavigationRouteImport } from './routes/admin.console.navigation'
+import { Route as AdminConsoleMessagesRouteImport } from './routes/admin.console.messages'
 import { Route as AdminConsoleMarketingRouteImport } from './routes/admin.console.marketing'
 import { Route as AdminConsoleLocationsRouteImport } from './routes/admin.console.locations'
 import { Route as AdminConsoleFinanceRouteImport } from './routes/admin.console.finance'
@@ -83,6 +84,7 @@ import { Route as AdminConsoleContentRouteImport } from './routes/admin.console.
 import { Route as AdminConsoleCitiesRouteImport } from './routes/admin.console.cities'
 import { Route as AdminConsoleBookingsRouteImport } from './routes/admin.console.bookings'
 import { Route as AdminConsoleBlogRouteImport } from './routes/admin.console.blog'
+import { Route as AdminConsoleApplicationsRouteImport } from './routes/admin.console.applications'
 import { Route as AdminConsoleAppearanceRouteImport } from './routes/admin.console.appearance'
 import { Route as AdminConsoleAnalyticsRouteImport } from './routes/admin.console.analytics'
 import { Route as AdminBackendLoginRouteImport } from './routes/admin.backend.login'
@@ -416,6 +418,11 @@ const AdminConsoleNavigationRoute = AdminConsoleNavigationRouteImport.update({
   path: '/navigation',
   getParentRoute: () => AdminConsoleRoute,
 } as any)
+const AdminConsoleMessagesRoute = AdminConsoleMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => AdminConsoleRoute,
+} as any)
 const AdminConsoleMarketingRoute = AdminConsoleMarketingRouteImport.update({
   id: '/marketing',
   path: '/marketing',
@@ -461,6 +468,12 @@ const AdminConsoleBlogRoute = AdminConsoleBlogRouteImport.update({
   path: '/blog',
   getParentRoute: () => AdminConsoleRoute,
 } as any)
+const AdminConsoleApplicationsRoute =
+  AdminConsoleApplicationsRouteImport.update({
+    id: '/applications',
+    path: '/applications',
+    getParentRoute: () => AdminConsoleRoute,
+  } as any)
 const AdminConsoleAppearanceRoute = AdminConsoleAppearanceRouteImport.update({
   id: '/appearance',
   path: '/appearance',
@@ -524,6 +537,7 @@ export interface FileRoutesByFullPath {
   '/admin/backend/login': typeof AdminBackendLoginRoute
   '/admin/console/analytics': typeof AdminConsoleAnalyticsRoute
   '/admin/console/appearance': typeof AdminConsoleAppearanceRoute
+  '/admin/console/applications': typeof AdminConsoleApplicationsRoute
   '/admin/console/blog': typeof AdminConsoleBlogRoute
   '/admin/console/bookings': typeof AdminConsoleBookingsRoute
   '/admin/console/cities': typeof AdminConsoleCitiesRoute
@@ -533,6 +547,7 @@ export interface FileRoutesByFullPath {
   '/admin/console/finance': typeof AdminConsoleFinanceRoute
   '/admin/console/locations': typeof AdminConsoleLocationsRoute
   '/admin/console/marketing': typeof AdminConsoleMarketingRoute
+  '/admin/console/messages': typeof AdminConsoleMessagesRoute
   '/admin/console/navigation': typeof AdminConsoleNavigationRoute
   '/admin/console/operations': typeof AdminConsoleOperationsRoute
   '/admin/console/overview': typeof AdminConsoleOverviewRoute
@@ -600,6 +615,7 @@ export interface FileRoutesByTo {
   '/admin/backend/login': typeof AdminBackendLoginRoute
   '/admin/console/analytics': typeof AdminConsoleAnalyticsRoute
   '/admin/console/appearance': typeof AdminConsoleAppearanceRoute
+  '/admin/console/applications': typeof AdminConsoleApplicationsRoute
   '/admin/console/blog': typeof AdminConsoleBlogRoute
   '/admin/console/bookings': typeof AdminConsoleBookingsRoute
   '/admin/console/cities': typeof AdminConsoleCitiesRoute
@@ -609,6 +625,7 @@ export interface FileRoutesByTo {
   '/admin/console/finance': typeof AdminConsoleFinanceRoute
   '/admin/console/locations': typeof AdminConsoleLocationsRoute
   '/admin/console/marketing': typeof AdminConsoleMarketingRoute
+  '/admin/console/messages': typeof AdminConsoleMessagesRoute
   '/admin/console/navigation': typeof AdminConsoleNavigationRoute
   '/admin/console/operations': typeof AdminConsoleOperationsRoute
   '/admin/console/overview': typeof AdminConsoleOverviewRoute
@@ -681,6 +698,7 @@ export interface FileRoutesById {
   '/admin/backend/login': typeof AdminBackendLoginRoute
   '/admin/console/analytics': typeof AdminConsoleAnalyticsRoute
   '/admin/console/appearance': typeof AdminConsoleAppearanceRoute
+  '/admin/console/applications': typeof AdminConsoleApplicationsRoute
   '/admin/console/blog': typeof AdminConsoleBlogRoute
   '/admin/console/bookings': typeof AdminConsoleBookingsRoute
   '/admin/console/cities': typeof AdminConsoleCitiesRoute
@@ -690,6 +708,7 @@ export interface FileRoutesById {
   '/admin/console/finance': typeof AdminConsoleFinanceRoute
   '/admin/console/locations': typeof AdminConsoleLocationsRoute
   '/admin/console/marketing': typeof AdminConsoleMarketingRoute
+  '/admin/console/messages': typeof AdminConsoleMessagesRoute
   '/admin/console/navigation': typeof AdminConsoleNavigationRoute
   '/admin/console/operations': typeof AdminConsoleOperationsRoute
   '/admin/console/overview': typeof AdminConsoleOverviewRoute
@@ -762,6 +781,7 @@ export interface FileRouteTypes {
     | '/admin/backend/login'
     | '/admin/console/analytics'
     | '/admin/console/appearance'
+    | '/admin/console/applications'
     | '/admin/console/blog'
     | '/admin/console/bookings'
     | '/admin/console/cities'
@@ -771,6 +791,7 @@ export interface FileRouteTypes {
     | '/admin/console/finance'
     | '/admin/console/locations'
     | '/admin/console/marketing'
+    | '/admin/console/messages'
     | '/admin/console/navigation'
     | '/admin/console/operations'
     | '/admin/console/overview'
@@ -838,6 +859,7 @@ export interface FileRouteTypes {
     | '/admin/backend/login'
     | '/admin/console/analytics'
     | '/admin/console/appearance'
+    | '/admin/console/applications'
     | '/admin/console/blog'
     | '/admin/console/bookings'
     | '/admin/console/cities'
@@ -847,6 +869,7 @@ export interface FileRouteTypes {
     | '/admin/console/finance'
     | '/admin/console/locations'
     | '/admin/console/marketing'
+    | '/admin/console/messages'
     | '/admin/console/navigation'
     | '/admin/console/operations'
     | '/admin/console/overview'
@@ -918,6 +941,7 @@ export interface FileRouteTypes {
     | '/admin/backend/login'
     | '/admin/console/analytics'
     | '/admin/console/appearance'
+    | '/admin/console/applications'
     | '/admin/console/blog'
     | '/admin/console/bookings'
     | '/admin/console/cities'
@@ -927,6 +951,7 @@ export interface FileRouteTypes {
     | '/admin/console/finance'
     | '/admin/console/locations'
     | '/admin/console/marketing'
+    | '/admin/console/messages'
     | '/admin/console/navigation'
     | '/admin/console/operations'
     | '/admin/console/overview'
@@ -1445,6 +1470,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminConsoleNavigationRouteImport
       parentRoute: typeof AdminConsoleRoute
     }
+    '/admin/console/messages': {
+      id: '/admin/console/messages'
+      path: '/messages'
+      fullPath: '/admin/console/messages'
+      preLoaderRoute: typeof AdminConsoleMessagesRouteImport
+      parentRoute: typeof AdminConsoleRoute
+    }
     '/admin/console/marketing': {
       id: '/admin/console/marketing'
       path: '/marketing'
@@ -1506,6 +1538,13 @@ declare module '@tanstack/react-router' {
       path: '/blog'
       fullPath: '/admin/console/blog'
       preLoaderRoute: typeof AdminConsoleBlogRouteImport
+      parentRoute: typeof AdminConsoleRoute
+    }
+    '/admin/console/applications': {
+      id: '/admin/console/applications'
+      path: '/applications'
+      fullPath: '/admin/console/applications'
+      preLoaderRoute: typeof AdminConsoleApplicationsRouteImport
       parentRoute: typeof AdminConsoleRoute
     }
     '/admin/console/appearance': {
@@ -1593,6 +1632,7 @@ const AdminConsoleSupportRouteWithChildren =
 interface AdminConsoleRouteChildren {
   AdminConsoleAnalyticsRoute: typeof AdminConsoleAnalyticsRoute
   AdminConsoleAppearanceRoute: typeof AdminConsoleAppearanceRoute
+  AdminConsoleApplicationsRoute: typeof AdminConsoleApplicationsRoute
   AdminConsoleBlogRoute: typeof AdminConsoleBlogRoute
   AdminConsoleBookingsRoute: typeof AdminConsoleBookingsRoute
   AdminConsoleCitiesRoute: typeof AdminConsoleCitiesRoute
@@ -1602,6 +1642,7 @@ interface AdminConsoleRouteChildren {
   AdminConsoleFinanceRoute: typeof AdminConsoleFinanceRoute
   AdminConsoleLocationsRoute: typeof AdminConsoleLocationsRoute
   AdminConsoleMarketingRoute: typeof AdminConsoleMarketingRoute
+  AdminConsoleMessagesRoute: typeof AdminConsoleMessagesRoute
   AdminConsoleNavigationRoute: typeof AdminConsoleNavigationRoute
   AdminConsoleOperationsRoute: typeof AdminConsoleOperationsRoute
   AdminConsoleOverviewRoute: typeof AdminConsoleOverviewRoute
@@ -1624,6 +1665,7 @@ interface AdminConsoleRouteChildren {
 const AdminConsoleRouteChildren: AdminConsoleRouteChildren = {
   AdminConsoleAnalyticsRoute: AdminConsoleAnalyticsRoute,
   AdminConsoleAppearanceRoute: AdminConsoleAppearanceRoute,
+  AdminConsoleApplicationsRoute: AdminConsoleApplicationsRoute,
   AdminConsoleBlogRoute: AdminConsoleBlogRoute,
   AdminConsoleBookingsRoute: AdminConsoleBookingsRoute,
   AdminConsoleCitiesRoute: AdminConsoleCitiesRoute,
@@ -1633,6 +1675,7 @@ const AdminConsoleRouteChildren: AdminConsoleRouteChildren = {
   AdminConsoleFinanceRoute: AdminConsoleFinanceRoute,
   AdminConsoleLocationsRoute: AdminConsoleLocationsRoute,
   AdminConsoleMarketingRoute: AdminConsoleMarketingRoute,
+  AdminConsoleMessagesRoute: AdminConsoleMessagesRoute,
   AdminConsoleNavigationRoute: AdminConsoleNavigationRoute,
   AdminConsoleOperationsRoute: AdminConsoleOperationsRoute,
   AdminConsoleOverviewRoute: AdminConsoleOverviewRoute,
