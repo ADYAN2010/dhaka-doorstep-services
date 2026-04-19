@@ -109,7 +109,7 @@ function areaName(slug: string) {
 }
 
 function ProviderDetailPage() {
-  const p = Route.useLoaderData();
+  const p = Route.useLoaderData() as ApiProviderDetail;
 
   const initials = (p.full_name || "?")
     .split(" ")
