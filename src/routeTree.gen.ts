@@ -47,6 +47,7 @@ import { Route as AuthenticatedAvailabilityRouteImport } from './routes/_authent
 import { Route as ServicesCategoryIndexRouteImport } from './routes/services.$category.index'
 import { Route as AdminConsoleIndexRouteImport } from './routes/admin.console.index'
 import { Route as ServicesCategoryServiceRouteImport } from './routes/services.$category.$service'
+import { Route as AdminConsoleWebsiteRouteImport } from './routes/admin.console.website'
 import { Route as AdminConsoleTeamRouteImport } from './routes/admin.console.team'
 import { Route as AdminConsoleSupportRouteImport } from './routes/admin.console.support'
 import { Route as AdminConsoleSettingsRouteImport } from './routes/admin.console.settings'
@@ -54,14 +55,19 @@ import { Route as AdminConsoleServicesRouteImport } from './routes/admin.console
 import { Route as AdminConsoleSecurityRouteImport } from './routes/admin.console.security'
 import { Route as AdminConsoleReviewsRouteImport } from './routes/admin.console.reviews'
 import { Route as AdminConsoleProvidersRouteImport } from './routes/admin.console.providers'
+import { Route as AdminConsolePopupsRouteImport } from './routes/admin.console.popups'
+import { Route as AdminConsolePagesRouteImport } from './routes/admin.console.pages'
 import { Route as AdminConsoleOverviewRouteImport } from './routes/admin.console.overview'
 import { Route as AdminConsoleOperationsRouteImport } from './routes/admin.console.operations'
+import { Route as AdminConsoleNavigationRouteImport } from './routes/admin.console.navigation'
 import { Route as AdminConsoleMarketingRouteImport } from './routes/admin.console.marketing'
 import { Route as AdminConsoleLocationsRouteImport } from './routes/admin.console.locations'
 import { Route as AdminConsoleFinanceRouteImport } from './routes/admin.console.finance'
+import { Route as AdminConsoleFaqsRouteImport } from './routes/admin.console.faqs'
 import { Route as AdminConsoleCustomersRouteImport } from './routes/admin.console.customers'
 import { Route as AdminConsoleContentRouteImport } from './routes/admin.console.content'
 import { Route as AdminConsoleBookingsRouteImport } from './routes/admin.console.bookings'
+import { Route as AdminConsoleBlogRouteImport } from './routes/admin.console.blog'
 import { Route as AdminConsoleAppearanceRouteImport } from './routes/admin.console.appearance'
 import { Route as AdminConsoleAnalyticsRouteImport } from './routes/admin.console.analytics'
 import { Route as AdminConsoleSupportTicketIdRouteImport } from './routes/admin.console.support.$ticketId'
@@ -257,6 +263,11 @@ const ServicesCategoryServiceRoute = ServicesCategoryServiceRouteImport.update({
   path: '/services/$category/$service',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminConsoleWebsiteRoute = AdminConsoleWebsiteRouteImport.update({
+  id: '/website',
+  path: '/website',
+  getParentRoute: () => AdminConsoleRoute,
+} as any)
 const AdminConsoleTeamRoute = AdminConsoleTeamRouteImport.update({
   id: '/team',
   path: '/team',
@@ -292,6 +303,16 @@ const AdminConsoleProvidersRoute = AdminConsoleProvidersRouteImport.update({
   path: '/providers',
   getParentRoute: () => AdminConsoleRoute,
 } as any)
+const AdminConsolePopupsRoute = AdminConsolePopupsRouteImport.update({
+  id: '/popups',
+  path: '/popups',
+  getParentRoute: () => AdminConsoleRoute,
+} as any)
+const AdminConsolePagesRoute = AdminConsolePagesRouteImport.update({
+  id: '/pages',
+  path: '/pages',
+  getParentRoute: () => AdminConsoleRoute,
+} as any)
 const AdminConsoleOverviewRoute = AdminConsoleOverviewRouteImport.update({
   id: '/overview',
   path: '/overview',
@@ -300,6 +321,11 @@ const AdminConsoleOverviewRoute = AdminConsoleOverviewRouteImport.update({
 const AdminConsoleOperationsRoute = AdminConsoleOperationsRouteImport.update({
   id: '/operations',
   path: '/operations',
+  getParentRoute: () => AdminConsoleRoute,
+} as any)
+const AdminConsoleNavigationRoute = AdminConsoleNavigationRouteImport.update({
+  id: '/navigation',
+  path: '/navigation',
   getParentRoute: () => AdminConsoleRoute,
 } as any)
 const AdminConsoleMarketingRoute = AdminConsoleMarketingRouteImport.update({
@@ -317,6 +343,11 @@ const AdminConsoleFinanceRoute = AdminConsoleFinanceRouteImport.update({
   path: '/finance',
   getParentRoute: () => AdminConsoleRoute,
 } as any)
+const AdminConsoleFaqsRoute = AdminConsoleFaqsRouteImport.update({
+  id: '/faqs',
+  path: '/faqs',
+  getParentRoute: () => AdminConsoleRoute,
+} as any)
 const AdminConsoleCustomersRoute = AdminConsoleCustomersRouteImport.update({
   id: '/customers',
   path: '/customers',
@@ -330,6 +361,11 @@ const AdminConsoleContentRoute = AdminConsoleContentRouteImport.update({
 const AdminConsoleBookingsRoute = AdminConsoleBookingsRouteImport.update({
   id: '/bookings',
   path: '/bookings',
+  getParentRoute: () => AdminConsoleRoute,
+} as any)
+const AdminConsoleBlogRoute = AdminConsoleBlogRouteImport.update({
+  id: '/blog',
+  path: '/blog',
   getParentRoute: () => AdminConsoleRoute,
 } as any)
 const AdminConsoleAppearanceRoute = AdminConsoleAppearanceRouteImport.update({
@@ -386,14 +422,19 @@ export interface FileRoutesByFullPath {
   '/services/': typeof ServicesIndexRoute
   '/admin/console/analytics': typeof AdminConsoleAnalyticsRoute
   '/admin/console/appearance': typeof AdminConsoleAppearanceRoute
+  '/admin/console/blog': typeof AdminConsoleBlogRoute
   '/admin/console/bookings': typeof AdminConsoleBookingsRoute
   '/admin/console/content': typeof AdminConsoleContentRoute
   '/admin/console/customers': typeof AdminConsoleCustomersRoute
+  '/admin/console/faqs': typeof AdminConsoleFaqsRoute
   '/admin/console/finance': typeof AdminConsoleFinanceRoute
   '/admin/console/locations': typeof AdminConsoleLocationsRoute
   '/admin/console/marketing': typeof AdminConsoleMarketingRoute
+  '/admin/console/navigation': typeof AdminConsoleNavigationRoute
   '/admin/console/operations': typeof AdminConsoleOperationsRoute
   '/admin/console/overview': typeof AdminConsoleOverviewRoute
+  '/admin/console/pages': typeof AdminConsolePagesRoute
+  '/admin/console/popups': typeof AdminConsolePopupsRoute
   '/admin/console/providers': typeof AdminConsoleProvidersRoute
   '/admin/console/reviews': typeof AdminConsoleReviewsRoute
   '/admin/console/security': typeof AdminConsoleSecurityRoute
@@ -401,6 +442,7 @@ export interface FileRoutesByFullPath {
   '/admin/console/settings': typeof AdminConsoleSettingsRoute
   '/admin/console/support': typeof AdminConsoleSupportRouteWithChildren
   '/admin/console/team': typeof AdminConsoleTeamRoute
+  '/admin/console/website': typeof AdminConsoleWebsiteRoute
   '/services/$category/$service': typeof ServicesCategoryServiceRoute
   '/admin/console/': typeof AdminConsoleIndexRoute
   '/services/$category/': typeof ServicesCategoryIndexRoute
@@ -442,14 +484,19 @@ export interface FileRoutesByTo {
   '/services': typeof ServicesIndexRoute
   '/admin/console/analytics': typeof AdminConsoleAnalyticsRoute
   '/admin/console/appearance': typeof AdminConsoleAppearanceRoute
+  '/admin/console/blog': typeof AdminConsoleBlogRoute
   '/admin/console/bookings': typeof AdminConsoleBookingsRoute
   '/admin/console/content': typeof AdminConsoleContentRoute
   '/admin/console/customers': typeof AdminConsoleCustomersRoute
+  '/admin/console/faqs': typeof AdminConsoleFaqsRoute
   '/admin/console/finance': typeof AdminConsoleFinanceRoute
   '/admin/console/locations': typeof AdminConsoleLocationsRoute
   '/admin/console/marketing': typeof AdminConsoleMarketingRoute
+  '/admin/console/navigation': typeof AdminConsoleNavigationRoute
   '/admin/console/operations': typeof AdminConsoleOperationsRoute
   '/admin/console/overview': typeof AdminConsoleOverviewRoute
+  '/admin/console/pages': typeof AdminConsolePagesRoute
+  '/admin/console/popups': typeof AdminConsolePopupsRoute
   '/admin/console/providers': typeof AdminConsoleProvidersRoute
   '/admin/console/reviews': typeof AdminConsoleReviewsRoute
   '/admin/console/security': typeof AdminConsoleSecurityRoute
@@ -457,6 +504,7 @@ export interface FileRoutesByTo {
   '/admin/console/settings': typeof AdminConsoleSettingsRoute
   '/admin/console/support': typeof AdminConsoleSupportRouteWithChildren
   '/admin/console/team': typeof AdminConsoleTeamRoute
+  '/admin/console/website': typeof AdminConsoleWebsiteRoute
   '/services/$category/$service': typeof ServicesCategoryServiceRoute
   '/admin/console': typeof AdminConsoleIndexRoute
   '/services/$category': typeof ServicesCategoryIndexRoute
@@ -501,14 +549,19 @@ export interface FileRoutesById {
   '/services/': typeof ServicesIndexRoute
   '/admin/console/analytics': typeof AdminConsoleAnalyticsRoute
   '/admin/console/appearance': typeof AdminConsoleAppearanceRoute
+  '/admin/console/blog': typeof AdminConsoleBlogRoute
   '/admin/console/bookings': typeof AdminConsoleBookingsRoute
   '/admin/console/content': typeof AdminConsoleContentRoute
   '/admin/console/customers': typeof AdminConsoleCustomersRoute
+  '/admin/console/faqs': typeof AdminConsoleFaqsRoute
   '/admin/console/finance': typeof AdminConsoleFinanceRoute
   '/admin/console/locations': typeof AdminConsoleLocationsRoute
   '/admin/console/marketing': typeof AdminConsoleMarketingRoute
+  '/admin/console/navigation': typeof AdminConsoleNavigationRoute
   '/admin/console/operations': typeof AdminConsoleOperationsRoute
   '/admin/console/overview': typeof AdminConsoleOverviewRoute
+  '/admin/console/pages': typeof AdminConsolePagesRoute
+  '/admin/console/popups': typeof AdminConsolePopupsRoute
   '/admin/console/providers': typeof AdminConsoleProvidersRoute
   '/admin/console/reviews': typeof AdminConsoleReviewsRoute
   '/admin/console/security': typeof AdminConsoleSecurityRoute
@@ -516,6 +569,7 @@ export interface FileRoutesById {
   '/admin/console/settings': typeof AdminConsoleSettingsRoute
   '/admin/console/support': typeof AdminConsoleSupportRouteWithChildren
   '/admin/console/team': typeof AdminConsoleTeamRoute
+  '/admin/console/website': typeof AdminConsoleWebsiteRoute
   '/services/$category/$service': typeof ServicesCategoryServiceRoute
   '/admin/console/': typeof AdminConsoleIndexRoute
   '/services/$category/': typeof ServicesCategoryIndexRoute
@@ -560,14 +614,19 @@ export interface FileRouteTypes {
     | '/services/'
     | '/admin/console/analytics'
     | '/admin/console/appearance'
+    | '/admin/console/blog'
     | '/admin/console/bookings'
     | '/admin/console/content'
     | '/admin/console/customers'
+    | '/admin/console/faqs'
     | '/admin/console/finance'
     | '/admin/console/locations'
     | '/admin/console/marketing'
+    | '/admin/console/navigation'
     | '/admin/console/operations'
     | '/admin/console/overview'
+    | '/admin/console/pages'
+    | '/admin/console/popups'
     | '/admin/console/providers'
     | '/admin/console/reviews'
     | '/admin/console/security'
@@ -575,6 +634,7 @@ export interface FileRouteTypes {
     | '/admin/console/settings'
     | '/admin/console/support'
     | '/admin/console/team'
+    | '/admin/console/website'
     | '/services/$category/$service'
     | '/admin/console/'
     | '/services/$category/'
@@ -616,14 +676,19 @@ export interface FileRouteTypes {
     | '/services'
     | '/admin/console/analytics'
     | '/admin/console/appearance'
+    | '/admin/console/blog'
     | '/admin/console/bookings'
     | '/admin/console/content'
     | '/admin/console/customers'
+    | '/admin/console/faqs'
     | '/admin/console/finance'
     | '/admin/console/locations'
     | '/admin/console/marketing'
+    | '/admin/console/navigation'
     | '/admin/console/operations'
     | '/admin/console/overview'
+    | '/admin/console/pages'
+    | '/admin/console/popups'
     | '/admin/console/providers'
     | '/admin/console/reviews'
     | '/admin/console/security'
@@ -631,6 +696,7 @@ export interface FileRouteTypes {
     | '/admin/console/settings'
     | '/admin/console/support'
     | '/admin/console/team'
+    | '/admin/console/website'
     | '/services/$category/$service'
     | '/admin/console'
     | '/services/$category'
@@ -674,14 +740,19 @@ export interface FileRouteTypes {
     | '/services/'
     | '/admin/console/analytics'
     | '/admin/console/appearance'
+    | '/admin/console/blog'
     | '/admin/console/bookings'
     | '/admin/console/content'
     | '/admin/console/customers'
+    | '/admin/console/faqs'
     | '/admin/console/finance'
     | '/admin/console/locations'
     | '/admin/console/marketing'
+    | '/admin/console/navigation'
     | '/admin/console/operations'
     | '/admin/console/overview'
+    | '/admin/console/pages'
+    | '/admin/console/popups'
     | '/admin/console/providers'
     | '/admin/console/reviews'
     | '/admin/console/security'
@@ -689,6 +760,7 @@ export interface FileRouteTypes {
     | '/admin/console/settings'
     | '/admin/console/support'
     | '/admin/console/team'
+    | '/admin/console/website'
     | '/services/$category/$service'
     | '/admin/console/'
     | '/services/$category/'
@@ -994,6 +1066,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ServicesCategoryServiceRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/console/website': {
+      id: '/admin/console/website'
+      path: '/website'
+      fullPath: '/admin/console/website'
+      preLoaderRoute: typeof AdminConsoleWebsiteRouteImport
+      parentRoute: typeof AdminConsoleRoute
+    }
     '/admin/console/team': {
       id: '/admin/console/team'
       path: '/team'
@@ -1043,6 +1122,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminConsoleProvidersRouteImport
       parentRoute: typeof AdminConsoleRoute
     }
+    '/admin/console/popups': {
+      id: '/admin/console/popups'
+      path: '/popups'
+      fullPath: '/admin/console/popups'
+      preLoaderRoute: typeof AdminConsolePopupsRouteImport
+      parentRoute: typeof AdminConsoleRoute
+    }
+    '/admin/console/pages': {
+      id: '/admin/console/pages'
+      path: '/pages'
+      fullPath: '/admin/console/pages'
+      preLoaderRoute: typeof AdminConsolePagesRouteImport
+      parentRoute: typeof AdminConsoleRoute
+    }
     '/admin/console/overview': {
       id: '/admin/console/overview'
       path: '/overview'
@@ -1055,6 +1148,13 @@ declare module '@tanstack/react-router' {
       path: '/operations'
       fullPath: '/admin/console/operations'
       preLoaderRoute: typeof AdminConsoleOperationsRouteImport
+      parentRoute: typeof AdminConsoleRoute
+    }
+    '/admin/console/navigation': {
+      id: '/admin/console/navigation'
+      path: '/navigation'
+      fullPath: '/admin/console/navigation'
+      preLoaderRoute: typeof AdminConsoleNavigationRouteImport
       parentRoute: typeof AdminConsoleRoute
     }
     '/admin/console/marketing': {
@@ -1078,6 +1178,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminConsoleFinanceRouteImport
       parentRoute: typeof AdminConsoleRoute
     }
+    '/admin/console/faqs': {
+      id: '/admin/console/faqs'
+      path: '/faqs'
+      fullPath: '/admin/console/faqs'
+      preLoaderRoute: typeof AdminConsoleFaqsRouteImport
+      parentRoute: typeof AdminConsoleRoute
+    }
     '/admin/console/customers': {
       id: '/admin/console/customers'
       path: '/customers'
@@ -1097,6 +1204,13 @@ declare module '@tanstack/react-router' {
       path: '/bookings'
       fullPath: '/admin/console/bookings'
       preLoaderRoute: typeof AdminConsoleBookingsRouteImport
+      parentRoute: typeof AdminConsoleRoute
+    }
+    '/admin/console/blog': {
+      id: '/admin/console/blog'
+      path: '/blog'
+      fullPath: '/admin/console/blog'
+      preLoaderRoute: typeof AdminConsoleBlogRouteImport
       parentRoute: typeof AdminConsoleRoute
     }
     '/admin/console/appearance': {
@@ -1163,14 +1277,19 @@ const AdminConsoleSupportRouteWithChildren =
 interface AdminConsoleRouteChildren {
   AdminConsoleAnalyticsRoute: typeof AdminConsoleAnalyticsRoute
   AdminConsoleAppearanceRoute: typeof AdminConsoleAppearanceRoute
+  AdminConsoleBlogRoute: typeof AdminConsoleBlogRoute
   AdminConsoleBookingsRoute: typeof AdminConsoleBookingsRoute
   AdminConsoleContentRoute: typeof AdminConsoleContentRoute
   AdminConsoleCustomersRoute: typeof AdminConsoleCustomersRoute
+  AdminConsoleFaqsRoute: typeof AdminConsoleFaqsRoute
   AdminConsoleFinanceRoute: typeof AdminConsoleFinanceRoute
   AdminConsoleLocationsRoute: typeof AdminConsoleLocationsRoute
   AdminConsoleMarketingRoute: typeof AdminConsoleMarketingRoute
+  AdminConsoleNavigationRoute: typeof AdminConsoleNavigationRoute
   AdminConsoleOperationsRoute: typeof AdminConsoleOperationsRoute
   AdminConsoleOverviewRoute: typeof AdminConsoleOverviewRoute
+  AdminConsolePagesRoute: typeof AdminConsolePagesRoute
+  AdminConsolePopupsRoute: typeof AdminConsolePopupsRoute
   AdminConsoleProvidersRoute: typeof AdminConsoleProvidersRoute
   AdminConsoleReviewsRoute: typeof AdminConsoleReviewsRoute
   AdminConsoleSecurityRoute: typeof AdminConsoleSecurityRoute
@@ -1178,20 +1297,26 @@ interface AdminConsoleRouteChildren {
   AdminConsoleSettingsRoute: typeof AdminConsoleSettingsRoute
   AdminConsoleSupportRoute: typeof AdminConsoleSupportRouteWithChildren
   AdminConsoleTeamRoute: typeof AdminConsoleTeamRoute
+  AdminConsoleWebsiteRoute: typeof AdminConsoleWebsiteRoute
   AdminConsoleIndexRoute: typeof AdminConsoleIndexRoute
 }
 
 const AdminConsoleRouteChildren: AdminConsoleRouteChildren = {
   AdminConsoleAnalyticsRoute: AdminConsoleAnalyticsRoute,
   AdminConsoleAppearanceRoute: AdminConsoleAppearanceRoute,
+  AdminConsoleBlogRoute: AdminConsoleBlogRoute,
   AdminConsoleBookingsRoute: AdminConsoleBookingsRoute,
   AdminConsoleContentRoute: AdminConsoleContentRoute,
   AdminConsoleCustomersRoute: AdminConsoleCustomersRoute,
+  AdminConsoleFaqsRoute: AdminConsoleFaqsRoute,
   AdminConsoleFinanceRoute: AdminConsoleFinanceRoute,
   AdminConsoleLocationsRoute: AdminConsoleLocationsRoute,
   AdminConsoleMarketingRoute: AdminConsoleMarketingRoute,
+  AdminConsoleNavigationRoute: AdminConsoleNavigationRoute,
   AdminConsoleOperationsRoute: AdminConsoleOperationsRoute,
   AdminConsoleOverviewRoute: AdminConsoleOverviewRoute,
+  AdminConsolePagesRoute: AdminConsolePagesRoute,
+  AdminConsolePopupsRoute: AdminConsolePopupsRoute,
   AdminConsoleProvidersRoute: AdminConsoleProvidersRoute,
   AdminConsoleReviewsRoute: AdminConsoleReviewsRoute,
   AdminConsoleSecurityRoute: AdminConsoleSecurityRoute,
@@ -1199,6 +1324,7 @@ const AdminConsoleRouteChildren: AdminConsoleRouteChildren = {
   AdminConsoleSettingsRoute: AdminConsoleSettingsRoute,
   AdminConsoleSupportRoute: AdminConsoleSupportRouteWithChildren,
   AdminConsoleTeamRoute: AdminConsoleTeamRoute,
+  AdminConsoleWebsiteRoute: AdminConsoleWebsiteRoute,
   AdminConsoleIndexRoute: AdminConsoleIndexRoute,
 }
 
