@@ -32,10 +32,13 @@ function urlEntry(loc: string, lastmod?: string, changefreq?: string, priority?:
   ].filter(Boolean).join("\n");
 }
 
-import { createServerFileRoute } from "@tanstack/react-start/server";
-
-export const ServerRoute = createServerFileRoute("/sitemap.xml").methods({
-  GET: async () => {
+/**
+ * Static sitemap rendered at request time as XML. Dynamic blog slugs will be
+ * added back in Phase 2 once the Supabase blog flow is restored.
+ */
+export const Route = createFileRoute("/sitemap.xml")({
+  component: () => null,
+  loader: () => {
     const today = new Date().toISOString().split("T")[0];
     const urls: string[] = [];
 
@@ -50,14 +53,12 @@ export const ServerRoute = createServerFileRoute("/sitemap.xml").methods({
       }
     }
 
-    // Dynamic blog slugs are restored on Supabase in Phase 2.
-
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.join("\n")}
 </urlset>`;
 
-    return new Response(xml, {
+    throw new Response(xml, {
       headers: {
         "Content-Type": "application/xml; charset=utf-8",
         "Cache-Control": "public, max-age=3600, s-maxage=3600",
@@ -65,5 +66,3 @@ ${urls.join("\n")}
     });
   },
 });
-
-export const Route = createFileRoute("/sitemap.xml")({});
