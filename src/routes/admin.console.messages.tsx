@@ -6,6 +6,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import {
   Inbox, Loader2, Search, RefreshCw, Mail, Phone, User, MessageSquareText,
+  CheckCircle2, RotateCcw,
 } from "lucide-react";
 import { toast } from "sonner";
 import { ApiError } from "@/lib/api-client";
@@ -34,6 +35,7 @@ function MessagesPage() {
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<"all" | "open" | "handled">("all");
   const [tick, setTick] = useState(0);
+  const [pendingId, setPendingId] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -54,6 +56,27 @@ function MessagesPage() {
       .finally(() => !cancelled && setLoading(false));
     return () => { cancelled = true; };
   }, [navigate, tick]);
+
+  async function toggleHandled(id: string, next: boolean) {
+    const prev = rows;
+    setRows((rs) =>
+      rs.map((r) => (r.id === id ? { ...r, handled: next ? 1 : 0 } : r)),
+    );
+    setPendingId(id);
+    try {
+      const res = await contactMessagesApi.setHandled(id, next);
+      setRows((rs) => rs.map((r) => (r.id === id ? res.data : r)));
+      toast.success(next ? "Marked as handled" : "Re-opened");
+    } catch (e) {
+      setRows(prev);
+      if (e instanceof ApiError && e.status === 401) {
+        return navigate({ to: "/admin/backend/login" });
+      }
+      toast.error(e instanceof Error ? e.message : "Failed to update message");
+    } finally {
+      setPendingId((p) => (p === id ? null : p));
+    }
+  }
 
   const filtered = useMemo(() => {
     let list = rows;
@@ -170,6 +193,37 @@ function MessagesPage() {
               <div className="mt-3 flex gap-2 rounded-lg bg-muted/40 p-3 text-sm leading-relaxed">
                 <MessageSquareText className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
                 <p className="whitespace-pre-wrap break-words">{m.message}</p>
+              </div>
+
+              <div className="mt-3 flex justify-end border-t border-border pt-3">
+                {asBool(m.handled) ? (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={pendingId === m.id}
+                    onClick={() => toggleHandled(m.id, false)}
+                  >
+                    {pendingId === m.id ? (
+                      <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <RotateCcw className="mr-1.5 h-3.5 w-3.5" />
+                    )}
+                    Re-open
+                  </Button>
+                ) : (
+                  <Button
+                    size="sm"
+                    disabled={pendingId === m.id}
+                    onClick={() => toggleHandled(m.id, true)}
+                  >
+                    {pendingId === m.id ? (
+                      <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" />
+                    )}
+                    Mark handled
+                  </Button>
+                )}
               </div>
             </article>
           ))}

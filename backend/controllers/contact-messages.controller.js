@@ -39,3 +39,18 @@ exports.list = asyncHandler(async (req, res) => {
   );
   res.json({ data: rows, total: rows.length, limit, offset: 0 });
 });
+
+exports.update = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { handled } = req.body || {};
+  if (typeof handled !== "boolean") {
+    throw new HttpError(400, "handled (boolean) is required");
+  }
+  const result = await query(
+    `UPDATE contact_messages SET handled = ? WHERE id = ?`,
+    [handled ? 1 : 0, id],
+  );
+  if (!result.affectedRows) throw new HttpError(404, "message not found");
+  const rows = await query(`SELECT ${SELECT} FROM contact_messages WHERE id = ?`, [id]);
+  res.json({ data: rows[0] });
+});
