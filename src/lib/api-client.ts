@@ -10,13 +10,29 @@
  * The token is persisted to localStorage and sent as Bearer on every call.
  */
 
-const BASE_URL =
-  (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/$/, "") ||
-  "http://localhost:4000";
+const RAW_BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/$/, "");
+const IS_DEV = Boolean((import.meta as any).env?.DEV);
+
+// In dev we fall back to a local backend; in production we REQUIRE the env var
+// so we never silently point a deployed frontend at localhost.
+const BASE_URL = RAW_BASE || (IS_DEV ? "http://localhost:4000" : "");
+
+if (!BASE_URL && typeof window !== "undefined") {
+  // eslint-disable-next-line no-console
+  console.error(
+    "[api-client] VITE_API_BASE_URL is not set. Set it to your deployed backend URL " +
+      "(e.g. https://api.your-domain.com) and rebuild the frontend.",
+  );
+}
 
 /** Public read-only accessor for the configured API base URL. */
 export function getApiBaseUrl(): string {
   return BASE_URL;
+}
+
+/** True when VITE_API_BASE_URL was explicitly provided at build time. */
+export function isApiBaseUrlConfigured(): boolean {
+  return Boolean(RAW_BASE);
 }
 
 const TOKEN_KEY = "shobsheba.admin_token";
