@@ -1,14 +1,24 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import {
-  ArrowDown,
-  ArrowUp,
-  Loader2,
-  Search,
-  Sparkles,
-  Star,
-} from "lucide-react";
+import { GripVertical, Loader2, Search, Sparkles, Star } from "lucide-react";
 import { toast } from "sonner";
+import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminPageHeader } from "@/components/admin/page-header";
 import { SectionCard } from "@/components/admin/primitives";
@@ -17,6 +27,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/admin/console/featured")({
   component: FeaturedServicesAdminPage,
@@ -50,6 +61,11 @@ function FeaturedServicesAdminPage() {
   const [search, setSearch] = useState("");
   const [savingId, setSavingId] = useState<string | null>(null);
   const [reordering, setReordering] = useState(false);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
 
   async function load() {
     setLoading(true);
@@ -103,7 +119,6 @@ function FeaturedServicesAdminPage() {
     }
     setSavingId(row.id);
 
-    // Assign next display_order when adding to featured.
     const patch: { is_featured: boolean; display_order?: number } = { is_featured: value };
     if (value) {
       const maxOrder = featured.reduce((m, s) => Math.max(m, s.display_order), 0);
@@ -126,61 +141,44 @@ function FeaturedServicesAdminPage() {
     toast.success(value ? "Added to featured" : "Removed from featured");
   }
 
-  async function move(row: ServiceRow, dir: -1 | 1) {
-    const idx = featured.findIndex((s) => s.id === row.id);
-    const swap = featured[idx + dir];
-    if (!swap) return;
-
+  /** Persist a fully-reordered list by writing display_order = index+1 for each row. */
+  async function persistOrder(nextOrder: ServiceRow[]) {
     setReordering(true);
-    // Swap display_order values
-    const a = { id: row.id, order: swap.display_order };
-    const b = { id: swap.id, order: row.display_order };
-
-    // Optimistic
+    // Optimistic local update
+    const orderMap = new Map(nextOrder.map((s, i) => [s.id, i + 1]));
     setAllServices((rs) =>
-      rs.map((r) => {
-        if (r.id === a.id) return { ...r, display_order: a.order };
-        if (r.id === b.id) return { ...r, display_order: b.order };
-        return r;
-      }),
+      rs.map((r) => (orderMap.has(r.id) ? { ...r, display_order: orderMap.get(r.id)! } : r)),
     );
 
-    const [r1, r2] = await Promise.all([
-      supabase.from("services").update({ display_order: a.order }).eq("id", a.id),
-      supabase.from("services").update({ display_order: b.order }).eq("id", b.id),
-    ]);
-
+    const results = await Promise.all(
+      nextOrder.map((s, i) =>
+        supabase.from("services").update({ display_order: i + 1 }).eq("id", s.id),
+      ),
+    );
     setReordering(false);
-    if (r1.error || r2.error) {
-      toast.error(r1.error?.message || r2.error?.message || "Reorder failed");
+
+    const failed = results.find((r) => r.error);
+    if (failed?.error) {
+      toast.error(failed.error.message);
       void load();
       return;
     }
     toast.success("Order updated");
   }
 
+  function handleDragEnd(e: DragEndEvent) {
+    const { active, over } = e;
+    if (!over || active.id === over.id) return;
+    const oldIdx = featured.findIndex((s) => s.id === active.id);
+    const newIdx = featured.findIndex((s) => s.id === over.id);
+    if (oldIdx < 0 || newIdx < 0) return;
+    const next = arrayMove(featured, oldIdx, newIdx);
+    void persistOrder(next);
+  }
+
   async function normalizeOrder() {
-    setReordering(true);
-    const updates = featured.map((s, i) =>
-      supabase
-        .from("services")
-        .update({ display_order: i + 1 })
-        .eq("id", s.id),
-    );
-    const results = await Promise.all(updates);
-    setReordering(false);
-    const failed = results.find((r) => r.error);
-    if (failed?.error) {
-      toast.error(failed.error.message);
-      return;
-    }
-    setAllServices((rs) =>
-      rs.map((r) => {
-        const idx = featured.findIndex((f) => f.id === r.id);
-        return idx >= 0 ? { ...r, display_order: idx + 1 } : r;
-      }),
-    );
-    toast.success("Order normalized");
+    if (featured.length === 0) return;
+    void persistOrder(featured);
   }
 
   return (
@@ -188,7 +186,7 @@ function FeaturedServicesAdminPage() {
       <AdminPageHeader
         eyebrow="Homepage"
         title="Featured services"
-        description={`Choose up to ${FEATURED_LIMIT} services to spotlight on the homepage. Reorder to control the appearance order.`}
+        description={`Choose up to ${FEATURED_LIMIT} services to spotlight on the homepage. Drag the handle to reorder.`}
         breadcrumbs={[
           { label: "Admin", to: "/admin/console" },
           { label: "Featured services" },
@@ -229,47 +227,29 @@ function FeaturedServicesAdminPage() {
             />
           </div>
         ) : (
-          <ul className="divide-y divide-border">
-            {featured.map((s, i) => (
-              <li key={s.id} className="flex items-center gap-3 px-4 py-3">
-                <span className="grid h-8 w-8 place-items-center rounded-md bg-primary/10 text-xs font-bold text-primary">
-                  {i + 1}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold text-foreground">{s.name}</p>
-                  <p className="truncate text-xs text-muted-foreground">
-                    {s.category?.name ?? "—"}
-                    {s.starting_price ? ` · ৳${s.starting_price}` : " · Get a quote"}
-                  </p>
-                </div>
-                <div className="flex shrink-0 items-center gap-1">
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => move(s, -1)}
-                    disabled={i === 0 || reordering}
-                    aria-label="Move up"
-                  >
-                    <ArrowUp className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => move(s, 1)}
-                    disabled={i === featured.length - 1 || reordering}
-                    aria-label="Move down"
-                  >
-                    <ArrowDown className="h-4 w-4" />
-                  </Button>
-                  <Switch
-                    checked
-                    onCheckedChange={() => toggleFeatured(s, false)}
-                    disabled={savingId === s.id}
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={featured.map((s) => s.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <ul className="divide-y divide-border">
+                {featured.map((s, i) => (
+                  <SortableFeaturedRow
+                    key={s.id}
+                    row={s}
+                    index={i}
+                    disabled={reordering}
+                    saving={savingId === s.id}
+                    onRemove={() => toggleFeatured(s, false)}
                   />
-                </div>
-              </li>
-            ))}
-          </ul>
+                ))}
+              </ul>
+            </SortableContext>
+          </DndContext>
         )}
       </SectionCard>
 
@@ -333,5 +313,63 @@ function FeaturedServicesAdminPage() {
         )}
       </SectionCard>
     </div>
+  );
+}
+
+function SortableFeaturedRow({
+  row,
+  index,
+  disabled,
+  saving,
+  onRemove,
+}: {
+  row: ServiceRow;
+  index: number;
+  disabled: boolean;
+  saving: boolean;
+  onRemove: () => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: row.id,
+    disabled,
+  });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <li
+      ref={setNodeRef}
+      style={style}
+      className={cn(
+        "flex items-center gap-3 bg-card px-4 py-3",
+        isDragging && "z-10 shadow-elevated ring-1 ring-primary/40",
+      )}
+    >
+      <button
+        type="button"
+        {...attributes}
+        {...listeners}
+        aria-label={`Drag ${row.name} to reorder`}
+        className={cn(
+          "flex h-8 w-6 shrink-0 cursor-grab touch-none items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground active:cursor-grabbing",
+          disabled && "cursor-not-allowed opacity-50",
+        )}
+      >
+        <GripVertical className="h-4 w-4" />
+      </button>
+      <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-primary/10 text-xs font-bold text-primary">
+        {index + 1}
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-semibold text-foreground">{row.name}</p>
+        <p className="truncate text-xs text-muted-foreground">
+          {row.category?.name ?? "—"}
+          {row.starting_price ? ` · ৳${row.starting_price}` : " · Get a quote"}
+        </p>
+      </div>
+      <Switch checked onCheckedChange={onRemove} disabled={saving} />
+    </li>
   );
 }
