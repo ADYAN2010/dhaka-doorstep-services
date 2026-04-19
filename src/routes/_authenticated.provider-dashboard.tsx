@@ -385,6 +385,27 @@ function ProviderDashboard() {
               />
             )}
 
+            {section === "operations" && (
+              <ProviderOperations
+                status={status}
+                fullName={fullName}
+                hasCoverage={!noCoverage}
+                hasHours={!noHours}
+                hasAvatar={!!user?.user_metadata?.avatar_url}
+                hasBio={!!(user?.user_metadata?.bio as string | undefined)?.length}
+                hasPhone={!!profile?.area}
+                jobs={myJobs.map((j) => ({
+                  id: j.id, status: j.status, preferred_date: j.preferred_date,
+                  created_at: j.created_at, budget_range: j.budget_range, category: j.category,
+                }))}
+                ledger={ledger.map((l) => ({
+                  id: l.id, paid_out: l.paid_out,
+                  provider_net: Number(l.provider_net), created_at: l.created_at,
+                }))}
+                reviews={reviews.map((r) => ({ rating: r.rating, created_at: r.created_at }))}
+              />
+            )}
+
             {section === "requests" && (
               <RequestsSection
                 loading={loading}
