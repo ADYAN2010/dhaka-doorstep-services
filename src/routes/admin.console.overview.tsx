@@ -82,7 +82,7 @@ function AdminOverview() {
 
   return (
     <div>
-      <PageHeader
+      <AdminPageHeader
         title="Overview"
         description="Live counts and recent activity from the backend database."
       />
