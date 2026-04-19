@@ -12,6 +12,8 @@ import { HeroSearch } from "@/components/hero-search";
 import { CategoryCard } from "@/components/category-card";
 import { ProviderCard } from "@/components/provider-card";
 import { Reveal } from "@/components/reveal";
+import { TrustStrip } from "@/components/trust-strip";
+import { PressWall } from "@/components/logo-wall";
 import { categories } from "@/data/categories";
 import { areas } from "@/data/areas";
 import { featuredProviders } from "@/data/providers";
@@ -43,12 +45,14 @@ function HomePage() {
     <SiteShell>
       <Hero />
       <SiteBanner />
+      <TrustBar />
       {s.popularCategories && <PopularCategories />}
       {s.howItWorks && <HowItWorks />}
       {s.whyUs && <WhyUs />}
       {s.featuredProviders && <FeaturedProviders />}
       {s.areas && <AreasGrid />}
       {s.testimonials && <Testimonials />}
+      <PressSection />
       {s.providerCta && <ProviderCTA />}
       {s.finalCta && <FinalCTA />}
     </SiteShell>
