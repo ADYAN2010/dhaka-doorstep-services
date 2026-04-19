@@ -9,7 +9,7 @@ define('DB_HOST', 'localhost');          // usually localhost on Hostinger
 define('DB_PORT', 3306);
 define('DB_NAME', 'u123456789_shebabd'); // your database name
 define('DB_USER', 'u123456789_admin');   // your DB user
-define('DB_PASS', 'your-strong-db-password');
+define('DB_PASS', 'Aa@1234567####');
 
 // MUST match HOSTINGER_BRIDGE_SECRET set in Lovable Cloud secrets.
 // Generate a long random string (e.g. `openssl rand -hex 48`).
