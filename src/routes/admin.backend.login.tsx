@@ -52,11 +52,13 @@ function BackendLoginPage() {
     } catch (err) {
       if (err instanceof ApiError) {
         setError(
-          err.status === 401
-            ? "Wrong email or password."
-            : err.status === 403
-              ? "Account is disabled."
-              : err.message,
+          err.code === "network_error"
+            ? `Backend not reachable at ${getApiBaseUrl()}. Check that the API is running and that VITE_API_BASE_URL is set correctly.`
+            : err.status === 401
+              ? "Wrong email or password."
+              : err.status === 403
+                ? "Account is disabled."
+                : err.message,
         );
       } else {
         setError(err instanceof Error ? err.message : "Login failed");
