@@ -7,7 +7,7 @@ import {
   CheckCircle2,
   ClipboardList,
   Clock,
-  CreditCard,
+  GitCompare,
   Heart,
   HelpCircle,
   Home,
@@ -47,6 +47,18 @@ import {
 } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 import { findArea } from "@/data/areas";
+import {
+  BookingStatusTrackerCard,
+  CompareProvidersPanel,
+  FavoriteServicesPanel,
+  PaymentHistoryView,
+  RebookButton,
+  RecentlyViewedPanel,
+  RecommendedServicesPanel,
+  SmartReviewDialog,
+  SupportRequestPanel,
+  type CustomerSupportTicket,
+} from "@/components/customer-ux";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   component: CustomerDashboard,
