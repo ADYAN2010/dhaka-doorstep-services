@@ -1,10 +1,11 @@
 const router = require("express").Router();
+const { requireAuth } = require("../middleware/auth");
 const c = require("../controllers/customers.controller");
 
 router.get("/", c.list);
-router.post("/", c.create);
 router.get("/:id", c.getOne);
-router.patch("/:id", c.update);
-router.delete("/:id", c.remove);
+router.post("/", requireAuth, c.create);
+router.patch("/:id", requireAuth, c.update);
+router.delete("/:id", requireAuth, c.remove);
 
 module.exports = router;
