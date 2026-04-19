@@ -1,11 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState, type FormEvent } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
 import { SiteShell } from "@/components/site-shell";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/auth-provider";
-import { useEffect } from "react";
+import { ApiError } from "@/lib/api-client";
 import { buildSeo } from "@/lib/seo";
 
 export const Route = createFileRoute("/login")({
@@ -21,12 +20,12 @@ export const Route = createFileRoute("/login")({
 
 const schema = z.object({
   email: z.string().trim().email("Please enter a valid email").max(255),
-  password: z.string().min(6, "Password must be at least 6 characters").max(72),
+  password: z.string().min(8, "Password must be at least 8 characters").max(72),
 });
 
 function LoginPage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, signIn } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -45,23 +44,18 @@ function LoginPage() {
       return;
     }
     setBusy(true);
-    const { data, error } = await supabase.auth.signInWithPassword(parsed.data);
-    setBusy(false);
-    if (error) {
-      setError(
-        error.message.includes("Invalid login")
-          ? "Wrong email or password."
-          : error.message,
-      );
-      return;
+    try {
+      await signIn(parsed.data.email, parsed.data.password);
+      navigate({ to: "/" });
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setError(err.status === 401 ? "Wrong email or password." : err.message);
+      } else {
+        setError("Couldn't sign in. Please try again.");
+      }
+    } finally {
+      setBusy(false);
     }
-    // If they're flagged to change their password, send them to the admin
-    // settings panel so they can rotate it before doing anything else.
-    if (data.user?.user_metadata?.must_change_password) {
-      navigate({ to: "/admin", hash: "admin-account" });
-      return;
-    }
-    navigate({ to: "/" });
   }
 
   return (
@@ -120,6 +114,12 @@ function LoginPage() {
             New to Shebabd?{" "}
             <Link to="/signup" className="font-semibold text-primary hover:underline">
               Create an account
+            </Link>
+          </p>
+          <p className="mt-2 text-center text-xs text-muted-foreground">
+            Are you an admin?{" "}
+            <Link to="/admin/backend/login" className="font-semibold text-primary hover:underline">
+              Sign in to admin console
             </Link>
           </p>
         </div>
