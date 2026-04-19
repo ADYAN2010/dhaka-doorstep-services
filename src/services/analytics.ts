@@ -129,8 +129,8 @@ export const analyticsService = {
     const prevLedger = inWindow(ledger, prevStart, start);
     const currContacts = inWindow(contacts, start, now);
 
-    const currRevSeries = buildDailySeries(start, days, currLedger, (r) => Number((r as { gross_amount: number }).gross_amount) || 0);
-    const prevRevSeries = buildDailySeries(prevStart, days, prevLedger, (r) => Number((r as { gross_amount: number }).gross_amount) || 0);
+    const currRevSeries = buildDailySeries(start, days, currLedger, (r) => Number(r.gross_amount) || 0);
+    const prevRevSeries = buildDailySeries(prevStart, days, prevLedger, (r) => Number(r.gross_amount) || 0);
     const revenueTrend = compare ? attachCompare(currRevSeries, prevRevSeries) : currRevSeries;
 
     const currBookingSeries = buildDailySeries(start, days, currBookings);
