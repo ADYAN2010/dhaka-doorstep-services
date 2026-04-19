@@ -887,7 +887,7 @@ function PaymentsSection({
 
       <Panel title="Payment history" icon={Receipt} blurb="All payments linked to your bookings.">
         {loading ? <PanelSkeleton /> : payments.length === 0 ? (
-          <EmptyInline icon={CreditCard} title="No payments yet" hint="When you pay for a completed booking, the receipt will show up here." />
+          <EmptyInline icon={Receipt} title="No payments yet" hint="When you pay for a completed booking, the receipt will show up here." />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
