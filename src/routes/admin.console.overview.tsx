@@ -19,7 +19,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { api, ApiError } from "@/lib/api-client";
-import { PageHeader } from "@/components/admin/page-header";
+import { AdminPageHeader } from "@/components/admin/page-header";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
