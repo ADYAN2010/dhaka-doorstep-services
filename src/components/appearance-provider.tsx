@@ -140,6 +140,7 @@ export type AppearanceSettings = {
 
   sections: {
     popularCategories: boolean;
+    featuredServices: boolean;
     howItWorks: boolean;
     whyUs: boolean;
     featuredProviders: boolean;
@@ -188,6 +189,7 @@ const DEFAULT_SETTINGS: AppearanceSettings = {
 
   sections: {
     popularCategories: true,
+    featuredServices: true,
     howItWorks: true,
     whyUs: true,
     featuredProviders: true,
@@ -216,7 +218,7 @@ const DEFAULT_SETTINGS: AppearanceSettings = {
   activeSeasonalPreset: "default",
 };
 
-const STORAGE_KEY = "shebabd-appearance-v3";
+const STORAGE_KEY = "shebabd-appearance-v4";
 
 type AppearanceContextValue = {
   settings: AppearanceSettings;
