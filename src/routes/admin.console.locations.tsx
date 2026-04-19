@@ -42,7 +42,7 @@ function LocationsPage() {
       const providersByArea = new Map<string, number>();
       (areasRes.data ?? []).forEach((a) => providersByArea.set(a.area, (providersByArea.get(a.area) ?? 0) + 1));
       // Merge with seed area list
-      const allAreas = new Set<string>([...areas, ...bookingsByArea.keys(), ...providersByArea.keys()]);
+      const allAreas = new Set<string>([...areas.map((a) => a.name), ...bookingsByArea.keys(), ...providersByArea.keys()]);
       const data: Stats[] = Array.from(allAreas).map((a) => ({
         area: a,
         bookings: bookingsByArea.get(a)?.total ?? 0,
