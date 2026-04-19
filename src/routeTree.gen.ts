@@ -37,6 +37,7 @@ import { Route as BookingStatusIdRouteImport } from './routes/booking-status.$id
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AdminMysqlRouteImport } from './routes/admin.mysql'
 import { Route as AdminConsoleRouteImport } from './routes/admin.console'
+import { Route as AdminApiCheckRouteImport } from './routes/admin.api-check'
 import { Route as AuthenticatedProviderDashboardRouteImport } from './routes/_authenticated.provider-dashboard'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated.profile'
 import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated.messages'
@@ -220,6 +221,11 @@ const AdminMysqlRoute = AdminMysqlRouteImport.update({
 const AdminConsoleRoute = AdminConsoleRouteImport.update({
   id: '/console',
   path: '/console',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminApiCheckRoute = AdminApiCheckRouteImport.update({
+  id: '/api-check',
+  path: '/api-check',
   getParentRoute: () => AdminRoute,
 } as any)
 const AuthenticatedProviderDashboardRoute =
@@ -477,6 +483,7 @@ export interface FileRoutesByFullPath {
   '/messages': typeof AuthenticatedMessagesRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/provider-dashboard': typeof AuthenticatedProviderDashboardRoute
+  '/admin/api-check': typeof AdminApiCheckRoute
   '/admin/console': typeof AdminConsoleRouteWithChildren
   '/admin/mysql': typeof AdminMysqlRouteWithChildren
   '/blog/$slug': typeof BlogSlugRoute
@@ -551,6 +558,7 @@ export interface FileRoutesByTo {
   '/messages': typeof AuthenticatedMessagesRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/provider-dashboard': typeof AuthenticatedProviderDashboardRoute
+  '/admin/api-check': typeof AdminApiCheckRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/booking-status/$id': typeof BookingStatusIdRoute
   '/dhaka/$area': typeof DhakaAreaRoute
@@ -625,6 +633,7 @@ export interface FileRoutesById {
   '/_authenticated/messages': typeof AuthenticatedMessagesRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/provider-dashboard': typeof AuthenticatedProviderDashboardRoute
+  '/admin/api-check': typeof AdminApiCheckRoute
   '/admin/console': typeof AdminConsoleRouteWithChildren
   '/admin/mysql': typeof AdminMysqlRouteWithChildren
   '/blog/$slug': typeof BlogSlugRoute
@@ -701,6 +710,7 @@ export interface FileRouteTypes {
     | '/messages'
     | '/profile'
     | '/provider-dashboard'
+    | '/admin/api-check'
     | '/admin/console'
     | '/admin/mysql'
     | '/blog/$slug'
@@ -775,6 +785,7 @@ export interface FileRouteTypes {
     | '/messages'
     | '/profile'
     | '/provider-dashboard'
+    | '/admin/api-check'
     | '/blog/$slug'
     | '/booking-status/$id'
     | '/dhaka/$area'
@@ -848,6 +859,7 @@ export interface FileRouteTypes {
     | '/_authenticated/messages'
     | '/_authenticated/profile'
     | '/_authenticated/provider-dashboard'
+    | '/admin/api-check'
     | '/admin/console'
     | '/admin/mysql'
     | '/blog/$slug'
@@ -1125,6 +1137,13 @@ declare module '@tanstack/react-router' {
       path: '/console'
       fullPath: '/admin/console'
       preLoaderRoute: typeof AdminConsoleRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/api-check': {
+      id: '/admin/api-check'
+      path: '/api-check'
+      fullPath: '/admin/api-check'
+      preLoaderRoute: typeof AdminApiCheckRouteImport
       parentRoute: typeof AdminRoute
     }
     '/_authenticated/provider-dashboard': {
@@ -1571,11 +1590,13 @@ const AdminMysqlRouteWithChildren = AdminMysqlRoute._addFileChildren(
 )
 
 interface AdminRouteChildren {
+  AdminApiCheckRoute: typeof AdminApiCheckRoute
   AdminConsoleRoute: typeof AdminConsoleRouteWithChildren
   AdminMysqlRoute: typeof AdminMysqlRouteWithChildren
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminApiCheckRoute: AdminApiCheckRoute,
   AdminConsoleRoute: AdminConsoleRouteWithChildren,
   AdminMysqlRoute: AdminMysqlRouteWithChildren,
 }
