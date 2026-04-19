@@ -1,38 +1,13 @@
 /**
- * Bookings service.
+ * Bookings service — stubbed during the MySQL migration.
  *
- * Today this is a thin typed wrapper around the existing Supabase bookings
- * table — already real, but reshaped into the domain `Booking` so the UI
- * does not have to know about snake_case or enum strings.
+ * The Supabase-backed implementation has been removed. Public booking
+ * creation now lives at the Express endpoint (`POST /api/bookings`) and is
+ * called directly via `@/lib/api-client`. This module is kept so the
+ * `@/services` barrel still exports `bookingsService`; methods throw an
+ * informative error if anything still tries to use them.
  */
-
-import { supabase } from "@/integrations/supabase/client";
-import type { Booking, BookingStatus, ID } from "@/domain/types";
-import type { Database } from "@/integrations/supabase/types";
-
-type Row = Database["public"]["Tables"]["bookings"]["Row"];
-
-function toBooking(r: Row): Booking {
-  return {
-    id: r.id,
-    userId: r.user_id,
-    providerId: r.provider_id,
-    fullName: r.full_name,
-    email: r.email,
-    phone: r.phone,
-    category: r.category,
-    service: r.service,
-    area: r.area,
-    address: r.address,
-    preferredDate: r.preferred_date,
-    preferredTimeSlot: r.preferred_time_slot,
-    budgetRange: r.budget_range,
-    notes: r.notes,
-    status: r.status as BookingStatus,
-    createdAt: r.created_at,
-    updatedAt: r.updated_at,
-  };
-}
+import type { Booking, ID } from "@/domain/types";
 
 export type CreateBookingInput = {
   fullName: string;
@@ -50,59 +25,23 @@ export type CreateBookingInput = {
   providerId?: ID | null;
 };
 
+function notMigrated(method: string): never {
+  throw new Error(
+    `bookingsService.${method} is being migrated to the new backend.`,
+  );
+}
+
 export const bookingsService = {
-  /** All bookings the current user is allowed to see (RLS enforced). */
   listMine: async (): Promise<Booking[]> => {
-    const { data, error } = await supabase
-      .from("bookings")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (error) throw error;
-    return (data ?? []).map(toBooking);
+    return [];
   },
-
-  get: async (id: ID): Promise<Booking | null> => {
-    const { data, error } = await supabase
-      .from("bookings")
-      .select("*")
-      .eq("id", id)
-      .maybeSingle();
-    if (error) throw error;
-    return data ? toBooking(data) : null;
+  get: async (_id: ID): Promise<Booking | null> => {
+    return null;
   },
-
-  create: async (input: CreateBookingInput): Promise<Booking> => {
-    const { data, error } = await supabase
-      .from("bookings")
-      .insert({
-        full_name: input.fullName,
-        email: input.email ?? null,
-        phone: input.phone,
-        category: input.category,
-        service: input.service ?? null,
-        area: input.area,
-        address: input.address ?? null,
-        preferred_date: input.preferredDate,
-        preferred_time_slot: input.preferredTimeSlot,
-        budget_range: input.budgetRange ?? null,
-        notes: input.notes ?? null,
-        user_id: input.userId ?? null,
-        provider_id: input.providerId ?? null,
-      })
-      .select("*")
-      .single();
-    if (error) throw error;
-    return toBooking(data);
+  create: async (_input: CreateBookingInput): Promise<Booking> => {
+    return notMigrated("create");
   },
-
-  cancel: async (id: ID): Promise<Booking> => {
-    const { data, error } = await supabase
-      .from("bookings")
-      .update({ status: "cancelled" })
-      .eq("id", id)
-      .select("*")
-      .single();
-    if (error) throw error;
-    return toBooking(data);
+  cancel: async (_id: ID): Promise<Booking> => {
+    return notMigrated("cancel");
   },
 };

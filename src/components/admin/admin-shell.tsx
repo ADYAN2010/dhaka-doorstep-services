@@ -13,7 +13,6 @@ import {
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useAuth } from "@/components/auth-provider";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
   CommandDialog, CommandEmpty, CommandGroup, CommandInput,
@@ -151,35 +150,18 @@ export function AdminShell({ children }: { children: ReactNode }) {
   });
   const [profile, setProfile] = useState<{ full_name: string | null; avatar_url: string | null } | null>(null);
 
-  // Load notification counts
-  useEffect(() => {
-    if (!user) return;
-    let cancelled = false;
-    async function load() {
-      const [apps, bookings, msgs, ledger] = await Promise.all([
-        supabase.from("provider_applications").select("id", { count: "exact", head: true }).eq("status", "new"),
-        supabase.from("bookings").select("id", { count: "exact", head: true }).eq("status", "new").is("provider_id", null),
-        supabase.from("contact_messages").select("id", { count: "exact", head: true }).eq("handled", false),
-        supabase.from("commission_ledger").select("id", { count: "exact", head: true }).eq("paid_out", false),
-      ]);
-      if (cancelled) return;
-      setCounts({
-        newApplications: apps.count ?? 0,
-        newBookings: bookings.count ?? 0,
-        unreadMessages: msgs.count ?? 0,
-        pendingPayouts: ledger.count ?? 0,
-      });
-    }
-    void load();
-    const interval = setInterval(load, 30_000);
-    return () => { cancelled = true; clearInterval(interval); };
-  }, [user]);
+  // Notification counts — disabled during MySQL migration. The MySQL backend
+  // does not yet expose admin counters; the badges are always 0 for now.
+  // (Counts state stays initialised to 0 above.)
 
-  // Load profile
+  // Profile is read straight off the auth user (full_name / email) until
+  // the MySQL backend exposes admin profile reads.
   useEffect(() => {
     if (!user) return;
-    supabase.from("profiles").select("full_name, avatar_url").eq("id", user.id).maybeSingle()
-      .then(({ data }) => setProfile(data ?? null));
+    setProfile({
+      full_name: (user as { full_name?: string | null }).full_name ?? null,
+      avatar_url: null,
+    });
   }, [user]);
 
   // CMD+K
@@ -569,60 +551,11 @@ function GlobalSearchDialog({ open, onOpenChange }: { open: boolean; onOpenChang
     return all.filter((r) => r.title.toLowerCase().includes(q.toLowerCase()));
   }, [q]);
 
+  // Cross-entity quick search is disabled during the MySQL migration.
+  // The Navigate group below still works (it only uses static nav items).
   useEffect(() => {
-    if (!q || q.length < 2) {
-      setResults([]);
-      return;
-    }
-    let cancelled = false;
-    setSearching(true);
-    const t = setTimeout(async () => {
-      const term = `%${q}%`;
-      const [bookings, profiles, posts] = await Promise.all([
-        supabase
-          .from("bookings")
-          .select("id, full_name, phone, email, area, category")
-          .or(`full_name.ilike.${term},phone.ilike.${term},email.ilike.${term}`)
-          .limit(5),
-        supabase
-          .from("profiles")
-          .select("id, full_name, phone, area, provider_status")
-          .ilike("full_name", term)
-          .limit(5),
-        supabase
-          .from("blog_posts")
-          .select("id, slug, title")
-          .ilike("title", term)
-          .limit(5),
-      ]);
-      if (cancelled) return;
-      const merged: SearchResult[] = [
-        ...(bookings.data ?? []).map((b) => ({
-          type: "booking" as const,
-          id: b.id,
-          title: b.full_name,
-          subtitle: `${b.category} · ${b.area} · ${b.phone}`,
-          to: `/admin/console/bookings`,
-        })),
-        ...(profiles.data ?? []).map((p) => ({
-          type: p.provider_status === "approved" ? ("provider" as const) : ("customer" as const),
-          id: p.id,
-          title: p.full_name || "Unnamed",
-          subtitle: `${p.area ?? "—"} · ${p.phone ?? "—"}`,
-          to: p.provider_status === "approved" ? "/admin/console/providers" : "/admin/console/customers",
-        })),
-        ...(posts.data ?? []).map((p) => ({
-          type: "post" as const,
-          id: p.id,
-          title: p.title,
-          subtitle: `Blog post · ${p.slug}`,
-          to: "/admin/console/content",
-        })),
-      ];
-      setResults(merged);
-      setSearching(false);
-    }, 250);
-    return () => { cancelled = true; clearTimeout(t); };
+    setResults([]);
+    setSearching(false);
   }, [q]);
 
   function go(r: SearchResult) {
