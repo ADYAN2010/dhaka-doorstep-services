@@ -4,7 +4,6 @@ import { z } from "zod";
 import { Loader2 } from "lucide-react";
 import { SiteShell } from "@/components/site-shell";
 import { useAuth } from "@/components/auth-provider";
-import { ApiError } from "@/lib/api-client";
 import { buildSeo } from "@/lib/seo";
 
 export const Route = createFileRoute("/login")({
@@ -48,11 +47,8 @@ function LoginPage() {
       await signIn(parsed.data.email, parsed.data.password);
       navigate({ to: "/" });
     } catch (err) {
-      if (err instanceof ApiError) {
-        setError(err.status === 401 ? "Wrong email or password." : err.message);
-      } else {
-        setError("Couldn't sign in. Please try again.");
-      }
+      const msg = (err as { message?: string })?.message ?? "Couldn't sign in. Please try again.";
+      setError(/invalid login credentials/i.test(msg) ? "Wrong email or password." : msg);
     } finally {
       setBusy(false);
     }
@@ -114,12 +110,6 @@ function LoginPage() {
             New to Shebabd?{" "}
             <Link to="/signup" className="font-semibold text-primary hover:underline">
               Create an account
-            </Link>
-          </p>
-          <p className="mt-2 text-center text-xs text-muted-foreground">
-            Are you an admin?{" "}
-            <Link to="/admin/backend/login" className="font-semibold text-primary hover:underline">
-              Sign in to admin console
             </Link>
           </p>
         </div>

@@ -4,7 +4,6 @@ import { z } from "zod";
 import { Loader2, User, Briefcase } from "lucide-react";
 import { SiteShell } from "@/components/site-shell";
 import { useAuth } from "@/components/auth-provider";
-import { ApiError } from "@/lib/api-client";
 import { areas } from "@/data/areas";
 import { buildSeo } from "@/lib/seo";
 
@@ -43,6 +42,7 @@ function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -52,6 +52,7 @@ function SignupPage() {
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
+    setInfo(null);
     const parsed = schema.safeParse({ fullName, phone, area, email, password, role });
     if (!parsed.success) {
       setError(parsed.error.issues[0]?.message ?? "Invalid input");
@@ -59,25 +60,28 @@ function SignupPage() {
     }
     setBusy(true);
     try {
-      await signUp({
+      const created = await signUp({
         email: parsed.data.email,
         password: parsed.data.password,
         full_name: parsed.data.fullName,
         phone: parsed.data.phone,
         area: parsed.data.area,
+        role: parsed.data.role,
       });
-      // Provider applications are submitted via /become-provider after signup.
+      // If email confirmation is required, Supabase returns a user but no
+      // session — surface that to the user instead of silently routing.
+      if (!created) {
+        setInfo("Check your inbox to confirm your email, then come back to log in.");
+        return;
+      }
       navigate({ to: parsed.data.role === "provider" ? "/become-provider" : "/" });
     } catch (err) {
-      if (err instanceof ApiError) {
-        setError(
-          err.status === 409
-            ? "An account with this email already exists. Try logging in."
-            : err.message,
-        );
-      } else {
-        setError("Couldn't create your account. Please try again.");
-      }
+      const msg = (err as { message?: string })?.message ?? "Couldn't create your account. Please try again.";
+      setError(
+        /already registered|already exists|user already/i.test(msg)
+          ? "An account with this email already exists. Try logging in."
+          : msg,
+      );
     } finally {
       setBusy(false);
     }
@@ -186,6 +190,11 @@ function SignupPage() {
             {error && (
               <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
                 {error}
+              </div>
+            )}
+            {info && (
+              <div className="rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-sm text-foreground">
+                {info}
               </div>
             )}
 

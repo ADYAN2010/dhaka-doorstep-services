@@ -1,18 +1,18 @@
 /**
- * AuthProvider — MySQL-backed customer auth (was previously Supabase).
+ * AuthProvider — Supabase Auth.
  *
- * Talks to the Express backend at /api/customer-auth/*. Drop-in replacement
- * for the old Supabase auth context — exposes a similar surface so existing
- * pages keep working:
+ * Single source of truth for the customer-facing auth state. Exposes the same
+ * surface the rest of the app already imports:
  *
- *   const { user, loading, signOut, signIn, signUp, roles } = useAuth();
+ *   const { user, session, loading, roles, signIn, signUp, signOut, refresh } = useAuth();
  *
- * Notes:
- * - `roles` is derived from the JWT role claim ("customer"). Provider/admin
- *   are not selectable from the customer auth flow; admins use the separate
- *   BackendAuthProvider on the /admin/backend route group.
- * - `session` is a thin shape kept for backward compat — only `user` and
- *   the access token are real here.
+ * - `user` / `session` come from supabase.auth.
+ * - `roles` is loaded from public.user_roles (uses the existing has_role()
+ *   pattern). Triggers in the database (handle_new_user) auto-create a
+ *   profiles + customer user_roles row on signup.
+ * - signUp accepts `{ email, password, full_name, phone, area }`. Provider
+ *   intent (the role toggle on /signup) is passed through user_metadata so
+ *   handle_new_user can stamp `provider_status = pending`.
  */
 import {
   createContext,
@@ -24,27 +24,17 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { api, ApiError, getAuthToken, setAuthToken } from "@/lib/api-client";
+import type { Session, User } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
 
-type AppRole = "customer" | "provider" | "admin";
+export type AppRole = "customer" | "provider" | "admin";
 
-export type AuthUser = {
-  id: string;
-  email: string;
-  full_name?: string;
-  phone?: string | null;
-  area?: string | null;
-  role: AppRole;
-};
-
-type LoginResponse = { token: string; expires_in: string; user: AuthUser };
-type MeResponse = { user: AuthUser };
+export type AuthUser = User;
 
 type AuthContextValue = {
-  /** Convenience: { user } shape mirroring the old Supabase `Session`. */
-  session: { user: AuthUser } | null;
+  session: Session | null;
   user: AuthUser | null;
-  /** Roles array for back-compat. Always [user.role] when logged in. */
+  /** Roles loaded from public.user_roles for the current user. */
   roles: AppRole[];
   loading: boolean;
   signIn: (email: string, password: string) => Promise<AuthUser>;
@@ -54,113 +44,129 @@ type AuthContextValue = {
     full_name: string;
     phone?: string;
     area?: string;
-  }) => Promise<AuthUser>;
+    role?: "customer" | "provider";
+  }) => Promise<AuthUser | null>;
   signOut: () => Promise<void>;
+  /** Re-fetch roles for the current session. */
   refresh: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-const CUSTOMER_TOKEN_KEY = "shobsheba.customer_token";
-
-// Customer auth uses a separate token slot from the admin token.
-function readCustomerToken(): string | null {
-  if (typeof window === "undefined") return null;
-  try {
-    return window.localStorage.getItem(CUSTOMER_TOKEN_KEY);
-  } catch {
-    return null;
+async function fetchRoles(userId: string): Promise<AppRole[]> {
+  const { data, error } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId);
+  if (error) {
+    // Don't blow up the app if role lookup fails — just treat as no roles yet.
+    console.warn("[auth] failed to load roles:", error.message);
+    return [];
   }
-}
-
-function writeCustomerToken(token: string | null) {
-  if (typeof window === "undefined") return;
-  try {
-    if (token) window.localStorage.setItem(CUSTOMER_TOKEN_KEY, token);
-    else window.localStorage.removeItem(CUSTOMER_TOKEN_KEY);
-  } catch {
-    /* ignore */
-  }
-  // The shared api-client uses a single token slot. Mirror to it so the
-  // Authorization header gets attached on customer-side calls.
-  setAuthToken(token);
+  return (data ?? []).map((r) => r.role as AppRole);
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [roles, setRoles] = useState<AppRole[]>([]);
   const [loading, setLoading] = useState(true);
-  const hydrated = useRef(false);
+  const initialised = useRef(false);
 
-  const hydrate = useCallback(async () => {
-    const token = readCustomerToken();
-    if (!token) {
-      setUser(null);
-      setLoading(false);
+  const loadRoles = useCallback(async (uid: string | null) => {
+    if (!uid) {
+      setRoles([]);
       return;
     }
-    // Make sure api-client has the customer token before calling /me
-    setAuthToken(token);
-    try {
-      const res = await api<MeResponse>("/api/customer-auth/me");
-      setUser(res.user);
-    } catch (err) {
-      if (err instanceof ApiError && err.status === 401) {
-        writeCustomerToken(null);
-      }
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
+    const r = await fetchRoles(uid);
+    setRoles(r);
   }, []);
 
   useEffect(() => {
-    if (hydrated.current) return;
-    hydrated.current = true;
-    void hydrate();
-  }, [hydrate]);
+    if (initialised.current) return;
+    initialised.current = true;
+
+    // Set up listener FIRST, then fetch session — avoids missing the initial
+    // SIGNED_IN event when restoring from storage.
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, sess) => {
+      setSession(sess);
+      setUser(sess?.user ?? null);
+      // Defer the role fetch to avoid running async work inside the callback.
+      if (sess?.user) {
+        setTimeout(() => {
+          void loadRoles(sess.user.id);
+        }, 0);
+      } else {
+        setRoles([]);
+      }
+    });
+
+    void supabase.auth.getSession().then(({ data: { session: sess } }) => {
+      setSession(sess);
+      setUser(sess?.user ?? null);
+      if (sess?.user) {
+        void loadRoles(sess.user.id).finally(() => setLoading(false));
+      } else {
+        setLoading(false);
+      }
+    });
+
+    return () => {
+      sub.subscription.unsubscribe();
+    };
+  }, [loadRoles]);
 
   const signIn = useCallback(async (email: string, password: string) => {
-    const res = await api<LoginResponse>("/api/customer-auth/login", {
-      method: "POST",
-      body: { email, password },
-      skipAuth: true,
-    });
-    writeCustomerToken(res.token);
-    setUser(res.user);
-    return res.user;
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    if (!data.user) throw new Error("Sign in returned no user");
+    return data.user;
   }, []);
 
   const signUp = useCallback(
-    async (input: { email: string; password: string; full_name: string; phone?: string; area?: string }) => {
-      const res = await api<LoginResponse>("/api/customer-auth/signup", {
-        method: "POST",
-        body: input,
-        skipAuth: true,
+    async (input: {
+      email: string;
+      password: string;
+      full_name: string;
+      phone?: string;
+      area?: string;
+      role?: "customer" | "provider";
+    }) => {
+      const redirectTo =
+        typeof window !== "undefined" ? `${window.location.origin}/` : undefined;
+      const { data, error } = await supabase.auth.signUp({
+        email: input.email,
+        password: input.password,
+        options: {
+          emailRedirectTo: redirectTo,
+          data: {
+            full_name: input.full_name,
+            phone: input.phone ?? null,
+            area: input.area ?? null,
+            role: input.role ?? "customer",
+          },
+        },
       });
-      writeCustomerToken(res.token);
-      setUser(res.user);
-      return res.user;
+      if (error) throw error;
+      return data.user;
     },
     [],
   );
 
   const signOut = useCallback(async () => {
-    writeCustomerToken(null);
+    await supabase.auth.signOut();
+    setSession(null);
     setUser(null);
+    setRoles([]);
   }, []);
 
+  const refresh = useCallback(async () => {
+    if (user?.id) await loadRoles(user.id);
+  }, [user?.id, loadRoles]);
+
   const value = useMemo<AuthContextValue>(
-    () => ({
-      session: user ? { user } : null,
-      user,
-      roles: user ? [user.role] : [],
-      loading,
-      signIn,
-      signUp,
-      signOut,
-      refresh: hydrate,
-    }),
-    [user, loading, signIn, signUp, signOut, hydrate],
+    () => ({ session, user, roles, loading, signIn, signUp, signOut, refresh }),
+    [session, user, roles, loading, signIn, signUp, signOut, refresh],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
