@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 import { SiteShell } from "@/components/site-shell";
 import { PageHeader } from "@/components/page-header";
 import { CategoryCard } from "@/components/category-card";
@@ -19,18 +20,24 @@ export const Route = createFileRoute("/services/")({
 });
 
 function AllServicesPage() {
+  const { t } = useTranslation();
   return (
     <SiteShell>
       <PageHeader
-        eyebrow="All services"
-        title={<>Every service you need, <span className="text-gradient-primary">in one place</span>.</>}
-        description="Search 200+ verified services across Dhaka. Filter by category, area and price — book in seconds."
+        eyebrow={t("services.eyebrow")}
+        title={
+          <>
+            {t("services.indexTitle")}
+            <span className="text-gradient-primary">{t("services.indexTitleHighlight")}</span>
+          </>
+        }
+        description={t("services.indexDescription")}
       />
 
       <ServiceCatalog />
 
       <section className="container-page pb-16 pt-4">
-        <h2 className="mb-5 text-2xl font-bold tracking-tight text-foreground md:text-3xl">Browse by group</h2>
+        <h2 className="mb-5 text-2xl font-bold tracking-tight text-foreground md:text-3xl">{t("servicesIndex.browseByGroup")}</h2>
         {mainGroups.map((group) => {
           const items = categories.filter((c) => group.slugs.includes(c.slug));
           if (!items.length) return null;
