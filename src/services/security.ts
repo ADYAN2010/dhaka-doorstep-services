@@ -409,7 +409,9 @@ const listeners = new Set<Listener>();
 function notify() { listeners.forEach((l) => l()); }
 export function subscribeSecurity(l: Listener) {
   listeners.add(l);
-  return () => listeners.delete(l);
+  return () => {
+    listeners.delete(l);
+  };
 }
 
 // ---- API -------------------------------------------------------------------
