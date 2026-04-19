@@ -14,6 +14,78 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_audit_log: {
+        Row: {
+          action: string
+          actor_email: string | null
+          actor_id: string
+          created_at: string
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          target_id: string | null
+          target_type: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          action: string
+          actor_email?: string | null
+          actor_id: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          target_id?: string | null
+          target_type?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          action?: string
+          actor_email?: string | null
+          actor_id?: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          target_id?: string | null
+          target_type?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      admin_notes: {
+        Row: {
+          author_id: string
+          body: string
+          created_at: string
+          id: string
+          is_pinned: boolean
+          target_id: string
+          target_type: string
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          body: string
+          created_at?: string
+          id?: string
+          is_pinned?: boolean
+          target_id: string
+          target_type: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          created_at?: string
+          id?: string
+          is_pinned?: boolean
+          target_id?: string
+          target_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       blog_posts: {
         Row: {
           author_id: string | null
@@ -152,6 +224,45 @@ export type Database = {
         }
         Relationships: []
       }
+      cities: {
+        Row: {
+          country: string
+          created_at: string
+          display_order: number
+          id: string
+          is_active: boolean
+          launch_status: Database["public"]["Enums"]["city_launch_status"]
+          launched_at: string | null
+          name: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          country?: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          launch_status?: Database["public"]["Enums"]["city_launch_status"]
+          launched_at?: string | null
+          name: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          country?: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          launch_status?: Database["public"]["Enums"]["city_launch_status"]
+          launched_at?: string | null
+          name?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       commission_ledger: {
         Row: {
           booking_id: string
@@ -236,6 +347,102 @@ export type Database = {
         }
         Relationships: []
       }
+      coupons: {
+        Row: {
+          category_filter: string | null
+          city_filter: string | null
+          code: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          discount_type: Database["public"]["Enums"]["coupon_discount_type"]
+          discount_value: number
+          id: string
+          max_discount_amount: number | null
+          min_order_amount: number | null
+          per_user_limit: number | null
+          status: Database["public"]["Enums"]["coupon_status"]
+          updated_at: string
+          usage_limit: number | null
+          used_count: number
+          valid_from: string | null
+          valid_until: string | null
+        }
+        Insert: {
+          category_filter?: string | null
+          city_filter?: string | null
+          code: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          discount_type?: Database["public"]["Enums"]["coupon_discount_type"]
+          discount_value?: number
+          id?: string
+          max_discount_amount?: number | null
+          min_order_amount?: number | null
+          per_user_limit?: number | null
+          status?: Database["public"]["Enums"]["coupon_status"]
+          updated_at?: string
+          usage_limit?: number | null
+          used_count?: number
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Update: {
+          category_filter?: string | null
+          city_filter?: string | null
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          discount_type?: Database["public"]["Enums"]["coupon_discount_type"]
+          discount_value?: number
+          id?: string
+          max_discount_amount?: number | null
+          min_order_amount?: number | null
+          per_user_limit?: number | null
+          status?: Database["public"]["Enums"]["coupon_status"]
+          updated_at?: string
+          usage_limit?: number | null
+          used_count?: number
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Relationships: []
+      }
+      faqs: {
+        Row: {
+          answer: string
+          category: string
+          created_at: string
+          display_order: number
+          id: string
+          is_visible: boolean
+          question: string
+          updated_at: string
+        }
+        Insert: {
+          answer: string
+          category?: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_visible?: boolean
+          question: string
+          updated_at?: string
+        }
+        Update: {
+          answer?: string
+          category?: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_visible?: boolean
+          question?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       invoices: {
         Row: {
           booking_id: string
@@ -280,6 +487,69 @@ export type Database = {
           subtotal?: number
           tax?: number
           total?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      marketing_campaigns: {
+        Row: {
+          audience_segment: string | null
+          budget: number | null
+          channel: Database["public"]["Enums"]["campaign_channel"]
+          clicks: number
+          conversions: number
+          created_at: string
+          created_by: string | null
+          description: string | null
+          ends_at: string | null
+          id: string
+          impressions: number
+          name: string
+          spent: number
+          starts_at: string | null
+          status: Database["public"]["Enums"]["campaign_status"]
+          target_category: string | null
+          target_city: string | null
+          updated_at: string
+        }
+        Insert: {
+          audience_segment?: string | null
+          budget?: number | null
+          channel?: Database["public"]["Enums"]["campaign_channel"]
+          clicks?: number
+          conversions?: number
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          impressions?: number
+          name: string
+          spent?: number
+          starts_at?: string | null
+          status?: Database["public"]["Enums"]["campaign_status"]
+          target_category?: string | null
+          target_city?: string | null
+          updated_at?: string
+        }
+        Update: {
+          audience_segment?: string | null
+          budget?: number | null
+          channel?: Database["public"]["Enums"]["campaign_channel"]
+          clicks?: number
+          conversions?: number
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          impressions?: number
+          name?: string
+          spent?: number
+          starts_at?: string | null
+          status?: Database["public"]["Enums"]["campaign_status"]
+          target_category?: string | null
+          target_city?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -357,6 +627,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      notification_templates: {
+        Row: {
+          body: string
+          channel: Database["public"]["Enums"]["notification_channel"]
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          subject: string | null
+          trigger_event: string | null
+          updated_at: string
+          variables: string[] | null
+        }
+        Insert: {
+          body?: string
+          channel: Database["public"]["Enums"]["notification_channel"]
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          subject?: string | null
+          trigger_event?: string | null
+          updated_at?: string
+          variables?: string[] | null
+        }
+        Update: {
+          body?: string
+          channel?: Database["public"]["Enums"]["notification_channel"]
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          subject?: string | null
+          trigger_event?: string | null
+          updated_at?: string
+          variables?: string[] | null
+        }
+        Relationships: []
       }
       payments: {
         Row: {
@@ -706,6 +1015,140 @@ export type Database = {
         }
         Relationships: []
       }
+      service_subcategories: {
+        Row: {
+          base_price: number | null
+          category_id: string
+          created_at: string
+          description: string | null
+          display_order: number
+          id: string
+          is_active: boolean
+          is_featured: boolean
+          is_seasonal: boolean
+          is_trending: boolean
+          name: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          base_price?: number | null
+          category_id: string
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          is_featured?: boolean
+          is_seasonal?: boolean
+          is_trending?: boolean
+          name: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          base_price?: number | null
+          category_id?: string
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          is_featured?: boolean
+          is_seasonal?: boolean
+          is_trending?: boolean
+          name?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_subcategories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      static_pages: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          is_published: boolean
+          meta_description: string | null
+          meta_title: string | null
+          og_image_url: string | null
+          slug: string
+          title: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          body?: string
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          meta_description?: string | null
+          meta_title?: string | null
+          og_image_url?: string | null
+          slug: string
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          meta_description?: string | null
+          meta_title?: string | null
+          og_image_url?: string | null
+          slug?: string
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      support_ticket_categories: {
+        Row: {
+          created_at: string
+          default_priority: string
+          description: string | null
+          display_order: number
+          id: string
+          is_active: boolean
+          name: string
+          sla_hours: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          default_priority?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          name: string
+          sla_hours?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          default_priority?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          name?: string
+          sla_hours?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -726,6 +1169,44 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      zones: {
+        Row: {
+          city_id: string
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          pricing_modifier: number
+          updated_at: string
+        }
+        Insert: {
+          city_id: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          pricing_modifier?: number
+          updated_at?: string
+        }
+        Update: {
+          city_id?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          pricing_modifier?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "zones_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
@@ -943,7 +1424,13 @@ export type Database = {
         | "assigned"
         | "completed"
         | "cancelled"
+      campaign_channel: "banner" | "email" | "sms" | "push" | "multi"
+      campaign_status: "draft" | "scheduled" | "live" | "paused" | "ended"
+      city_launch_status: "coming_soon" | "beta" | "live" | "paused"
+      coupon_discount_type: "percent" | "fixed"
+      coupon_status: "draft" | "scheduled" | "active" | "paused" | "expired"
       invoice_status: "draft" | "issued" | "paid" | "void"
+      notification_channel: "email" | "sms" | "push"
       payment_gateway: "none" | "stripe" | "bkash" | "nagad" | "manual"
       payment_method:
         | "cash"
@@ -1092,7 +1579,13 @@ export const Constants = {
         "completed",
         "cancelled",
       ],
+      campaign_channel: ["banner", "email", "sms", "push", "multi"],
+      campaign_status: ["draft", "scheduled", "live", "paused", "ended"],
+      city_launch_status: ["coming_soon", "beta", "live", "paused"],
+      coupon_discount_type: ["percent", "fixed"],
+      coupon_status: ["draft", "scheduled", "active", "paused", "expired"],
       invoice_status: ["draft", "issued", "paid", "void"],
+      notification_channel: ["email", "sms", "push"],
       payment_gateway: ["none", "stripe", "bkash", "nagad", "manual"],
       payment_method: [
         "cash",
