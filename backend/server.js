@@ -9,14 +9,15 @@ require("dotenv").config({ path: require("path").join(__dirname, ".env") });
 
 const express = require("express");
 const cors = require("cors");
-const morgan = require("morgan");
 const helmet = require("helmet");
 const compression = require("compression");
 const rateLimit = require("express-rate-limit");
+const pinoHttp = require("pino-http");
 
 const apiRoutes = require("./routes");
 const { notFound, errorHandler } = require("./middleware/error-handler");
 const { closePool, isConfigured } = require("./config/db");
+const logger = require("./lib/logger");
 
 const app = express();
 const PORT = parseInt(process.env.PORT, 10) || 4000;
@@ -50,7 +51,20 @@ app.use(
 app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: true, limit: "1mb" }));
 app.use(compression());
-app.use(morgan(isProd ? "combined" : "dev"));
+app.use(
+  pinoHttp({
+    logger,
+    customLogLevel: (_req, res, err) => {
+      if (err || res.statusCode >= 500) return "error";
+      if (res.statusCode >= 400) return "warn";
+      return "info";
+    },
+    serializers: {
+      req: (req) => ({ id: req.id, method: req.method, url: req.url, ip: req.ip || req.remoteAddress }),
+      res: (res) => ({ statusCode: res.statusCode }),
+    },
+  }),
+);
 
 // ---- Rate limits ----
 // Global gentle limit
@@ -95,16 +109,15 @@ app.use(notFound);
 app.use(errorHandler);
 
 const server = app.listen(PORT, () => {
-  console.log(`✅ Backend listening on http://localhost:${PORT}  (${isProd ? "production" : "development"})`);
-  console.log(`   DB configured: ${isConfigured() ? "yes" : "NO — set DB_* env vars to enable database routes"}`);
-  console.log(`   Health:   GET  /api/health`);
-  console.log(`   DB ping:  GET  /api/test-db`);
-  console.log(`   Status:   GET  /api/admin/system-status  (auth)`);
+  logger.info(
+    { port: PORT, env: isProd ? "production" : "development", db_configured: isConfigured() },
+    `Backend listening on http://localhost:${PORT}`,
+  );
 });
 
 // ---- Graceful shutdown ----
 async function shutdown(signal) {
-  console.log(`\n${signal} received — closing server…`);
+  logger.info({ signal }, "shutdown signal received — closing server");
   server.close(async () => {
     await closePool().catch(() => {});
     process.exit(0);
@@ -113,6 +126,5 @@ async function shutdown(signal) {
 process.on("SIGINT", () => shutdown("SIGINT"));
 process.on("SIGTERM", () => shutdown("SIGTERM"));
 
-// Don't crash on unexpected errors in production — log instead.
-process.on("unhandledRejection", (err) => console.error("[unhandledRejection]", err));
-process.on("uncaughtException", (err) => console.error("[uncaughtException]", err));
+process.on("unhandledRejection", (err) => logger.error({ err }, "unhandledRejection"));
+process.on("uncaughtException", (err) => logger.error({ err }, "uncaughtException"));
