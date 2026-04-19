@@ -1,21 +1,5 @@
 /**
  * Mount all feature routers here.
- *
- *   /api/health             → liveness
- *   /api/test-db            → db ping
- *   /api/auth/*             → admin login, me, bootstrap, change-password
- *   /api/customer-auth/*    → end-customer signup, login, me, password reset
- *   /api/admin/*            → dashboard-stats, system-status (auth required)
- *   /api/admin-users        → CRUD (superadmin only)
- *   /api/uploads            → POST file uploads (any auth user)
- *   /api/locations/*        → public dropdown helpers
- *   /api/services           → CRUD (writes auth-protected)
- *   /api/customers          → CRUD
- *   /api/providers          → CRUD
- *   /api/categories         → CRUD
- *   /api/cities             → CRUD
- *   /api/areas              → CRUD
- *   /api/bookings           → CRUD
  */
 const router = require("express").Router();
 
@@ -33,5 +17,8 @@ router.use("/categories", require("./categories.routes"));
 router.use("/cities", require("./cities.routes"));
 router.use("/areas", require("./areas.routes"));
 router.use("/bookings", require("./bookings.routes"));
+router.use("/contact-messages", require("./contact-messages.routes"));
+router.use("/provider-applications", require("./provider-applications.routes"));
+router.use("/blog", require("./blog.routes"));
 
 module.exports = router;

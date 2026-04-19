@@ -7,7 +7,7 @@ import { SiteShell } from "@/components/site-shell";
 import { PageHeader } from "@/components/page-header";
 import { categories } from "@/data/categories";
 import { areas, findArea } from "@/data/areas";
-import { supabase } from "@/integrations/supabase/client";
+import { api, ApiError } from "@/lib/api-client";
 import { useAuth } from "@/components/auth-provider";
 import { buildSeo, OG } from "@/lib/seo";
 import {
@@ -104,32 +104,33 @@ function BookPage() {
       return;
     }
     setSubmitting(true);
-    const { data, error } = await supabase
-      .from("bookings")
-      .insert({
-        user_id: user?.id ?? null,
-        full_name: parsed.data.full_name,
-        phone: parsed.data.phone,
-        email: parsed.data.email || null,
-        category: parsed.data.category,
-        service: parsed.data.service || null,
-        area: parsed.data.area,
-        address: parsed.data.address || null,
-        preferred_date: parsed.data.preferred_date,
-        preferred_time_slot: parsed.data.preferred_time_slot,
-        budget_range: parsed.data.budget_range || null,
-        notes: parsed.data.notes || null,
-      })
-      .select("id, full_name, phone, category, service, area, preferred_date, preferred_time_slot, budget_range")
-      .single();
-    setSubmitting(false);
-
-    if (error || !data) {
-      toast.error(error?.message ?? "Couldn't submit booking. Please try again.");
-      return;
+    try {
+      const res = await api<{ data: ConfirmedBooking }>("/api/bookings", {
+        method: "POST",
+        skipAuth: true, // public form — no token required
+        body: {
+          customer_id: user?.id ?? null,
+          full_name: parsed.data.full_name,
+          phone: parsed.data.phone,
+          email: parsed.data.email || null,
+          category: parsed.data.category,
+          service: parsed.data.service || null,
+          area: parsed.data.area,
+          address: parsed.data.address || null,
+          preferred_date: parsed.data.preferred_date,
+          preferred_time_slot: parsed.data.preferred_time_slot,
+          budget_range: parsed.data.budget_range || null,
+          notes: parsed.data.notes || null,
+        },
+      });
+      toast.success("Booking submitted!");
+      setConfirmed(res.data);
+    } catch (err) {
+      const msg = err instanceof ApiError ? err.message : "Couldn't submit booking. Please try again.";
+      toast.error(msg);
+    } finally {
+      setSubmitting(false);
     }
-    toast.success("Booking submitted!");
-    setConfirmed(data as ConfirmedBooking);
   }
 
   return (

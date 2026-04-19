@@ -5,7 +5,7 @@ import { Loader2, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import { toast } from "sonner";
 import { SiteShell } from "@/components/site-shell";
 import { PageHeader } from "@/components/page-header";
-import { supabase } from "@/integrations/supabase/client";
+import { api, ApiError } from "@/lib/api-client";
 import { useAuth } from "@/components/auth-provider";
 import { buildSeo, OG } from "@/lib/seo";
 
@@ -31,12 +31,7 @@ const schema = z.object({
 function ContactPage() {
   const { user } = useAuth();
   const [busy, setBusy] = useState(false);
-  const [form, setForm] = useState({
-    full_name: "",
-    phone: "",
-    email: "",
-    message: "",
-  });
+  const [form, setForm] = useState({ full_name: "", phone: "", email: "", message: "" });
 
   function update<K extends keyof typeof form>(k: K, v: string) {
     setForm((f) => ({ ...f, [k]: v }));
@@ -50,20 +45,25 @@ function ContactPage() {
       return;
     }
     setBusy(true);
-    const { error } = await supabase.from("contact_messages").insert({
-      full_name: parsed.data.full_name,
-      phone: parsed.data.phone || null,
-      email: parsed.data.email,
-      message: parsed.data.message,
-      user_id: user?.id ?? null,
-    });
-    setBusy(false);
-    if (error) {
-      toast.error(error.message);
-      return;
+    try {
+      await api("/api/contact-messages", {
+        method: "POST",
+        skipAuth: true,
+        body: {
+          full_name: parsed.data.full_name,
+          phone: parsed.data.phone || null,
+          email: parsed.data.email,
+          message: parsed.data.message,
+          customer_id: user?.id ?? null,
+        },
+      });
+      toast.success("Message sent! We'll reply within one business day.");
+      setForm({ full_name: "", phone: "", email: "", message: "" });
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : "Couldn't send your message.");
+    } finally {
+      setBusy(false);
     }
-    toast.success("Message sent! We'll reply within one business day.");
-    setForm({ full_name: "", phone: "", email: "", message: "" });
   }
 
   return (
@@ -109,43 +109,16 @@ function ContactPage() {
 
             <div className="mt-5 space-y-3">
               <Field label="Your name *">
-                <input
-                  className="input"
-                  placeholder="Tasnim Akter"
-                  required
-                  value={form.full_name}
-                  onChange={(e) => update("full_name", e.target.value)}
-                />
+                <input className="input" placeholder="Tasnim Akter" required value={form.full_name} onChange={(e) => update("full_name", e.target.value)} />
               </Field>
               <Field label="Phone">
-                <input
-                  className="input"
-                  type="tel"
-                  placeholder="+880 1700 000000"
-                  value={form.phone}
-                  onChange={(e) => update("phone", e.target.value)}
-                />
+                <input className="input" type="tel" placeholder="+880 1700 000000" value={form.phone} onChange={(e) => update("phone", e.target.value)} />
               </Field>
               <Field label="Email *">
-                <input
-                  className="input"
-                  type="email"
-                  required
-                  placeholder="you@example.com"
-                  value={form.email}
-                  onChange={(e) => update("email", e.target.value)}
-                />
+                <input className="input" type="email" required placeholder="you@example.com" value={form.email} onChange={(e) => update("email", e.target.value)} />
               </Field>
               <Field label="Message *">
-                <textarea
-                  rows={4}
-                  required
-                  minLength={10}
-                  className="input"
-                  placeholder="How can we help?"
-                  value={form.message}
-                  onChange={(e) => update("message", e.target.value)}
-                />
+                <textarea rows={4} required minLength={10} className="input" placeholder="How can we help?" value={form.message} onChange={(e) => update("message", e.target.value)} />
               </Field>
               <button
                 type="submit"

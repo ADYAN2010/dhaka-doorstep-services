@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Loader2, ArrowRight, AlertTriangle } from "lucide-react";
 import { SiteShell } from "@/components/site-shell";
 import { PageHeader } from "@/components/page-header";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/lib/api-client";
 import { buildSeo, OG } from "@/lib/seo";
 
 export const Route = createFileRoute("/blog/")({
@@ -41,18 +41,14 @@ function BlogPage() {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const { data, error } = await supabase
-        .from("blog_posts")
-        .select("id, slug, title, excerpt, cover_image_url, tag, read_minutes, published_at")
-        .eq("published", true)
-        .order("published_at", { ascending: false });
-      if (cancelled) return;
-      if (error) setError(error.message);
-      else setPosts((data ?? []) as Post[]);
+      try {
+        const res = await api<{ data: Post[] }>("/api/blog", { skipAuth: true });
+        if (!cancelled) setPosts(res.data ?? []);
+      } catch (e) {
+        if (!cancelled) setError(e instanceof Error ? e.message : "Failed to load");
+      }
     })();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, []);
 
   return (

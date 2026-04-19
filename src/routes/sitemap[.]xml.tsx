@@ -1,11 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { createClient } from "@supabase/supabase-js";
 import { areas } from "@/data/areas";
 import { categories } from "@/data/categories";
 
 const SITE_URL = "https://shebabd.com";
 
-// Static marketing routes — change priority/changefreq if needed.
 const STATIC_ROUTES: Array<{ path: string; priority: number; changefreq: string }> = [
   { path: "/", priority: 1.0, changefreq: "weekly" },
   { path: "/services", priority: 0.9, changefreq: "weekly" },
@@ -31,9 +29,7 @@ function urlEntry(loc: string, lastmod?: string, changefreq?: string, priority?:
     changefreq ? `    <changefreq>${changefreq}</changefreq>` : "",
     priority !== undefined ? `    <priority>${priority.toFixed(1)}</priority>` : "",
     "  </url>",
-  ]
-    .filter(Boolean)
-    .join("\n");
+  ].filter(Boolean).join("\n");
 }
 
 export const Route = createFileRoute("/sitemap.xml")({
@@ -43,20 +39,10 @@ export const Route = createFileRoute("/sitemap.xml")({
         const today = new Date().toISOString().split("T")[0];
         const urls: string[] = [];
 
-        // 1. Static marketing pages
-        for (const r of STATIC_ROUTES) {
-          urls.push(urlEntry(r.path, today, r.changefreq, r.priority));
-        }
-
-        // 2. Area landing pages (static data)
-        for (const a of areas) {
-          urls.push(urlEntry(`/dhaka/${a.slug}`, today, "monthly", 0.7));
-        }
-
-        // 3. Service category pages (static data)
+        for (const r of STATIC_ROUTES) urls.push(urlEntry(r.path, today, r.changefreq, r.priority));
+        for (const a of areas) urls.push(urlEntry(`/dhaka/${a.slug}`, today, "monthly", 0.7));
         for (const c of categories) {
           urls.push(urlEntry(`/services/${c.slug}`, today, "weekly", 0.7));
-          // Individual service pages
           for (const sub of c.subcategories) {
             for (const s of sub.services) {
               urls.push(urlEntry(`/services/${c.slug}/${s.slug}`, today, "monthly", 0.5));
@@ -64,28 +50,19 @@ export const Route = createFileRoute("/sitemap.xml")({
           }
         }
 
-        // 4. Dynamic — published blog posts from DB
+        // Dynamic blog slugs from MySQL backend.
         try {
-          const supabaseUrl = process.env.VITE_SUPABASE_URL;
-          const supabaseKey = process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-          if (supabaseUrl && supabaseKey) {
-            const supabase = createClient(supabaseUrl, supabaseKey);
-            const { data: posts } = await supabase
-              .from("blog_posts")
-              .select("slug, updated_at")
-              .eq("published", true)
-              .order("published_at", { ascending: false })
-              .limit(1000);
-            for (const p of posts ?? []) {
-              const lastmod = p.updated_at
-                ? new Date(p.updated_at).toISOString().split("T")[0]
-                : today;
+          const apiBase = process.env.VITE_API_BASE_URL || "http://localhost:4000";
+          const res = await fetch(`${apiBase.replace(/\/$/, "")}/api/blog/slugs`);
+          if (res.ok) {
+            const json = (await res.json()) as { data?: Array<{ slug: string; updated_at?: string }> };
+            for (const p of json.data ?? []) {
+              const lastmod = p.updated_at ? new Date(p.updated_at).toISOString().split("T")[0] : today;
               urls.push(urlEntry(`/blog/${p.slug}`, lastmod, "monthly", 0.6));
             }
           }
         } catch (err) {
           console.error("Sitemap blog fetch failed:", err);
-          // Continue — static URLs still serve.
         }
 
         const xml = `<?xml version="1.0" encoding="UTF-8"?>
