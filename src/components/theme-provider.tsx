@@ -1,4 +1,5 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, type ReactNode } from "react";
+import { useAppearance } from "./appearance-provider";
 
 type Theme = "light" | "dark";
 
@@ -10,44 +11,24 @@ type ThemeContextValue = {
 
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
-const STORAGE_KEY = "shebabd-theme";
-
-function applyTheme(theme: Theme) {
-  const root = document.documentElement;
-  if (theme === "dark") root.classList.add("dark");
-  else root.classList.remove("dark");
-  root.style.colorScheme = theme;
-}
-
+/**
+ * Theme is now a thin wrapper over AppearanceProvider so the global
+ * appearance settings stay the single source of truth. The toggle
+ * flips between explicit light/dark (overriding "system").
+ */
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>("light");
+  const { settings, update, resolvedMode } = useAppearance();
 
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY) as Theme | null;
-      const initial: Theme = stored === "dark" || stored === "light" ? stored : "light";
-      setThemeState(initial);
-      applyTheme(initial);
-    } catch {
-      applyTheme("light");
-    }
-  }, []);
-
-  const setTheme = (next: Theme) => {
-    setThemeState(next);
-    applyTheme(next);
-    try { localStorage.setItem(STORAGE_KEY, next); } catch {
-      // ignore
-    }
-  };
-
-  const toggle = () => setTheme(theme === "dark" ? "light" : "dark");
+  const setTheme = (next: Theme) => update({ themeMode: next });
+  const toggle = () => update({ themeMode: resolvedMode === "dark" ? "light" : "dark" });
 
   return (
-    <ThemeContext.Provider value={{ theme, toggle, setTheme }}>
+    <ThemeContext.Provider value={{ theme: resolvedMode, toggle, setTheme }}>
       {children}
     </ThemeContext.Provider>
   );
+  // settings reference kept to ensure context updates trigger re-renders
+  void settings;
 }
 
 export function useTheme() {

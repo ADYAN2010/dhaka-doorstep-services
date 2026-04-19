@@ -3,10 +3,12 @@ import { Navbar } from "./navbar";
 import { Footer } from "./footer";
 import { MobileStickyCTA } from "./mobile-sticky-cta";
 import { FloatingHelp } from "./floating-help";
+import { PromoStrip } from "./promo-strip";
 
 export function SiteShell({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
+      <PromoStrip />
       <Navbar />
       <main className="flex-1 pb-32 md:pb-0">{children}</main>
       <Footer />
