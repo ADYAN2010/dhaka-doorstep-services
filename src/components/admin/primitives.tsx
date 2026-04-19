@@ -19,7 +19,7 @@ export function StatTile({
   value: ReactNode;
   hint?: string;
   trend?: { value: string; positive?: boolean };
-  tone?: "default" | "success" | "warning" | "danger" | "primary";
+  tone?: "default" | "success" | "warning" | "danger" | "primary" | "info";
 }) {
   const toneMap = {
     default: "bg-muted text-foreground",
@@ -27,6 +27,7 @@ export function StatTile({
     success: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
     warning: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
     danger: "bg-destructive/10 text-destructive",
+    info: "bg-sky-500/10 text-sky-600 dark:text-sky-400",
   };
   return (
     <div className="group relative overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-soft ring-inset-soft transition-all hover:shadow-elevated">
