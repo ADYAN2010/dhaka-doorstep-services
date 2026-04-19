@@ -38,6 +38,7 @@ import { Button } from "@/components/ui/button";
 import { RecordPaymentDialog } from "@/components/record-payment-dialog";
 import { categories as ALL_CATEGORIES } from "@/data/categories";
 import { areas as ALL_AREAS, findArea } from "@/data/areas";
+import { ProviderOperations } from "@/components/provider-ops";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/provider-dashboard")({
@@ -102,15 +103,16 @@ type ReviewRow = {
 type Slot = { weekday: number; is_active: boolean; start_time: string; end_time: string };
 
 type SectionKey =
-  | "overview" | "requests" | "assigned" | "completed" | "earnings"
+  | "overview" | "operations" | "requests" | "assigned" | "completed" | "earnings"
   | "reviews" | "services" | "coverage" | "availability" | "verification"
   | "notifications" | "profile";
 
-const SECTIONS: { key: SectionKey; label: string; icon: ComponentType<{ className?: string }>; group: "Work" | "Earn" | "Settings" }[] = [
+const SECTIONS: { key: SectionKey; label: string; icon: ComponentType<{ className?: string }>; group: "Work" | "Operations" | "Earn" | "Settings" }[] = [
   { key: "overview",      label: "Overview",          icon: LayoutDashboard, group: "Work" },
   { key: "requests",      label: "Booking requests",  icon: Inbox,           group: "Work" },
   { key: "assigned",      label: "Assigned jobs",     icon: Briefcase,       group: "Work" },
   { key: "completed",     label: "Completed jobs",    icon: CheckCircle2,    group: "Work" },
+  { key: "operations",    label: "Operations",        icon: TrendingUp,      group: "Operations" },
   { key: "earnings",      label: "Earnings",          icon: Wallet,          group: "Earn" },
   { key: "reviews",       label: "Ratings & reviews", icon: Star,            group: "Earn" },
   { key: "services",      label: "Services offered",  icon: Layers,          group: "Settings" },
