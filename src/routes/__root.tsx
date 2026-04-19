@@ -4,7 +4,6 @@ import appCss from "../styles.css?url";
 import { AppearanceProvider } from "../components/appearance-provider";
 import { ThemeProvider } from "../components/theme-provider";
 import { AuthProvider } from "../components/auth-provider";
-import { BackendAuthProvider } from "../components/backend-auth-provider";
 
 function NotFoundComponent() {
   return (
@@ -77,9 +76,7 @@ function RootComponent() {
     <AppearanceProvider>
       <ThemeProvider>
         <AuthProvider>
-          <BackendAuthProvider>
-            <Outlet />
-          </BackendAuthProvider>
+          <Outlet />
         </AuthProvider>
       </ThemeProvider>
     </AppearanceProvider>

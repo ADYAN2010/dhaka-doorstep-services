@@ -1,7 +1,6 @@
 /**
- * Migration placeholder — shown on legacy pages whose Supabase data layer
- * has been removed during the MySQL migration. Keeps the build green and
- * gives users a friendly "we're working on it" message.
+ * Phase 1 placeholder — shown on routes whose Supabase data layer is being
+ * restored in Phase 2/3. Keeps the build green.
  */
 import { Link } from "@tanstack/react-router";
 import { Construction, ArrowLeft } from "lucide-react";
@@ -16,7 +15,7 @@ type Props = {
 
 export function MigrationPlaceholder({
   title,
-  description = "This page is being rebuilt on our new backend. It will be back online shortly.",
+  description = "This page is being restored on Supabase. It will be back online shortly.",
   backTo = "/",
   backLabel = "Back to home",
 }: Props) {

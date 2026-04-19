@@ -1,9 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState, type FormEvent } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
 import { SiteShell } from "@/components/site-shell";
-import { api, ApiError } from "@/lib/api-client";
+import { supabase } from "@/integrations/supabase/client";
 import { buildSeo } from "@/lib/seo";
 
 export const Route = createFileRoute("/reset-password")({
@@ -18,20 +18,28 @@ export const Route = createFileRoute("/reset-password")({
 });
 
 const requestSchema = z.object({ email: z.string().trim().email() });
-const resetSchema = z.object({
-  token: z.string().min(20),
-  password: z.string().min(8).max(72),
-});
+const setSchema = z.object({ password: z.string().min(8).max(72) });
 
 function ResetPasswordPage() {
   const navigate = useNavigate();
   const [stage, setStage] = useState<"request" | "set">("request");
   const [email, setEmail] = useState("");
-  const [token, setToken] = useState("");
   const [password, setPassword] = useState("");
   const [info, setInfo] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+
+  // Supabase puts a `recovery` access_token in the URL hash on the redirect
+  // back from the reset email. If we detect one, jump straight to the "set
+  // new password" stage — supabase-js will already have created a session.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const hash = window.location.hash || "";
+    if (hash.includes("type=recovery")) {
+      setStage("set");
+      setInfo("Set your new password below.");
+    }
+  }, []);
 
   async function requestReset(e: FormEvent) {
     e.preventDefault();
@@ -41,20 +49,13 @@ function ResetPasswordPage() {
     if (!parsed.success) return setError(parsed.error.issues[0]?.message ?? "Invalid email");
     setBusy(true);
     try {
-      const res = await api<{ ok: true; dev_token?: string }>("/api/customer-auth/forgot-password", {
-        method: "POST",
-        body: parsed.data,
-        skipAuth: true,
+      const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.email, {
+        redirectTo: `${window.location.origin}/reset-password`,
       });
-      if (res.dev_token) {
-        setToken(res.dev_token);
-        setStage("set");
-        setInfo("Dev mode: token loaded for you. Set your new password below.");
-      } else {
-        setInfo("If that email is registered, a reset link has been sent.");
-      }
+      if (error) throw error;
+      setInfo("If that email is registered, a reset link has been sent. Check your inbox.");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Couldn't request reset");
+      setError((err as { message?: string })?.message ?? "Couldn't request reset");
     } finally {
       setBusy(false);
     }
@@ -63,19 +64,16 @@ function ResetPasswordPage() {
   async function setNewPassword(e: FormEvent) {
     e.preventDefault();
     setError(null);
-    const parsed = resetSchema.safeParse({ token, password });
+    const parsed = setSchema.safeParse({ password });
     if (!parsed.success) return setError(parsed.error.issues[0]?.message ?? "Invalid input");
     setBusy(true);
     try {
-      await api("/api/customer-auth/reset-password", {
-        method: "POST",
-        body: { token: parsed.data.token, new_password: parsed.data.password },
-        skipAuth: true,
-      });
-      setInfo("Password updated. You can now log in.");
+      const { error } = await supabase.auth.updateUser({ password: parsed.data.password });
+      if (error) throw error;
+      setInfo("Password updated. Redirecting to log in…");
       setTimeout(() => navigate({ to: "/login" }), 800);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Couldn't reset password");
+      setError((err as { message?: string })?.message ?? "Couldn't reset password");
     } finally {
       setBusy(false);
     }
@@ -121,16 +119,6 @@ function ResetPasswordPage() {
             </form>
           ) : (
             <form onSubmit={setNewPassword} className="mt-6 space-y-4">
-              <div>
-                <label className="text-sm font-medium text-foreground">Reset token</label>
-                <input
-                  type="text"
-                  required
-                  value={token}
-                  onChange={(e) => setToken(e.target.value)}
-                  className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-xs outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 font-mono"
-                />
-              </div>
               <div>
                 <label className="text-sm font-medium text-foreground">New password</label>
                 <input

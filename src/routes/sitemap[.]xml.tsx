@@ -32,51 +32,37 @@ function urlEntry(loc: string, lastmod?: string, changefreq?: string, priority?:
   ].filter(Boolean).join("\n");
 }
 
+/**
+ * Static sitemap rendered at request time as XML. Dynamic blog slugs will be
+ * added back in Phase 2 once the Supabase blog flow is restored.
+ */
 export const Route = createFileRoute("/sitemap.xml")({
-  server: {
-    handlers: {
-      GET: async () => {
-        const today = new Date().toISOString().split("T")[0];
-        const urls: string[] = [];
+  component: () => null,
+  loader: () => {
+    const today = new Date().toISOString().split("T")[0];
+    const urls: string[] = [];
 
-        for (const r of STATIC_ROUTES) urls.push(urlEntry(r.path, today, r.changefreq, r.priority));
-        for (const a of areas) urls.push(urlEntry(`/dhaka/${a.slug}`, today, "monthly", 0.7));
-        for (const c of categories) {
-          urls.push(urlEntry(`/services/${c.slug}`, today, "weekly", 0.7));
-          for (const sub of c.subcategories) {
-            for (const s of sub.services) {
-              urls.push(urlEntry(`/services/${c.slug}/${s.slug}`, today, "monthly", 0.5));
-            }
-          }
+    for (const r of STATIC_ROUTES) urls.push(urlEntry(r.path, today, r.changefreq, r.priority));
+    for (const a of areas) urls.push(urlEntry(`/dhaka/${a.slug}`, today, "monthly", 0.7));
+    for (const c of categories) {
+      urls.push(urlEntry(`/services/${c.slug}`, today, "weekly", 0.7));
+      for (const sub of c.subcategories) {
+        for (const s of sub.services) {
+          urls.push(urlEntry(`/services/${c.slug}/${s.slug}`, today, "monthly", 0.5));
         }
+      }
+    }
 
-        // Dynamic blog slugs from MySQL backend.
-        try {
-          const apiBase = process.env.VITE_API_BASE_URL || "http://localhost:4000";
-          const res = await fetch(`${apiBase.replace(/\/$/, "")}/api/blog/slugs`);
-          if (res.ok) {
-            const json = (await res.json()) as { data?: Array<{ slug: string; updated_at?: string }> };
-            for (const p of json.data ?? []) {
-              const lastmod = p.updated_at ? new Date(p.updated_at).toISOString().split("T")[0] : today;
-              urls.push(urlEntry(`/blog/${p.slug}`, lastmod, "monthly", 0.6));
-            }
-          }
-        } catch (err) {
-          console.error("Sitemap blog fetch failed:", err);
-        }
-
-        const xml = `<?xml version="1.0" encoding="UTF-8"?>
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.join("\n")}
 </urlset>`;
 
-        return new Response(xml, {
-          headers: {
-            "Content-Type": "application/xml; charset=utf-8",
-            "Cache-Control": "public, max-age=3600, s-maxage=3600",
-          },
-        });
+    throw new Response(xml, {
+      headers: {
+        "Content-Type": "application/xml; charset=utf-8",
+        "Cache-Control": "public, max-age=3600, s-maxage=3600",
       },
-    },
+    });
   },
 });

@@ -29,12 +29,13 @@ export function Navbar() {
     navigate({ to: "/" });
   }
 
-  const displayName = user?.full_name?.trim() || user?.email || "Account";
+  const fullName = (user?.user_metadata?.full_name as string | undefined)?.trim();
+  const displayName = fullName || user?.email || "Account";
   const firstName = displayName.split(" ")[0];
   const initials =
     displayName
       .split(" ")
-      .map((s) => s[0])
+      .map((s: string) => s[0])
       .filter(Boolean)
       .slice(0, 2)
       .join("")
