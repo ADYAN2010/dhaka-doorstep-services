@@ -1,123 +1,169 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { MapPin, Loader2, TrendingUp } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { MapPin, Loader2, Building2, Search } from "lucide-react";
+import { toast } from "sonner";
+import { listAreas, listCities } from "@/utils/admin.functions";
+import type { AreaRow, CityRow } from "@/server/types";
 import { AdminPageHeader } from "@/components/admin/page-header";
+import { EmptyState } from "@/components/admin/empty-state";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
-import { areas } from "@/data/areas";
 
 export const Route = createFileRoute("/admin/console/locations")({
   component: LocationsPage,
 });
 
-type Stats = {
-  area: string;
-  bookings: number;
-  providers: number;
-  completed: number;
-};
-
 function LocationsPage() {
+  const navigate = useNavigate();
+  const [cities, setCities] = useState<CityRow[]>([]);
+  const [areas, setAreas] = useState<AreaRow[]>([]);
+  const [activeCity, setActiveCity] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState(true);
-  const [rows, setRows] = useState<Stats[]>([]);
   const [q, setQ] = useState("");
 
   useEffect(() => {
     let cancelled = false;
-    async function load() {
-      setLoading(true);
-      const [bookingsRes, areasRes] = await Promise.all([
-        supabase.from("bookings").select("area, status"),
-        supabase.from("provider_areas").select("area"),
-      ]);
-      if (cancelled) return;
-      const bookingsByArea = new Map<string, { total: number; completed: number }>();
-      (bookingsRes.data ?? []).forEach((b) => {
-        const cur = bookingsByArea.get(b.area) ?? { total: 0, completed: 0 };
-        cur.total += 1;
-        if (b.status === "completed") cur.completed += 1;
-        bookingsByArea.set(b.area, cur);
+    Promise.all([listCities(), listAreas({ data: {} })])
+      .then(([c, a]) => {
+        if (cancelled) return;
+        setCities(c ?? []);
+        setAreas(a ?? []);
+        setLoading(false);
+      })
+      .catch((e: Error) => {
+        if (cancelled) return;
+        if (e.message.includes("Unauthorized")) return navigate({ to: "/admin/backend/login" });
+        toast.error(e.message);
+        setLoading(false);
       });
-      const providersByArea = new Map<string, number>();
-      (areasRes.data ?? []).forEach((a) => providersByArea.set(a.area, (providersByArea.get(a.area) ?? 0) + 1));
-      // Merge with seed area list
-      const allAreas = new Set<string>([...areas.map((a) => a.name), ...bookingsByArea.keys(), ...providersByArea.keys()]);
-      const data: Stats[] = Array.from(allAreas).map((a) => ({
-        area: a,
-        bookings: bookingsByArea.get(a)?.total ?? 0,
-        completed: bookingsByArea.get(a)?.completed ?? 0,
-        providers: providersByArea.get(a) ?? 0,
-      })).sort((x, y) => y.bookings - x.bookings);
-      setRows(data);
-      setLoading(false);
-    }
-    void load();
     return () => { cancelled = true; };
-  }, []);
+  }, [navigate]);
 
-  const filtered = useMemo(() => q ? rows.filter((r) => r.area.toLowerCase().includes(q.toLowerCase())) : rows, [rows, q]);
-  const totalBookings = rows.reduce((s, r) => s + r.bookings, 0);
-  const totalProviders = rows.reduce((s, r) => s + r.providers, 0);
-  const coveredAreas = rows.filter((r) => r.providers > 0).length;
+  useEffect(() => {
+    if (loading) return;
+    let cancelled = false;
+    listAreas({ data: { cityId: activeCity } })
+      .then((a) => { if (!cancelled) setAreas(a ?? []); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [activeCity, loading]);
+
+  const filteredAreas = useMemo(() => {
+    if (!q) return areas;
+    const t = q.toLowerCase();
+    return areas.filter((a) => a.name.toLowerCase().includes(t) || a.slug.toLowerCase().includes(t));
+  }, [areas, q]);
+
+  const liveCities = cities.filter((c) => c.launch_status === "live").length;
 
   return (
     <div>
       <AdminPageHeader
         eyebrow="Locations"
-        title="Coverage & demand by area"
-        description="See provider density and booking demand across every area in Dhaka."
+        title="Cities & coverage areas"
+        description="Manage where the platform operates. Cities and their service areas, live from MySQL."
       />
 
+      {/* City stats */}
       <div className="mb-4 grid gap-3 sm:grid-cols-3">
-        <Stat label="Areas tracked" value={rows.length.toLocaleString()} icon={MapPin} />
-        <Stat label="Areas with providers" value={coveredAreas.toLocaleString()} icon={MapPin} accent />
-        <Stat label="Total bookings" value={totalBookings.toLocaleString()} icon={TrendingUp} />
-      </div>
-
-      <div className="mb-4 relative max-w-md">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input placeholder="Search area…" value={q} onChange={(e) => setQ(e.target.value)} className="pl-9" />
+        <Stat label="Cities configured" value={cities.length.toLocaleString()} icon={Building2} />
+        <Stat label="Live cities" value={liveCities.toLocaleString()} icon={Building2} accent />
+        <Stat label="Total areas" value={areas.length.toLocaleString()} icon={MapPin} />
       </div>
 
       {loading ? (
         <div className="grid place-items-center py-16"><Loader2 className="h-5 w-5 animate-spin text-primary" /></div>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((r) => {
-            const conversion = r.bookings > 0 ? Math.round((r.completed / r.bookings) * 100) : 0;
-            return (
-              <div key={r.area} className="rounded-2xl border border-border bg-card p-4 shadow-soft">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <div className="font-semibold">{r.area}</div>
-                    <div className="text-xs text-muted-foreground">Dhaka</div>
+        <div className="space-y-8">
+          {/* Cities */}
+          <section>
+            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Cities</h2>
+            {cities.length === 0 ? (
+              <EmptyState icon={Building2} title="No cities" />
+            ) : (
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {cities.map((c) => (
+                  <div key={c.id} className="rounded-2xl border border-border bg-card p-4 shadow-soft">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <div className="font-semibold">{c.name}</div>
+                        <div className="text-xs text-muted-foreground">{c.country}</div>
+                      </div>
+                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${launchClass(c.launch_status)}`}>
+                        {c.launch_status.replace("_", " ")}
+                      </span>
+                    </div>
+                    <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
+                      <span className="font-mono">{c.slug}</span>
+                      <span>{c.is_active ? "Enabled" : "Disabled"}</span>
+                    </div>
                   </div>
-                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${r.providers > 0 ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400" : "bg-muted text-muted-foreground"}`}>
-                    {r.providers > 0 ? "Covered" : "No coverage"}
-                  </span>
-                </div>
-                <div className="mt-3 grid grid-cols-3 gap-2 text-center">
-                  <div className="rounded-lg bg-muted/40 p-2">
-                    <div className="text-base font-bold">{r.providers}</div>
-                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Providers</div>
-                  </div>
-                  <div className="rounded-lg bg-muted/40 p-2">
-                    <div className="text-base font-bold">{r.bookings}</div>
-                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Bookings</div>
-                  </div>
-                  <div className="rounded-lg bg-muted/40 p-2">
-                    <div className="text-base font-bold">{conversion}%</div>
-                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Done</div>
-                  </div>
-                </div>
+                ))}
               </div>
-            );
-          })}
+            )}
+          </section>
+
+          {/* Areas */}
+          <section>
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+              <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Areas</h2>
+              <div className="flex flex-wrap gap-1 rounded-full border border-border bg-card p-1 text-xs">
+                <button
+                  type="button"
+                  onClick={() => setActiveCity(undefined)}
+                  className={`rounded-full px-3 py-1.5 ${!activeCity ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                >All</button>
+                {cities.map((c) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => setActiveCity(c.id)}
+                    className={`rounded-full px-3 py-1.5 ${activeCity === c.id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                  >{c.name}</button>
+                ))}
+              </div>
+            </div>
+
+            <div className="mb-3 relative max-w-md">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input placeholder="Search area…" value={q} onChange={(e) => setQ(e.target.value)} className="pl-9" />
+            </div>
+
+            {filteredAreas.length === 0 ? (
+              <EmptyState icon={MapPin} title={q ? "No matches" : "No areas in this city"} />
+            ) : (
+              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {filteredAreas.map((a) => {
+                  const city = cities.find((c) => c.id === a.city_id);
+                  return (
+                    <div key={a.id} className="rounded-xl border border-border bg-card p-3 shadow-soft">
+                      <div className="flex items-center justify-between">
+                        <div className="min-w-0">
+                          <div className="truncate font-medium">{a.name}</div>
+                          <div className="truncate text-xs text-muted-foreground">{city?.name ?? "—"} · {a.slug}</div>
+                        </div>
+                        <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${a.is_active ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300" : "bg-muted text-muted-foreground"}`}>
+                          {a.is_active ? "On" : "Off"}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </section>
         </div>
       )}
     </div>
   );
+}
+
+function launchClass(s: CityRow["launch_status"]) {
+  switch (s) {
+    case "live":        return "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300";
+    case "beta":        return "bg-sky-500/15 text-sky-700 dark:text-sky-300";
+    case "coming_soon": return "bg-amber-500/15 text-amber-700 dark:text-amber-300";
+    case "paused":      return "bg-muted text-muted-foreground";
+  }
 }
 
 function Stat({ label, value, icon: Icon, accent }: { label: string; value: string; icon: typeof MapPin; accent?: boolean }) {
