@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { Palette, Sun, Moon, Type, Image as ImageIcon, Save, RotateCcw } from "lucide-react";
+import {
+  Palette, Sun, Moon, Monitor, Type, Megaphone, LayoutGrid,
+  Save, RotateCcw, Eye, EyeOff, Sparkles, Info, CheckCircle2, AlertTriangle,
+} from "lucide-react";
 import { toast } from "sonner";
 import { AdminPageHeader } from "@/components/admin/page-header";
 import { Logo } from "@/components/logo";
@@ -8,166 +10,273 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import {
+  BRAND_PRESETS, FONT_PRESETS, useAppearance,
+} from "@/components/appearance-provider";
 
 export const Route = createFileRoute("/admin/console/appearance")({
   component: AppearancePage,
 });
 
-const PRESETS = [
-  { id: "teal", name: "Teal (default)", primary: "oklch(0.62 0.13 195)", glow: "oklch(0.72 0.14 190)" },
-  { id: "indigo", name: "Indigo", primary: "oklch(0.55 0.18 280)", glow: "oklch(0.65 0.18 280)" },
-  { id: "emerald", name: "Emerald", primary: "oklch(0.62 0.15 155)", glow: "oklch(0.72 0.15 155)" },
-  { id: "rose", name: "Rose", primary: "oklch(0.62 0.2 15)", glow: "oklch(0.72 0.2 15)" },
-  { id: "amber", name: "Amber", primary: "oklch(0.72 0.16 75)", glow: "oklch(0.8 0.16 75)" },
-];
-
 function AppearancePage() {
-  const [preset, setPreset] = useState("teal");
-  const [radius, setRadius] = useState("0.875");
-  const [fontHeading, setFontHeading] = useState("Inter");
-  const [fontBody, setFontBody] = useState("Inter");
-  const [productName, setProductName] = useState("ServiceHub Bangladesh");
-  const [tagline, setTagline] = useState("Trusted home & professional services in Dhaka");
-  const [logoUrl, setLogoUrl] = useState("");
-  const [previewDark, setPreviewDark] = useState(false);
-  const [highContrast, setHighContrast] = useState(false);
-  const [reduceMotion, setReduceMotion] = useState(false);
+  const { settings, update, updateSection, reset, resolvedMode } = useAppearance();
 
-  const current = PRESETS.find((p) => p.id === preset) ?? PRESETS[0];
-
-  function save() { toast.success("Appearance saved"); }
-  function reset() {
-    setPreset("teal"); setRadius("0.875"); setFontHeading("Inter"); setFontBody("Inter");
-    setHighContrast(false); setReduceMotion(false);
-    toast.success("Reset to defaults");
-  }
+  function save() { toast.success("Appearance saved — applied across the platform"); }
+  function handleReset() { reset(); toast.success("Reset to defaults"); }
 
   return (
     <div>
       <AdminPageHeader
         eyebrow="Appearance"
-        title="Brand & theme"
-        description="Customize colors, typography, logo, and accessibility defaults across the platform."
+        title="Brand, theme & homepage"
+        description="Live customization of brand color, theme mode, banners, homepage sections, fonts, and the promotional strip — applied site-wide."
         actions={
           <>
-            <Button variant="ghost" size="sm" onClick={reset}><RotateCcw className="h-3.5 w-3.5" /> Reset</Button>
+            <Button variant="ghost" size="sm" onClick={handleReset}><RotateCcw className="h-3.5 w-3.5" /> Reset</Button>
             <Button size="sm" onClick={save}><Save className="h-3.5 w-3.5" /> Save changes</Button>
           </>
         }
       />
 
-      <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
-        {/* Settings */}
-        <div className="space-y-4">
-          {/* Brand colors */}
-          <Section icon={Palette} title="Brand color" description="Pick a preset or use your own primary color.">
-            <div className="grid grid-cols-5 gap-2">
-              {PRESETS.map((p) => (
-                <button
-                  key={p.id} type="button" onClick={() => setPreset(p.id)}
-                  className={`group rounded-xl border-2 p-2 text-left transition-all ${preset === p.id ? "border-primary shadow-soft" : "border-border hover:border-primary/40"}`}
-                >
-                  <div className="h-12 rounded-lg" style={{ background: `linear-gradient(135deg, ${p.primary}, ${p.glow})` }} />
-                  <div className="mt-1.5 truncate text-xs font-medium">{p.name}</div>
-                </button>
-              ))}
-            </div>
-          </Section>
+      <div className="grid gap-4 lg:grid-cols-[1fr_400px]">
+        <div>
+          <Tabs defaultValue="brand">
+            <TabsList className="mb-4 w-full justify-start overflow-x-auto">
+              <TabsTrigger value="brand"><Palette className="h-3.5 w-3.5" /> Brand & theme</TabsTrigger>
+              <TabsTrigger value="typography"><Type className="h-3.5 w-3.5" /> Typography</TabsTrigger>
+              <TabsTrigger value="promo"><Megaphone className="h-3.5 w-3.5" /> Promo strip</TabsTrigger>
+              <TabsTrigger value="banner"><Sparkles className="h-3.5 w-3.5" /> Banner</TabsTrigger>
+              <TabsTrigger value="sections"><LayoutGrid className="h-3.5 w-3.5" /> Homepage</TabsTrigger>
+            </TabsList>
 
-          {/* Logo & identity */}
-          <Section icon={ImageIcon} title="Brand identity" description="Logo, product name, and tagline shown across the app.">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div><Label>Product name</Label><Input value={productName} onChange={(e) => setProductName(e.target.value)} /></div>
-              <div><Label>Logo URL</Label><Input value={logoUrl} onChange={(e) => setLogoUrl(e.target.value)} placeholder="https://…/logo.svg" /></div>
-              <div className="sm:col-span-2"><Label>Tagline</Label><Input value={tagline} onChange={(e) => setTagline(e.target.value)} /></div>
-            </div>
-          </Section>
+            <TabsContent value="brand" className="space-y-4">
+              <Section icon={Palette} title="Brand color" description="Pick a preset. The whole platform — light & dark — re-tones instantly.">
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  {BRAND_PRESETS.map((p) => {
+                    const active = settings.brandPreset === p.id;
+                    return (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => update({ brandPreset: p.id })}
+                        className={`group rounded-xl border-2 p-3 text-left transition-all hover:shadow-soft ${
+                          active ? "border-primary shadow-soft" : "border-border hover:border-primary/40"
+                        }`}
+                      >
+                        <div
+                          className="h-14 rounded-lg shadow-soft"
+                          style={{
+                            background: `linear-gradient(135deg, oklch(${p.lightLight} ${p.chroma} ${p.hue}), oklch(${p.lightLight + 0.1} ${p.chroma} ${p.hue - 5}))`,
+                          }}
+                        />
+                        <div className="mt-2 flex items-center justify-between">
+                          <span className="truncate text-xs font-semibold">{p.name}</span>
+                          {active && <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[9px] font-bold uppercase text-primary">Active</span>}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </Section>
 
-          {/* Typography */}
-          <Section icon={Type} title="Typography" description="Body and heading font families.">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <Label>Heading font</Label>
-                <Select value={fontHeading} onValueChange={setFontHeading}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Inter">Inter</SelectItem>
-                    <SelectItem value="Manrope">Manrope</SelectItem>
-                    <SelectItem value="Space Grotesk">Space Grotesk</SelectItem>
-                    <SelectItem value="Playfair">Playfair Display</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label>Body font</Label>
-                <Select value={fontBody} onValueChange={setFontBody}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Inter">Inter</SelectItem>
-                    <SelectItem value="Manrope">Manrope</SelectItem>
-                    <SelectItem value="System">System UI</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="sm:col-span-2">
-                <Label>Border radius (rem)</Label>
-                <Input type="range" min="0" max="2" step="0.125" value={radius} onChange={(e) => setRadius(e.target.value)} />
-                <div className="mt-1 text-xs text-muted-foreground">Current: {radius}rem</div>
-              </div>
-            </div>
-          </Section>
+              <Section icon={Sun} title="Theme mode" description="Light, dark, or follow the visitor's system.">
+                <div className="grid grid-cols-3 gap-2">
+                  {([
+                    { id: "light", label: "Light", icon: Sun },
+                    { id: "dark", label: "Dark", icon: Moon },
+                    { id: "system", label: "System", icon: Monitor },
+                  ] as const).map((m) => {
+                    const Icon = m.icon;
+                    const active = settings.themeMode === m.id;
+                    return (
+                      <button
+                        key={m.id}
+                        type="button"
+                        onClick={() => update({ themeMode: m.id })}
+                        className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all hover:shadow-soft ${
+                          active ? "border-primary bg-primary/5 shadow-soft" : "border-border"
+                        }`}
+                      >
+                        <Icon className={`h-5 w-5 ${active ? "text-primary" : "text-muted-foreground"}`} />
+                        <span className="text-sm font-semibold">{m.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="mt-3 text-xs text-muted-foreground">
+                  Currently rendering in <span className="font-semibold text-foreground">{resolvedMode}</span> mode.
+                </p>
+              </Section>
 
-          {/* Accessibility */}
-          <Section icon={Sun} title="Accessibility" description="Defaults applied globally. Users can override.">
-            <div className="space-y-3">
-              <ToggleRow label="High contrast mode" description="Stronger borders and text contrast" value={highContrast} onChange={setHighContrast} />
-              <ToggleRow label="Reduce motion" description="Disable non-essential animations" value={reduceMotion} onChange={setReduceMotion} />
-            </div>
-          </Section>
+              <Section icon={Palette} title="Corner radius" description="Controls the roundness of buttons, cards, inputs, and dialogs.">
+                <Input type="range" min="0" max="1.5" step="0.0625" value={settings.radius} onChange={(e) => update({ radius: Number(e.target.value) })} />
+                <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
+                  <span>Sharp</span>
+                  <span className="font-semibold text-foreground">{settings.radius.toFixed(3)}rem</span>
+                  <span>Pillowy</span>
+                </div>
+              </Section>
+            </TabsContent>
+
+            <TabsContent value="typography" className="space-y-4">
+              <Section icon={Type} title="Typography preset" description="A complete pairing of body and display fonts. Loaded from Google Fonts on save.">
+                <div className="space-y-2">
+                  {FONT_PRESETS.map((p) => {
+                    const active = settings.fontPreset === p.id;
+                    return (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => update({ fontPreset: p.id })}
+                        className={`flex w-full items-center justify-between rounded-xl border-2 p-4 text-left transition-all hover:shadow-soft ${
+                          active ? "border-primary bg-primary/5 shadow-soft" : "border-border"
+                        }`}
+                      >
+                        <div>
+                          <div className="text-xs uppercase tracking-wider text-muted-foreground">{p.name}</div>
+                          <div className="mt-1 text-2xl font-bold" style={{ fontFamily: p.display }}>The quick brown fox</div>
+                          <div className="mt-0.5 text-sm text-muted-foreground" style={{ fontFamily: p.body }}>jumps over the lazy dog · 0123456789</div>
+                        </div>
+                        {active && <span className="rounded-full bg-primary/15 px-2 py-1 text-[10px] font-bold uppercase text-primary">Active</span>}
+                      </button>
+                    );
+                  })}
+                </div>
+              </Section>
+            </TabsContent>
+
+            <TabsContent value="promo" className="space-y-4">
+              <Section icon={Megaphone} title="Promotional strip" description="Sits at the very top of every public page. Visitors can dismiss for the session.">
+                <div className="space-y-3">
+                  <ToggleRow label="Enabled" description="Show the promotional strip across the site" value={settings.promoStripEnabled} onChange={(v) => update({ promoStripEnabled: v })} />
+                  <div><Label>Message</Label><Input value={settings.promoStripText} onChange={(e) => update({ promoStripText: e.target.value })} placeholder="🎉 Eid offer — 20% off…" /></div>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div><Label>CTA label</Label><Input value={settings.promoStripCta} onChange={(e) => update({ promoStripCta: e.target.value })} placeholder="Book now" /></div>
+                    <div><Label>CTA link</Label><Input value={settings.promoStripHref} onChange={(e) => update({ promoStripHref: e.target.value })} placeholder="/services" /></div>
+                  </div>
+                </div>
+              </Section>
+            </TabsContent>
+
+            <TabsContent value="banner" className="space-y-4">
+              <Section icon={Sparkles} title="Homepage banner" description="An attention card placed below the hero. Use for announcements, hiring drives, or seasonal pushes.">
+                <div className="space-y-3">
+                  <ToggleRow label="Enabled" description="Show the banner on the homepage" value={settings.bannerEnabled} onChange={(v) => update({ bannerEnabled: v })} />
+                  <div><Label>Headline</Label><Input value={settings.bannerHeadline} onChange={(e) => update({ bannerHeadline: e.target.value })} /></div>
+                  <div><Label>Subtext</Label><Textarea rows={2} value={settings.bannerSubtext} onChange={(e) => update({ bannerSubtext: e.target.value })} /></div>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div><Label>CTA label</Label><Input value={settings.bannerCta} onChange={(e) => update({ bannerCta: e.target.value })} /></div>
+                    <div><Label>CTA link</Label><Input value={settings.bannerHref} onChange={(e) => update({ bannerHref: e.target.value })} /></div>
+                  </div>
+                  <div>
+                    <Label>Style</Label>
+                    <Select value={settings.bannerVariant} onValueChange={(v) => update({ bannerVariant: v as typeof settings.bannerVariant })}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="brand"><Sparkles className="mr-2 inline h-3 w-3" />Brand (recommended)</SelectItem>
+                        <SelectItem value="info"><Info className="mr-2 inline h-3 w-3" />Info</SelectItem>
+                        <SelectItem value="success"><CheckCircle2 className="mr-2 inline h-3 w-3" />Success</SelectItem>
+                        <SelectItem value="warning"><AlertTriangle className="mr-2 inline h-3 w-3" />Warning</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </Section>
+            </TabsContent>
+
+            <TabsContent value="sections" className="space-y-4">
+              <Section icon={LayoutGrid} title="Homepage sections" description="Toggle visibility of each section on the public homepage.">
+                <div className="space-y-2">
+                  {SECTION_LABELS.map(({ key, label, description }) => (
+                    <ToggleRow
+                      key={key}
+                      label={label}
+                      description={description}
+                      value={settings.sections[key]}
+                      onChange={(v) => updateSection(key, v)}
+                    />
+                  ))}
+                </div>
+              </Section>
+
+              <Section icon={Eye} title="Accessibility" description="Defaults applied globally.">
+                <ToggleRow label="Reduce motion" description="Disable non-essential animations" value={settings.reduceMotion} onChange={(v) => update({ reduceMotion: v })} />
+              </Section>
+            </TabsContent>
+          </Tabs>
         </div>
 
         {/* Live preview */}
-        <div className="space-y-4">
-          <div className="sticky top-20 rounded-2xl border border-border bg-card p-4 shadow-soft">
-            <div className="mb-3 flex items-center justify-between">
-              <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Live preview</div>
-              <button
-                type="button"
-                onClick={() => setPreviewDark((v) => !v)}
-                className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-2 py-1 text-xs"
-              >
-                {previewDark ? <Moon className="h-3 w-3" /> : <Sun className="h-3 w-3" />} {previewDark ? "Dark" : "Light"}
-              </button>
+        <div>
+          <div className="sticky top-20 space-y-3">
+            <div className="rounded-2xl border border-border bg-card p-4 shadow-soft">
+              <div className="mb-3 flex items-center justify-between">
+                <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Live preview</div>
+                <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-bold uppercase text-emerald-700 dark:text-emerald-400">Synced</span>
+              </div>
+              <PreviewCard />
             </div>
-            <div className={`overflow-hidden rounded-xl border border-border ${previewDark ? "bg-[oklch(0.18_0.04_235)] text-white" : "bg-white text-[oklch(0.18_0.04_235)]"}`}>
-              <div className="flex items-center justify-between border-b border-border/50 p-3" style={{ borderRadius: `${radius}rem ${radius}rem 0 0` }}>
-                <div className="flex items-center gap-2"><Logo /></div>
-                <button className="rounded-lg px-3 py-1.5 text-xs font-semibold text-white" style={{ background: `linear-gradient(135deg, ${current.primary}, ${current.glow})`, borderRadius: `${Math.max(0.4, Number(radius) - 0.2)}rem` }}>
-                  Get started
-                </button>
-              </div>
-              <div className="p-4" style={{ fontFamily: fontBody }}>
-                <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: current.primary }}>Featured</div>
-                <h3 className="mt-1 text-base font-bold" style={{ fontFamily: fontHeading }}>{productName}</h3>
-                <p className="mt-1 text-xs opacity-70">{tagline}</p>
-                <div className="mt-3 grid grid-cols-2 gap-2">
-                  {["Cleaning", "Plumbing"].map((s) => (
-                    <div key={s} className={`rounded-lg p-2.5 text-xs ${previewDark ? "bg-white/5" : "bg-black/5"}`} style={{ borderRadius: `${Math.max(0.5, Number(radius) - 0.1)}rem` }}>
-                      <div className="font-semibold">{s}</div>
-                      <div className="opacity-60">From ৳450</div>
-                    </div>
-                  ))}
-                </div>
-                <button className="mt-3 w-full rounded-lg px-3 py-2 text-xs font-semibold text-white" style={{ background: current.primary, borderRadius: `${Math.max(0.4, Number(radius) - 0.2)}rem` }}>
-                  Book now
-                </button>
-              </div>
+
+            <div className="rounded-2xl border border-border bg-card p-4 shadow-soft">
+              <div className="mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">Visibility summary</div>
+              <ul className="space-y-1.5 text-xs">
+                <SummaryRow label="Promo strip" on={settings.promoStripEnabled} />
+                <SummaryRow label="Homepage banner" on={settings.bannerEnabled} />
+                {SECTION_LABELS.map(({ key, label }) => (
+                  <SummaryRow key={key} label={label} on={settings.sections[key]} />
+                ))}
+              </ul>
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+const SECTION_LABELS: { key: keyof ReturnType<typeof useAppearance>["settings"]["sections"]; label: string; description: string }[] = [
+  { key: "popularCategories", label: "Popular categories", description: "Grid of top service categories" },
+  { key: "howItWorks", label: "How it works", description: "3-step explainer" },
+  { key: "whyUs", label: "Why choose us", description: "Trust badges & differentiators" },
+  { key: "featuredProviders", label: "Featured providers", description: "Hand-picked top-rated providers" },
+  { key: "areas", label: "Areas served", description: "All service areas across Dhaka" },
+  { key: "testimonials", label: "Testimonials", description: "Customer quotes & ratings" },
+  { key: "providerCta", label: "Become a provider CTA", description: "Recruitment block" },
+  { key: "finalCta", label: "Final CTA", description: "Bottom-of-page conversion block" },
+];
+
+function PreviewCard() {
+  return (
+    <div className="overflow-hidden rounded-xl border border-border bg-background">
+      <div className="bg-gradient-primary px-3 py-2 text-center text-[11px] font-medium text-primary-foreground">
+        🎉 Promo strip preview
+      </div>
+      <div className="flex items-center justify-between border-b border-border px-3 py-2">
+        <Logo />
+        <button className="rounded-full bg-gradient-primary px-3 py-1 text-[11px] font-semibold text-primary-foreground">
+          Sign up
+        </button>
+      </div>
+      <div className="p-4">
+        <div className="text-[10px] font-bold uppercase tracking-wider text-primary">Featured</div>
+        <h3 className="mt-1 text-base font-bold">Premium home services</h3>
+        <p className="mt-1 text-xs text-muted-foreground">Trusted, vetted, on-time.</p>
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          {["Cleaning", "Plumbing"].map((s) => (
+            <div key={s} className="rounded-lg border border-border bg-card p-2.5 text-xs shadow-soft hover-lift">
+              <div className="font-semibold">{s}</div>
+              <div className="text-muted-foreground">From ৳450</div>
+            </div>
+          ))}
+        </div>
+        <button className="mt-3 w-full rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground shadow-soft">
+          Book now
+        </button>
       </div>
     </div>
   );
@@ -190,12 +299,23 @@ function Section({ icon: Icon, title, description, children }: { icon: typeof Pa
 
 function ToggleRow({ label, description, value, onChange }: { label: string; description: string; value: boolean; onChange: (v: boolean) => void }) {
   return (
-    <label className="flex items-start justify-between gap-4 rounded-lg border border-border bg-background/60 p-3">
+    <label className="flex items-start justify-between gap-4 rounded-lg border border-border bg-background/60 p-3 transition-colors hover:bg-muted/40">
       <div>
         <div className="text-sm font-medium">{label}</div>
         <div className="text-xs text-muted-foreground">{description}</div>
       </div>
       <Switch checked={value} onCheckedChange={onChange} />
     </label>
+  );
+}
+
+function SummaryRow({ label, on }: { label: string; on: boolean }) {
+  return (
+    <li className="flex items-center justify-between">
+      <span className="text-muted-foreground">{label}</span>
+      <span className={`inline-flex items-center gap-1 font-medium ${on ? "text-emerald-700 dark:text-emerald-400" : "text-muted-foreground"}`}>
+        {on ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />} {on ? "On" : "Off"}
+      </span>
+    </li>
   );
 }
