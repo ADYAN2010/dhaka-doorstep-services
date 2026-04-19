@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { CheckCircle2, Loader2, ShieldCheck, Sparkles, TrendingUp } from "lucide-react";
 import { SiteShell } from "@/components/site-shell";
 import { PageHeader } from "@/components/page-header";
@@ -33,12 +34,6 @@ export const Route = createFileRoute("/become-provider")({
     }),
   }),
 });
-
-const PERKS = [
-  { icon: TrendingUp, title: "Steady leads", body: "Match with customers in your area for the services you offer." },
-  { icon: ShieldCheck, title: "Trusted platform", body: "Verified profiles and clear ratings build long-term reputation." },
-  { icon: Sparkles, title: "Simple tools", body: "Manage availability, jobs, and earnings from one dashboard." },
-];
 
 function BecomeProviderPage() {
   const { user } = useAuth();
