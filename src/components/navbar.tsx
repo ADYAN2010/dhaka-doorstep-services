@@ -127,7 +127,7 @@ export function Navbar() {
                       onClick={() => setMenuOpen(false)}
                       className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-muted"
                     >
-                      <LayoutDashboard className="h-4 w-4" /> Dashboard
+                      <LayoutDashboard className="h-4 w-4" /> {t("auth.dashboard")}
                     </Link>
                     <Link
                       to="/messages"
@@ -135,7 +135,7 @@ export function Navbar() {
                       className="flex items-center justify-between gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-muted"
                     >
                       <span className="flex items-center gap-2">
-                        <MessageCircle className="h-4 w-4" /> Messages
+                        <MessageCircle className="h-4 w-4" /> {t("auth.messages")}
                       </span>
                       {unread > 0 && (
                         <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground">
@@ -149,7 +149,7 @@ export function Navbar() {
                         onClick={() => setMenuOpen(false)}
                         className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-muted"
                       >
-                        <UserIcon className="h-4 w-4" /> My bookings
+                        <UserIcon className="h-4 w-4" /> {t("auth.myBookings")}
                       </Link>
                     )}
                     <Link
@@ -157,7 +157,7 @@ export function Navbar() {
                       onClick={() => setMenuOpen(false)}
                       className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-muted"
                     >
-                      <UserIcon className="h-4 w-4" /> Profile
+                      <UserIcon className="h-4 w-4" /> {t("auth.profile")}
                     </Link>
                     {isAdmin && (
                       <Link
@@ -165,7 +165,7 @@ export function Navbar() {
                         onClick={() => setMenuOpen(false)}
                         className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-muted"
                       >
-                        <Shield className="h-4 w-4" /> Admin
+                        <Shield className="h-4 w-4" /> {t("auth.admin")}
                       </Link>
                     )}
                     <button
@@ -173,7 +173,7 @@ export function Navbar() {
                       onClick={handleSignOut}
                       className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-foreground hover:bg-muted"
                     >
-                      <LogOut className="h-4 w-4" /> Log out
+                      <LogOut className="h-4 w-4" /> {t("auth.logout")}
                     </button>
                   </div>
                 </>
@@ -185,20 +185,20 @@ export function Navbar() {
                 to="/login"
                 className="hidden rounded-full px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted md:inline-flex"
               >
-                Log in
+                {t("auth.login")}
               </Link>
               <Link
                 to="/signup"
                 className="hidden rounded-full bg-gradient-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-soft transition-transform hover:scale-[1.02] md:inline-flex"
               >
-                Sign up
+                {t("auth.signupShort")}
               </Link>
             </>
           ) : null}
 
           <button
             type="button"
-            aria-label="Open menu"
+            aria-label={t("language.switchTo")}
             className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border md:hidden"
             onClick={() => setOpen((v) => !v)}
           >
@@ -217,9 +217,12 @@ export function Navbar() {
                 onClick={() => setOpen(false)}
                 className="rounded-lg px-3 py-2 text-base font-medium text-foreground hover:bg-muted"
               >
-                {item.label}
+                {t(item.labelKey)}
               </Link>
             ))}
+            <div className="mt-2 flex justify-center sm:hidden">
+              <LanguageSwitcher />
+            </div>
             <div className="mt-2 flex flex-col gap-2">
               {user ? (
                 <>
@@ -237,7 +240,7 @@ export function Navbar() {
                     onClick={() => { setOpen(false); handleSignOut(); }}
                     className="rounded-full border border-border px-4 py-2 text-center text-sm font-medium"
                   >
-                    Log out
+                    {t("auth.logout")}
                   </button>
                 </>
               ) : (
@@ -247,14 +250,14 @@ export function Navbar() {
                     onClick={() => setOpen(false)}
                     className="rounded-full border border-border px-4 py-2 text-center text-sm font-medium"
                   >
-                    Log in
+                    {t("auth.login")}
                   </Link>
                   <Link
                     to="/signup"
                     onClick={() => setOpen(false)}
                     className="rounded-full bg-gradient-primary px-4 py-2 text-center text-sm font-semibold text-primary-foreground"
                   >
-                    Sign up
+                    {t("auth.signupShort")}
                   </Link>
                 </>
               )}
