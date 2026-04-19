@@ -1,7 +1,6 @@
 /**
- * Stubbed during the MySQL migration. The "record payment" dialog used
- * Supabase RPCs (`record_booking_payment`); it will be rebuilt against
- * the Express finance endpoints in a follow-up.
+ * Placeholder "record payment" dialog. To be rebuilt against the Supabase
+ * `record_booking_payment` RPC in a follow-up.
  */
 type Props = {
   open?: boolean;

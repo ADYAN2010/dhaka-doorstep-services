@@ -1,6 +1,6 @@
 /**
- * Phase 1 placeholder — shown on routes whose Supabase data layer is being
- * restored in Phase 2/3. Keeps the build green.
+ * Generic "coming soon" placeholder used by routes whose UI hasn't been
+ * built yet. Keeps the build green and gives users a friendly fallback.
  */
 import { Link } from "@tanstack/react-router";
 import { Construction, ArrowLeft } from "lucide-react";
@@ -15,7 +15,7 @@ type Props = {
 
 export function MigrationPlaceholder({
   title,
-  description = "This page is being restored on Supabase. It will be back online shortly.",
+  description = "This page is coming soon.",
   backTo = "/",
   backLabel = "Back to home",
 }: Props) {

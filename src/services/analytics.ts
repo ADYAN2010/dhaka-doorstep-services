@@ -1,9 +1,6 @@
 /**
- * Analytics service — stubbed during the MySQL migration.
- *
- * Returns an empty bundle so the analytics dashboard renders without
- * errors. Will be re-wired against the Express backend in a follow-up
- * pass.
+ * Analytics service — returns an empty bundle for now. Will be wired
+ * against Supabase aggregations in a follow-up.
  */
 
 export type RangeKey = "7d" | "30d" | "90d" | "ytd";

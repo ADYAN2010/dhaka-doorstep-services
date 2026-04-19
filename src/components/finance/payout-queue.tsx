@@ -1,7 +1,6 @@
 /**
- * Stubbed during the MySQL migration. The payout queue used Supabase
- * RPCs (`admin_create_payout`); it will be rebuilt against the Express
- * finance endpoints in a follow-up.
+ * Placeholder payout queue. To be rebuilt against the Supabase
+ * `admin_create_payout` RPC in a follow-up.
  */
 export type QueuedProvider = {
   providerId: string;

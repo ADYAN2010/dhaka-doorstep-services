@@ -1,7 +1,6 @@
 /**
- * `useUnreadMessages` — stubbed during the MySQL migration. The chat
- * subsystem (message_threads / messages) has not yet been ported, so
- * this hook always reports zero unread messages.
+ * `useUnreadMessages` — placeholder while the chat UI is being built.
+ * Always reports zero unread messages for now.
  */
 export function useUnreadMessages() {
   return { count: 0, loading: false };

@@ -1,8 +1,7 @@
 /**
- * Reviews service — stubbed during the MySQL migration.
- *
- * Returns empty data; mutations throw. Will be reimplemented against the
- * Express backend once a `/api/reviews` controller exists.
+ * Reviews service shim. Active routes read reviews directly from Supabase
+ * (`reviews` table + `provider_review_stats` view). Kept here for legacy
+ * callers; mutations throw.
  */
 import type { ID, Review } from "@/domain/types";
 
@@ -18,6 +17,6 @@ export const reviewsService = {
     rating: 1 | 2 | 3 | 4 | 5;
     comment?: string | null;
   }): Promise<Review> => {
-    throw new Error("Reviews are being migrated to the new backend.");
+    throw new Error("reviewsService.create is not available on this shim. Use supabase.from(\"reviews\") directly.");
   },
 };

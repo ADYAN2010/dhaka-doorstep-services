@@ -153,12 +153,10 @@ export function AdminShell({ children }: { children: ReactNode }) {
   });
   const [profile, setProfile] = useState<{ full_name: string | null; avatar_url: string | null } | null>(null);
 
-  // Notification counts — disabled during MySQL migration. The MySQL backend
-  // does not yet expose admin counters; the badges are always 0 for now.
-  // (Counts state stays initialised to 0 above.)
+  // Notification counts — placeholder. Admin badge counters will be wired
+  // to Supabase aggregations in a follow-up; they stay at 0 until then.
 
-  // Profile is read straight off the auth user (full_name / email) until
-  // the MySQL backend exposes admin profile reads.
+  // Profile is read straight off the auth user (full_name / email).
   useEffect(() => {
     if (!user) return;
     setProfile({
@@ -554,8 +552,8 @@ function GlobalSearchDialog({ open, onOpenChange }: { open: boolean; onOpenChang
     return all.filter((r) => r.title.toLowerCase().includes(q.toLowerCase()));
   }, [q]);
 
-  // Cross-entity quick search is disabled during the MySQL migration.
-  // The Navigate group below still works (it only uses static nav items).
+  // Cross-entity quick search is a placeholder; only the Navigate group
+  // (static nav items) is wired up today.
   useEffect(() => {
     setResults([]);
     setSearching(false);

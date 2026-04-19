@@ -1,7 +1,6 @@
 /**
- * Stubbed during the MySQL migration. The article editor used the
- * Supabase `blog_posts` table; the MySQL backend already exposes a blog
- * controller, but the admin editor UI will be rebuilt against it later.
+ * Placeholder article editor. The blog editor UI will be rebuilt against
+ * the Supabase `blog_posts` table in a follow-up.
  */
 type Props = {
   open?: boolean;
