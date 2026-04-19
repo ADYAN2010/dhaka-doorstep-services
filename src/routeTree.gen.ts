@@ -35,6 +35,7 @@ import { Route as PIdRouteImport } from './routes/p.$id'
 import { Route as DhakaAreaRouteImport } from './routes/dhaka.$area'
 import { Route as BookingStatusIdRouteImport } from './routes/booking-status.$id'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
+import { Route as AdminMysqlRouteImport } from './routes/admin.mysql'
 import { Route as AdminConsoleRouteImport } from './routes/admin.console'
 import { Route as AuthenticatedProviderDashboardRouteImport } from './routes/_authenticated.provider-dashboard'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated.profile'
@@ -45,8 +46,10 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedCoverageRouteImport } from './routes/_authenticated.coverage'
 import { Route as AuthenticatedAvailabilityRouteImport } from './routes/_authenticated.availability'
 import { Route as ServicesCategoryIndexRouteImport } from './routes/services.$category.index'
+import { Route as AdminMysqlIndexRouteImport } from './routes/admin.mysql.index'
 import { Route as AdminConsoleIndexRouteImport } from './routes/admin.console.index'
 import { Route as ServicesCategoryServiceRouteImport } from './routes/services.$category.$service'
+import { Route as AdminMysqlLoginRouteImport } from './routes/admin.mysql.login'
 import { Route as AdminConsoleZonesRouteImport } from './routes/admin.console.zones'
 import { Route as AdminConsoleWebsiteRouteImport } from './routes/admin.console.website'
 import { Route as AdminConsoleTeamRouteImport } from './routes/admin.console.team'
@@ -204,6 +207,11 @@ const BlogSlugRoute = BlogSlugRouteImport.update({
   path: '/blog/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminMysqlRoute = AdminMysqlRouteImport.update({
+  id: '/mysql',
+  path: '/mysql',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminConsoleRoute = AdminConsoleRouteImport.update({
   id: '/console',
   path: '/console',
@@ -256,6 +264,11 @@ const ServicesCategoryIndexRoute = ServicesCategoryIndexRouteImport.update({
   path: '/services/$category/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminMysqlIndexRoute = AdminMysqlIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminMysqlRoute,
+} as any)
 const AdminConsoleIndexRoute = AdminConsoleIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -265,6 +278,11 @@ const ServicesCategoryServiceRoute = ServicesCategoryServiceRouteImport.update({
   id: '/services/$category/$service',
   path: '/services/$category/$service',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminMysqlLoginRoute = AdminMysqlLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => AdminMysqlRoute,
 } as any)
 const AdminConsoleZonesRoute = AdminConsoleZonesRouteImport.update({
   id: '/zones',
@@ -430,6 +448,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof AuthenticatedProfileRoute
   '/provider-dashboard': typeof AuthenticatedProviderDashboardRoute
   '/admin/console': typeof AdminConsoleRouteWithChildren
+  '/admin/mysql': typeof AdminMysqlRouteWithChildren
   '/blog/$slug': typeof BlogSlugRoute
   '/booking-status/$id': typeof BookingStatusIdRoute
   '/dhaka/$area': typeof DhakaAreaRoute
@@ -465,8 +484,10 @@ export interface FileRoutesByFullPath {
   '/admin/console/team': typeof AdminConsoleTeamRoute
   '/admin/console/website': typeof AdminConsoleWebsiteRoute
   '/admin/console/zones': typeof AdminConsoleZonesRoute
+  '/admin/mysql/login': typeof AdminMysqlLoginRoute
   '/services/$category/$service': typeof ServicesCategoryServiceRoute
   '/admin/console/': typeof AdminConsoleIndexRoute
+  '/admin/mysql/': typeof AdminMysqlIndexRoute
   '/services/$category/': typeof ServicesCategoryIndexRoute
   '/admin/console/support/$ticketId': typeof AdminConsoleSupportTicketIdRoute
 }
@@ -530,8 +551,10 @@ export interface FileRoutesByTo {
   '/admin/console/team': typeof AdminConsoleTeamRoute
   '/admin/console/website': typeof AdminConsoleWebsiteRoute
   '/admin/console/zones': typeof AdminConsoleZonesRoute
+  '/admin/mysql/login': typeof AdminMysqlLoginRoute
   '/services/$category/$service': typeof ServicesCategoryServiceRoute
   '/admin/console': typeof AdminConsoleIndexRoute
+  '/admin/mysql': typeof AdminMysqlIndexRoute
   '/services/$category': typeof ServicesCategoryIndexRoute
   '/admin/console/support/$ticketId': typeof AdminConsoleSupportTicketIdRoute
 }
@@ -563,6 +586,7 @@ export interface FileRoutesById {
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/provider-dashboard': typeof AuthenticatedProviderDashboardRoute
   '/admin/console': typeof AdminConsoleRouteWithChildren
+  '/admin/mysql': typeof AdminMysqlRouteWithChildren
   '/blog/$slug': typeof BlogSlugRoute
   '/booking-status/$id': typeof BookingStatusIdRoute
   '/dhaka/$area': typeof DhakaAreaRoute
@@ -598,8 +622,10 @@ export interface FileRoutesById {
   '/admin/console/team': typeof AdminConsoleTeamRoute
   '/admin/console/website': typeof AdminConsoleWebsiteRoute
   '/admin/console/zones': typeof AdminConsoleZonesRoute
+  '/admin/mysql/login': typeof AdminMysqlLoginRoute
   '/services/$category/$service': typeof ServicesCategoryServiceRoute
   '/admin/console/': typeof AdminConsoleIndexRoute
+  '/admin/mysql/': typeof AdminMysqlIndexRoute
   '/services/$category/': typeof ServicesCategoryIndexRoute
   '/admin/console/support/$ticketId': typeof AdminConsoleSupportTicketIdRoute
 }
@@ -631,6 +657,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/provider-dashboard'
     | '/admin/console'
+    | '/admin/mysql'
     | '/blog/$slug'
     | '/booking-status/$id'
     | '/dhaka/$area'
@@ -666,8 +693,10 @@ export interface FileRouteTypes {
     | '/admin/console/team'
     | '/admin/console/website'
     | '/admin/console/zones'
+    | '/admin/mysql/login'
     | '/services/$category/$service'
     | '/admin/console/'
+    | '/admin/mysql/'
     | '/services/$category/'
     | '/admin/console/support/$ticketId'
   fileRoutesByTo: FileRoutesByTo
@@ -731,8 +760,10 @@ export interface FileRouteTypes {
     | '/admin/console/team'
     | '/admin/console/website'
     | '/admin/console/zones'
+    | '/admin/mysql/login'
     | '/services/$category/$service'
     | '/admin/console'
+    | '/admin/mysql'
     | '/services/$category'
     | '/admin/console/support/$ticketId'
   id:
@@ -763,6 +794,7 @@ export interface FileRouteTypes {
     | '/_authenticated/profile'
     | '/_authenticated/provider-dashboard'
     | '/admin/console'
+    | '/admin/mysql'
     | '/blog/$slug'
     | '/booking-status/$id'
     | '/dhaka/$area'
@@ -798,8 +830,10 @@ export interface FileRouteTypes {
     | '/admin/console/team'
     | '/admin/console/website'
     | '/admin/console/zones'
+    | '/admin/mysql/login'
     | '/services/$category/$service'
     | '/admin/console/'
+    | '/admin/mysql/'
     | '/services/$category/'
     | '/admin/console/support/$ticketId'
   fileRoutesById: FileRoutesById
@@ -1019,6 +1053,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/mysql': {
+      id: '/admin/mysql'
+      path: '/mysql'
+      fullPath: '/admin/mysql'
+      preLoaderRoute: typeof AdminMysqlRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/console': {
       id: '/admin/console'
       path: '/console'
@@ -1089,6 +1130,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ServicesCategoryIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/mysql/': {
+      id: '/admin/mysql/'
+      path: '/'
+      fullPath: '/admin/mysql/'
+      preLoaderRoute: typeof AdminMysqlIndexRouteImport
+      parentRoute: typeof AdminMysqlRoute
+    }
     '/admin/console/': {
       id: '/admin/console/'
       path: '/'
@@ -1102,6 +1150,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/services/$category/$service'
       preLoaderRoute: typeof ServicesCategoryServiceRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/mysql/login': {
+      id: '/admin/mysql/login'
+      path: '/login'
+      fullPath: '/admin/mysql/login'
+      preLoaderRoute: typeof AdminMysqlLoginRouteImport
+      parentRoute: typeof AdminMysqlRoute
     }
     '/admin/console/zones': {
       id: '/admin/console/zones'
@@ -1396,12 +1451,28 @@ const AdminConsoleRouteWithChildren = AdminConsoleRoute._addFileChildren(
   AdminConsoleRouteChildren,
 )
 
+interface AdminMysqlRouteChildren {
+  AdminMysqlLoginRoute: typeof AdminMysqlLoginRoute
+  AdminMysqlIndexRoute: typeof AdminMysqlIndexRoute
+}
+
+const AdminMysqlRouteChildren: AdminMysqlRouteChildren = {
+  AdminMysqlLoginRoute: AdminMysqlLoginRoute,
+  AdminMysqlIndexRoute: AdminMysqlIndexRoute,
+}
+
+const AdminMysqlRouteWithChildren = AdminMysqlRoute._addFileChildren(
+  AdminMysqlRouteChildren,
+)
+
 interface AdminRouteChildren {
   AdminConsoleRoute: typeof AdminConsoleRouteWithChildren
+  AdminMysqlRoute: typeof AdminMysqlRouteWithChildren
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminConsoleRoute: AdminConsoleRouteWithChildren,
+  AdminMysqlRoute: AdminMysqlRouteWithChildren,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
