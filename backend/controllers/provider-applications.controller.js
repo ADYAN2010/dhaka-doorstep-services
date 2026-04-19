@@ -64,3 +64,20 @@ exports.list = asyncHandler(async (req, res) => {
   );
   res.json({ data: rows, total: rows.length, limit, offset: 0 });
 });
+
+const STATUSES = ["new", "reviewing", "approved", "rejected"];
+
+exports.update = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body || {};
+  if (!STATUSES.includes(status)) {
+    throw new HttpError(400, `status must be one of: ${STATUSES.join(", ")}`);
+  }
+  const result = await query(
+    `UPDATE provider_applications SET status = ? WHERE id = ?`,
+    [status, id],
+  );
+  if (!result.affectedRows) throw new HttpError(404, "application not found");
+  const rows = await query(`SELECT ${SELECT} FROM provider_applications WHERE id = ?`, [id]);
+  res.json({ data: rows[0] });
+});

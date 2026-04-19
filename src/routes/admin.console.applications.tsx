@@ -6,7 +6,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import {
   Briefcase, Loader2, Search, RefreshCw, Mail, Phone, MapPin, Tag,
-  Clock, Users as UsersIcon,
+  Clock, Users as UsersIcon, Eye, CheckCircle2, XCircle, RotateCcw,
 } from "lucide-react";
 import { toast } from "sonner";
 import { ApiError } from "@/lib/api-client";
@@ -38,6 +38,7 @@ function ApplicationsPage() {
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<Status>("all");
   const [tick, setTick] = useState(0);
+  const [pendingId, setPendingId] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -58,6 +59,31 @@ function ApplicationsPage() {
       .finally(() => !cancelled && setLoading(false));
     return () => { cancelled = true; };
   }, [navigate, tick]);
+
+  async function changeStatus(
+    id: string,
+    next: AdminProviderApplication["status"],
+  ) {
+    const prev = rows;
+    const target = prev.find((r) => r.id === id);
+    if (!target || target.status === next) return;
+    // optimistic update
+    setRows((rs) => rs.map((r) => (r.id === id ? { ...r, status: next } : r)));
+    setPendingId(id);
+    try {
+      const res = await providerApplicationsApi.updateStatus(id, next);
+      setRows((rs) => rs.map((r) => (r.id === id ? res.data : r)));
+      toast.success(`Marked as ${next}`);
+    } catch (e) {
+      setRows(prev); // rollback
+      if (e instanceof ApiError && e.status === 401) {
+        return navigate({ to: "/admin/backend/login" });
+      }
+      toast.error(e instanceof Error ? e.message : "Failed to update status");
+    } finally {
+      setPendingId((p) => (p === id ? null : p));
+    }
+  }
 
   const filtered = useMemo(() => {
     let list = rows;
@@ -191,10 +217,67 @@ function ApplicationsPage() {
                   {a.about}
                 </p>
               )}
+
+              <StatusActions
+                current={a.status}
+                pending={pendingId === a.id}
+                onChange={(next) => changeStatus(a.id, next)}
+              />
             </article>
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+function StatusActions({
+  current,
+  pending,
+  onChange,
+}: {
+  current: AdminProviderApplication["status"];
+  pending: boolean;
+  onChange: (next: AdminProviderApplication["status"]) => void;
+}) {
+  const actions: {
+    label: string;
+    next: AdminProviderApplication["status"];
+    icon: typeof Eye;
+    variant: "outline" | "default" | "destructive" | "secondary";
+  }[] = [];
+
+  if (current === "new") {
+    actions.push({ label: "Start review", next: "reviewing", icon: Eye, variant: "outline" });
+    actions.push({ label: "Approve", next: "approved", icon: CheckCircle2, variant: "default" });
+    actions.push({ label: "Reject", next: "rejected", icon: XCircle, variant: "destructive" });
+  } else if (current === "reviewing") {
+    actions.push({ label: "Approve", next: "approved", icon: CheckCircle2, variant: "default" });
+    actions.push({ label: "Reject", next: "rejected", icon: XCircle, variant: "destructive" });
+    actions.push({ label: "Move back to New", next: "new", icon: RotateCcw, variant: "outline" });
+  } else {
+    // approved or rejected — allow re-opening for review
+    actions.push({ label: "Re-open", next: "reviewing", icon: RotateCcw, variant: "outline" });
+  }
+
+  return (
+    <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-border pt-3">
+      {actions.map((a) => (
+        <Button
+          key={a.next + a.label}
+          size="sm"
+          variant={a.variant}
+          disabled={pending}
+          onClick={() => onChange(a.next)}
+        >
+          {pending ? (
+            <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <a.icon className="mr-1.5 h-3.5 w-3.5" />
+          )}
+          {a.label}
+        </Button>
+      ))}
     </div>
   );
 }

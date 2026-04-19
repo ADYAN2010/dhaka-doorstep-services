@@ -250,6 +250,11 @@ export const providerApplicationsApi = {
       "/api/provider-applications",
       { query: { limit: params.limit ?? 100 } },
     ),
+  updateStatus: (id: string, status: AdminProviderApplication["status"]) =>
+    api<{ data: AdminProviderApplication }>(
+      `/api/provider-applications/${encodeURIComponent(id)}`,
+      { method: "PATCH", body: { status } },
+    ),
 };
 
 // ---------- Helpers ----------
