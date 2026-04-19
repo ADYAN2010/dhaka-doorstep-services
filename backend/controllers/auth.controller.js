@@ -73,6 +73,36 @@ exports.me = [
  *   POST /api/auth/bootstrap  { email, password, full_name }
  * Returns 409 once any admin exists. Useful right after first migration.
  */
+/**
+ * Authenticated password change for the current admin.
+ *   POST /api/auth/change-password  { current_password, new_password }
+ */
+exports.changePassword = [
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const { current_password, new_password } = req.body || {};
+    if (typeof current_password !== "string" || typeof new_password !== "string") {
+      throw new HttpError(400, "current_password and new_password are required");
+    }
+    if (new_password.length < 8) throw new HttpError(400, "new_password must be at least 8 characters");
+    if (new_password === current_password) throw new HttpError(400, "New password must be different");
+
+    const rows = await query(
+      "SELECT id, password_hash, is_active FROM admin_users WHERE id = ? LIMIT 1",
+      [req.user.sub],
+    );
+    if (!rows.length || !rows[0].is_active) throw new HttpError(401, "Account no longer active");
+
+    const ok = await bcrypt.compare(current_password, rows[0].password_hash);
+    if (!ok) throw new HttpError(401, "Current password is incorrect");
+
+    const password_hash = await bcrypt.hash(new_password, 12);
+    await query("UPDATE admin_users SET password_hash = ? WHERE id = ?", [password_hash, rows[0].id]);
+
+    res.json({ ok: true });
+  }),
+];
+
 exports.bootstrap = asyncHandler(async (req, res) => {
   const [{ n }] = await query("SELECT COUNT(*) AS n FROM admin_users");
   if (n > 0) throw new HttpError(409, "An admin already exists. Use /api/auth/login instead.");
