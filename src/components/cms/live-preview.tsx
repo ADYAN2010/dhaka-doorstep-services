@@ -167,6 +167,21 @@ export function LivePreview() {
               </PreviewBlock>
             )}
 
+            {settings.sections.featuredServices && (
+              <PreviewBlock title="Featured services">
+                <div className="grid grid-cols-2 gap-1.5">
+                  {["Deep clean", "AC service", "Pest control", "Refrigerator"].map((c) => (
+                    <div
+                      key={c}
+                      className="rounded-md border border-border bg-card px-2 py-1.5 text-[10px] font-medium"
+                    >
+                      {c}
+                    </div>
+                  ))}
+                </div>
+              </PreviewBlock>
+            )}
+
             {settings.sections.featuredProviders && (
               <PreviewBlock title="Featured providers">
                 <div className="flex gap-2 overflow-hidden">

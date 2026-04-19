@@ -13,6 +13,7 @@ const id = () => Math.random().toString(36).slice(2, 11);
 
 export type SectionKey =
   | "popularCategories"
+  | "featuredServices"
   | "howItWorks"
   | "whyUs"
   | "featuredProviders"
@@ -32,13 +33,14 @@ export type HomepageSection = {
 
 const SECTIONS: HomepageSection[] = [
   { id: id(), key: "popularCategories", label: "Popular categories", description: "Top service categories grid", enabled: true, order: 0 },
-  { id: id(), key: "howItWorks", label: "How it works", description: "3-step explainer with icons", enabled: true, order: 1 },
-  { id: id(), key: "whyUs", label: "Why choose us", description: "Trust badges and value props", enabled: true, order: 2 },
-  { id: id(), key: "featuredProviders", label: "Featured providers", description: "Hand-picked partner spotlights", enabled: true, order: 3 },
-  { id: id(), key: "areas", label: "Areas we cover", description: "Dhaka neighborhoods grid", enabled: true, order: 4 },
-  { id: id(), key: "testimonials", label: "Testimonials", description: "Customer love quotes", enabled: true, order: 5 },
-  { id: id(), key: "providerCta", label: "Become a provider CTA", description: "Funnel to provider signup", enabled: true, order: 6 },
-  { id: id(), key: "finalCta", label: "Final CTA", description: "Bottom-of-page conversion bar", enabled: true, order: 7 },
+  { id: id(), key: "featuredServices", label: "Featured services", description: "Most-booked services from catalog", enabled: true, order: 1 },
+  { id: id(), key: "howItWorks", label: "How it works", description: "3-step explainer with icons", enabled: true, order: 2 },
+  { id: id(), key: "whyUs", label: "Why choose us", description: "Trust badges and value props", enabled: true, order: 3 },
+  { id: id(), key: "featuredProviders", label: "Featured providers", description: "Hand-picked partner spotlights", enabled: true, order: 4 },
+  { id: id(), key: "areas", label: "Areas we cover", description: "Dhaka neighborhoods grid", enabled: true, order: 5 },
+  { id: id(), key: "testimonials", label: "Testimonials", description: "Customer love quotes", enabled: true, order: 6 },
+  { id: id(), key: "providerCta", label: "Become a provider CTA", description: "Funnel to provider signup", enabled: true, order: 7 },
+  { id: id(), key: "finalCta", label: "Final CTA", description: "Bottom-of-page conversion bar", enabled: true, order: 8 },
 ];
 
 /* ────────────────────────── Featured providers ────────────────────────── */
