@@ -12,6 +12,7 @@ import { useAppearance } from "@/components/appearance-provider";
 import { HeroSearch } from "@/components/hero-search";
 import { CategoryCard } from "@/components/category-card";
 import { ProviderCard } from "@/components/provider-card";
+import { FeaturedServices } from "@/components/featured-services";
 import { Reveal } from "@/components/reveal";
 import { TrustStrip } from "@/components/trust-strip";
 import { PressWall } from "@/components/logo-wall";
@@ -48,6 +49,7 @@ function HomePage() {
       <SiteBanner />
       <TrustBar />
       {s.popularCategories && <PopularCategories />}
+      {s.featuredServices && <FeaturedServices />}
       {s.howItWorks && <HowItWorks />}
       {s.whyUs && <WhyUs />}
       {s.featuredProviders && <FeaturedProviders />}
