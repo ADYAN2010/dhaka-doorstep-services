@@ -28,10 +28,12 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ServicesIndexRouteImport } from './routes/services.index'
 import { Route as ProvidersIndexRouteImport } from './routes/providers.index'
+import { Route as EnIndexRouteImport } from './routes/en.index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as AreasIndexRouteImport } from './routes/areas.index'
 import { Route as ProviderSlugRouteImport } from './routes/provider.$slug'
 import { Route as PIdRouteImport } from './routes/p.$id'
+import { Route as EnSplatRouteImport } from './routes/en.$'
 import { Route as DhakaAreaRouteImport } from './routes/dhaka.$area'
 import { Route as BookingStatusIdRouteImport } from './routes/booking-status.$id'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
@@ -172,6 +174,11 @@ const ProvidersIndexRoute = ProvidersIndexRouteImport.update({
   path: '/providers/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EnIndexRoute = EnIndexRouteImport.update({
+  id: '/en/',
+  path: '/en/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BlogIndexRoute = BlogIndexRouteImport.update({
   id: '/blog/',
   path: '/blog/',
@@ -190,6 +197,11 @@ const ProviderSlugRoute = ProviderSlugRouteImport.update({
 const PIdRoute = PIdRouteImport.update({
   id: '/p/$id',
   path: '/p/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EnSplatRoute = EnSplatRouteImport.update({
+  id: '/en/$',
+  path: '/en/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DhakaAreaRoute = DhakaAreaRouteImport.update({
@@ -453,10 +465,12 @@ export interface FileRoutesByFullPath {
   '/blog/$slug': typeof BlogSlugRoute
   '/booking-status/$id': typeof BookingStatusIdRoute
   '/dhaka/$area': typeof DhakaAreaRoute
+  '/en/$': typeof EnSplatRoute
   '/p/$id': typeof PIdRoute
   '/provider/$slug': typeof ProviderSlugRoute
   '/areas/': typeof AreasIndexRoute
   '/blog/': typeof BlogIndexRoute
+  '/en/': typeof EnIndexRoute
   '/providers/': typeof ProvidersIndexRoute
   '/services/': typeof ServicesIndexRoute
   '/admin/console/analytics': typeof AdminConsoleAnalyticsRoute
@@ -521,10 +535,12 @@ export interface FileRoutesByTo {
   '/blog/$slug': typeof BlogSlugRoute
   '/booking-status/$id': typeof BookingStatusIdRoute
   '/dhaka/$area': typeof DhakaAreaRoute
+  '/en/$': typeof EnSplatRoute
   '/p/$id': typeof PIdRoute
   '/provider/$slug': typeof ProviderSlugRoute
   '/areas': typeof AreasIndexRoute
   '/blog': typeof BlogIndexRoute
+  '/en': typeof EnIndexRoute
   '/providers': typeof ProvidersIndexRoute
   '/services': typeof ServicesIndexRoute
   '/admin/console/analytics': typeof AdminConsoleAnalyticsRoute
@@ -592,10 +608,12 @@ export interface FileRoutesById {
   '/blog/$slug': typeof BlogSlugRoute
   '/booking-status/$id': typeof BookingStatusIdRoute
   '/dhaka/$area': typeof DhakaAreaRoute
+  '/en/$': typeof EnSplatRoute
   '/p/$id': typeof PIdRoute
   '/provider/$slug': typeof ProviderSlugRoute
   '/areas/': typeof AreasIndexRoute
   '/blog/': typeof BlogIndexRoute
+  '/en/': typeof EnIndexRoute
   '/providers/': typeof ProvidersIndexRoute
   '/services/': typeof ServicesIndexRoute
   '/admin/console/analytics': typeof AdminConsoleAnalyticsRoute
@@ -663,10 +681,12 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/booking-status/$id'
     | '/dhaka/$area'
+    | '/en/$'
     | '/p/$id'
     | '/provider/$slug'
     | '/areas/'
     | '/blog/'
+    | '/en/'
     | '/providers/'
     | '/services/'
     | '/admin/console/analytics'
@@ -731,10 +751,12 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/booking-status/$id'
     | '/dhaka/$area'
+    | '/en/$'
     | '/p/$id'
     | '/provider/$slug'
     | '/areas'
     | '/blog'
+    | '/en'
     | '/providers'
     | '/services'
     | '/admin/console/analytics'
@@ -801,10 +823,12 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/booking-status/$id'
     | '/dhaka/$area'
+    | '/en/$'
     | '/p/$id'
     | '/provider/$slug'
     | '/areas/'
     | '/blog/'
+    | '/en/'
     | '/providers/'
     | '/services/'
     | '/admin/console/analytics'
@@ -863,10 +887,12 @@ export interface RootRouteChildren {
   BlogSlugRoute: typeof BlogSlugRoute
   BookingStatusIdRoute: typeof BookingStatusIdRoute
   DhakaAreaRoute: typeof DhakaAreaRoute
+  EnSplatRoute: typeof EnSplatRoute
   PIdRoute: typeof PIdRoute
   ProviderSlugRoute: typeof ProviderSlugRoute
   AreasIndexRoute: typeof AreasIndexRoute
   BlogIndexRoute: typeof BlogIndexRoute
+  EnIndexRoute: typeof EnIndexRoute
   ProvidersIndexRoute: typeof ProvidersIndexRoute
   ServicesIndexRoute: typeof ServicesIndexRoute
   ServicesCategoryServiceRoute: typeof ServicesCategoryServiceRoute
@@ -1008,6 +1034,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProvidersIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/en/': {
+      id: '/en/'
+      path: '/en'
+      fullPath: '/en/'
+      preLoaderRoute: typeof EnIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/blog/': {
       id: '/blog/'
       path: '/blog'
@@ -1034,6 +1067,13 @@ declare module '@tanstack/react-router' {
       path: '/p/$id'
       fullPath: '/p/$id'
       preLoaderRoute: typeof PIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/en/$': {
+      id: '/en/$'
+      path: '/en/$'
+      fullPath: '/en/$'
+      preLoaderRoute: typeof EnSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dhaka/$area': {
@@ -1492,10 +1532,12 @@ const rootRouteChildren: RootRouteChildren = {
   BlogSlugRoute: BlogSlugRoute,
   BookingStatusIdRoute: BookingStatusIdRoute,
   DhakaAreaRoute: DhakaAreaRoute,
+  EnSplatRoute: EnSplatRoute,
   PIdRoute: PIdRoute,
   ProviderSlugRoute: ProviderSlugRoute,
   AreasIndexRoute: AreasIndexRoute,
   BlogIndexRoute: BlogIndexRoute,
+  EnIndexRoute: EnIndexRoute,
   ProvidersIndexRoute: ProvidersIndexRoute,
   ServicesIndexRoute: ServicesIndexRoute,
   ServicesCategoryServiceRoute: ServicesCategoryServiceRoute,
