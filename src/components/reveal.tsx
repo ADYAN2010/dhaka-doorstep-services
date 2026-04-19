@@ -46,8 +46,8 @@ export function Reveal({ children, delay = 0, className = "", as: Tag = "div" }:
       ref={ref as never}
       style={{ transitionDelay: visible ? `${delay}ms` : "0ms" }}
       className={[
-        "transition-all duration-700 ease-out will-change-transform",
-        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6",
+        "transition-all duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform motion-reduce:transition-none",
+        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4",
         className,
       ].join(" ")}
     >
