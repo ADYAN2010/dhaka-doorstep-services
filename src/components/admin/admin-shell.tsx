@@ -123,6 +123,7 @@ export const ADMIN_NAV: NavGroup[] = [
       { to: "/admin/console/security", label: "Security policy", icon: Lock },
       { to: "/admin/console/login-audit", label: "Login audit", icon: Network },
       { to: "/admin/console/data-requests", label: "Data requests", icon: FileLock2 },
+      { to: "/admin/console/system-status", label: "System status", icon: Activity },
       { to: "/admin/console/settings", label: "Account settings", icon: Settings },
     ],
   },
