@@ -37,10 +37,14 @@ const BUDGET_RANGES = [
 
 export const Route = createFileRoute("/book")({
   component: BookPage,
-  validateSearch: (s: Record<string, unknown>) => ({
-    category: typeof s.category === "string" ? s.category : undefined,
-    service: typeof s.service === "string" ? s.service : undefined,
-    area: typeof s.area === "string" ? s.area : undefined,
+  validateSearch: (s: Record<string, unknown>): {
+    category?: string;
+    service?: string;
+    area?: string;
+  } => ({
+    category: typeof s?.category === "string" ? s.category : undefined,
+    service: typeof s?.service === "string" ? s.service : undefined,
+    area: typeof s?.area === "string" ? s.area : undefined,
   }),
   head: () => ({
     ...buildSeo({
